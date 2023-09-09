@@ -18,10 +18,6 @@ namespace TwoChip
     rewrite [hA_0_5, hA_1_5, hA_0_6, sub_eq_zero, ←h] at h'
     exact h'
 
-  theorem spec_of_constraints (c: Circuit P P_Prime) : meets_constraints c → ∃ x y z: ZMod P, spec c x y z := by
-    intro hConstraints
-    exact ⟨c.Advice 0 0, c.Advice 0 1, c.Advice 0 2, advice_satisfies_spec_of_constraints c hConstraints⟩
-
   theorem instance_of_witness (c: Circuit P P_Prime) (hAdvice: c.Advice = advice_func c) :
     meets_constraints c → spec c c.a c.b c.c := by
       intro hConstraints
