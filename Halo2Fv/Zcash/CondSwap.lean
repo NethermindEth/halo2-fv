@@ -1,6 +1,7 @@
 import Mathlib.Data.Nat.Prime
 import Mathlib.Data.ZMod.Defs
 import Mathlib.Data.ZMod.Basic
+import Mathlib.Tactic.FieldSimp
 
 namespace Zcash.CondSwap
 
@@ -10,6 +11,7 @@ structure Circuit (P: ℕ) (P_Prime: Nat.Prime P) :=
   Instance: ℕ → ℕ → ZMod P
   Selector: ℕ → ℕ → ZMod P
 variable {P: ℕ} {P_Prime: Nat.Prime P} (c: Circuit P P_Prime)
+
 def copy_0: Prop := c.Advice 0 1 = c.Advice 0 0
 def all_copy_constraints: Prop := copy_0 c
 def all_fixed: Prop := true
