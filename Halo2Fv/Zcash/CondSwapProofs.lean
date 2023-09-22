@@ -21,12 +21,23 @@ namespace Zcash.CondSwap
       hC,
       _
     ⟩
+    have hSelector1 : c.Selector 0 1 = 1 := by aesop
     have hBinary: (c.Advice 4 1).val = 0 ∨ (c.Advice 4 1).val = 1 :=
-      zero_or_one (c.Advice 4 1) P_Prime 
-        (by {
-          simp [hSelector, hGate_2 1]
+      zero_or_one (c.Advice 4 1) P_Prime (by aesop) --(Eq.trans (by {
+      --   rewrite [hSelector1]
+      --   Eq.rec
+      --   have h: _ := ((one_mul (c.Advice 4 1 * (1 - c.Advice 4 1))).symm)
+      --   apply h
+      --   -- apply (one_mul _).symm
+      --   --rw [hSelector1, one_mul]
+      -- }) (hGate_2 1))
+      -- (by {
+      --   simp [(by aesop : c.Selector 0 1 = 1), *]
+      -- }) -- hSelector1.eq (hGate_2 1) -- ((c.Advice 4 1) * (1 - (c.Advice 4 1)) = 0)
+        -- (by {
+        --   simp [hSelector, hGate_2 1]
           
-        })
+        -- })
       -- specialize hGate_2 1
       -- simp only [hSelector, one_mul] at hGate_2
       -- exact zero_or_one (c.Advice 4 1) P_Prime hGate_2
