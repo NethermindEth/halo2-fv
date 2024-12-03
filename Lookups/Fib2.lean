@@ -104,7 +104,7 @@ def is_shuffle (c: ValidCircuit P P_Prime) (shuffle: ℕ → ℕ): Prop :=
   ∃ inv: ℕ → ℕ,
   ∀ row: ℕ,
     inv (shuffle row) = row ∧
-    (row ≥ c.n → shuffle row = row)
+    (row ≥ c.usable_rows → shuffle row = row)
 --End preamble
 def sufficient_rows (c: ValidCircuit P P_Prime) : Prop :=
   c.n ≥ 8 --cs.minimum_rows
@@ -154,10 +154,10 @@ def selector_func (c: ValidCircuit P P_Prime) : ℕ → ℕ → ZMod P :=
 def fixed_func (c: ValidCircuit P P_Prime) : ℕ → ℕ → CellValue P :=
   λ col _ => match col with
     | _ => .Unassigned
-def gate_0_0_ (c: ValidCircuit P P_Prime) (row: ℕ) : Prop :=
+def gate_0_0_ (c: ValidCircuit P P_Prime) (row: ℕ) : Prop := 
   (c.get_selector 0 row) * (((c.get_advice 0 row) + (c.get_advice 0 ((row + 1) % c.n))) + (-(c.get_advice 0 ((row + 2) % c.n)))) = Value.Real 0
 def all_gates (c: ValidCircuit P P_Prime): Prop := ∀ row: ℕ,
-  gate_0_0_ c row
+    gate_0_0_ c row
 def all_lookups (c: ValidCircuit P P_Prime): Prop := true
 def all_shuffles (c: ValidCircuit P P_Prime) : Prop := true
 def meets_constraints (c: ValidCircuit P P_Prime): Prop :=
@@ -168,6 +168,7 @@ def meets_constraints (c: ValidCircuit P P_Prime): Prop :=
   assertions c  ∧
   all_gates c ∧
   all_copy_constraints c ∧
+  all_lookups c ∧
   all_shuffles c ∧
   ∀ col row: ℕ, (row < c.n ∧ row ≥ c.usable_rows) → c.1.Instance col row = .Padding
 end Fibonacci.Ex2

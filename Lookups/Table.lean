@@ -175,8 +175,8 @@ def assertions (c: ValidCircuit P P_Prime): Prop :=
   ∧ 28 < c.usable_rows -- Fixed 1 assignment
   ∧ 29 < c.usable_rows -- Fixed 1 assignment
 -- Exited region: load range-check table
- ∧ 30 < c.usable_rows -- Fixed 1 fill from row
  ∧ 30 < c.usable_rows -- Fixed 0 fill from row
+ ∧ 30 < c.usable_rows -- Fixed 1 fill from row
 
 -- Entered region: Assign value for simple range check
   ∧ 0 < c.usable_rows -- Selector 0 enabled
