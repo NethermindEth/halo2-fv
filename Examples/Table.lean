@@ -22,10 +22,11 @@ def multiplicative_generator (P: ℕ) (mult_gen: ZMod P) : Prop :=
   mult_gen ^ P = 1
 structure Circuit (P: ℕ) (P_Prime: Nat.Prime P) :=
   Advice: ℕ → ℕ → CellValue P
+  AdvicePhase: ℕ → ℕ
   Fixed: ℕ → ℕ → CellValue P
   Instance: ℕ → ℕ → InstanceValue P
   Selector: ℕ → ℕ → ZMod P
-  Challenges: ℕ → ℕ → ZMod P
+  Challenges: (ℕ → ℕ → CellValue P) → ℕ → ℕ → ZMod P
   num_blinding_factors: ℕ
   S: ℕ
   T: ℕ
@@ -80,7 +81,11 @@ instance : Mul (Value P) := ⟨λ x y ↦
 ⟩
 def Circuit.isValid (c: Circuit P P_Prime) : Prop :=
   S_T_from_P c.S c.T P ∧
-  multiplicative_generator P c.mult_gen
+  multiplicative_generator P c.mult_gen ∧ (
+  ∀ advice1 advice2: ℕ → ℕ → CellValue P, ∀ phase: ℕ,
+    (∀ row col, (col < 1 ∧ c.AdvicePhase col ≤ phase) → advice1 col row = advice2 col row) →
+    (∀ i, c.Challenges advice1 i phase = c.Challenges advice2 i phase)
+  )
 abbrev ValidCircuit (P: ℕ) (P_Prime: Nat.Prime P) : Type := {c: Circuit P P_Prime // c.isValid}
 namespace ValidCircuit
 def get_advice (c: ValidCircuit P P_Prime) : ℕ → ℕ → Value P :=
@@ -92,7 +97,7 @@ def get_instance (c: ValidCircuit P P_Prime) : ℕ → ℕ → Value P :=
 def get_selector (c: ValidCircuit P P_Prime) : ℕ → ℕ → Value P :=
   λ col row => .Real (c.1.Selector col row)
 def get_challenge (c: ValidCircuit P P_Prime) : ℕ → ℕ → Value P :=
-  λ idx phase => .Real (c.1.Challenges idx phase)
+  λ idx phase => .Real (c.1.Challenges c.1.Advice idx phase)
 def k (c: ValidCircuit P P_Prime) := c.1.k
 def n (c: ValidCircuit P P_Prime) := 2^c.k
 def usable_rows (c: ValidCircuit P P_Prime) := c.n - (c.1.num_blinding_factors + 1)
@@ -107,9 +112,9 @@ def is_shuffle (c: ValidCircuit P P_Prime) (shuffle: ℕ → ℕ): Prop :=
   ∀ row: ℕ,
     inv (shuffle row) = row ∧
     (row ≥ c.usable_rows → shuffle row = row)
---End preamble
 def sufficient_rows (c: ValidCircuit P P_Prime) : Prop :=
   c.n ≥ 8 --cs.minimum_rows
+--End preamble
 def assertions (c: ValidCircuit P P_Prime): Prop :=
   true
 
@@ -301,6 +306,10 @@ def fixed_func (c: ValidCircuit P P_Prime) : ℕ → ℕ → CellValue P :=
     | 0 => fixed_func_col_0 c row
     | 1 => fixed_func_col_1 c row
     | _ => .Unassigned
+def advice_phase (c: ValidCircuit P P_Prime) : ℕ → ℕ :=
+  λ col => match col with
+  | 0 => 0
+  | _ => 0
 def gate_0_0_range_check (c: ValidCircuit P P_Prime) (row: ℕ) : Prop := 
   (c.get_selector 0 row) * ((((((((c.get_advice 0 row) * (((.Real 1)) + (-(c.get_advice 0 row)))) * (((.Real 2)) + (-(c.get_advice 0 row)))) * (((.Real 3)) + (-(c.get_advice 0 row)))) * (((.Real 4)) + (-(c.get_advice 0 row)))) * (((.Real 5)) + (-(c.get_advice 0 row)))) * (((.Real 6)) + (-(c.get_advice 0 row)))) * (((.Real 7)) + (-(c.get_advice 0 row)))) = Value.Real 0
 def all_gates (c: ValidCircuit P P_Prime): Prop := ∀ row: ℕ,
@@ -314,6 +323,7 @@ def meets_constraints (c: ValidCircuit P P_Prime): Prop :=
   c.1.num_blinding_factors = 5 ∧
   c.1.Selector = selector_func c ∧
   c.1.Fixed = fixed_func c ∧
+  c.1.AdvicePhase = advice_phase c ∧
   assertions c  ∧
   all_gates c ∧
   all_copy_constraints c ∧

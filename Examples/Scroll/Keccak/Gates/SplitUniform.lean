@@ -1,0 +1,2235 @@
+import Examples.Scroll.Keccak.Spec
+
+namespace Keccak
+
+  namespace Gates
+
+    namespace SplitUniform
+
+      lemma gate_8_split_uniform (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hsplit_gate: gate_8 c) (h_n: 299 < c.n):
+        ∀ round ≤ 23,
+        SplitUniform.constraint c round
+          (output_cells := rho_pi_chi_cells c round 0 0 0)
+          (cell_offset := 1596)
+          (rot := RHO_MATRIX 0 0)
+          (target_part_size := get_num_bits_per_base_chi_lookup)
+          (input := os c round 0 0)
+        := by
+          unfold gate_8 at hsplit_gate
+          intro round h_round_range
+          simp only [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_2_q_round] at hsplit_gate
+          replace hsplit_gate := hsplit_gate (12*(round+1))
+          rewrite [Selectors.q_round_at_round_start c h_round_range, one_mul] at hsplit_gate
+          replace hsplit_gate := eq_neg_of_add_eq_zero_left hsplit_gate
+          rewrite [neg_involutive] at hsplit_gate
+          have h_row_range : (12*(round+1)) + 11 < c.n := by linarith
+          simp [to_cell_manager, h_row_range, to_decode, to_os] at hsplit_gate
+          rewrite [get_num_bits_per_base_chi_lookup_val, RHO_MATRIX]
+          unfold SplitUniform.constraint
+          apply And.intro
+          . rewrite [←hsplit_gate]
+            congr
+            simp [get_rotate_count, word_parts_known, target_part_sizes_known, rho_by_pi_num_word_parts_val]
+            simp [SplitUniform.input_parts, rho_pi_chi_cells, keccak_constants]
+          . simp [keccak_constants, word_parts_known, get_rotate_count, target_part_sizes_known, SplitUniform.rot_parts]
+
+      lemma gate_9_10_split_uniform (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hrot_gate: gate_9 c) (hsplit_gate: gate_10 c) (h_n: 299 < c.n):
+        ∀ round ≤ 23,
+        SplitUniform.constraint c round
+          (output_cells := rho_pi_chi_cells c round 0 0 2)
+          (cell_offset := 1596)
+          (rot := RHO_MATRIX 1 0)
+          (target_part_size := get_num_bits_per_base_chi_lookup)
+          (input := os c round 1 0)
+        := by
+          unfold gate_9 at hrot_gate
+          unfold gate_10 at hsplit_gate
+          intro round h_round_range
+          simp only [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_2_q_round] at hrot_gate hsplit_gate
+          replace hrot_gate := hrot_gate (12*(round+1))
+          replace hsplit_gate := hsplit_gate (12*(round+1))
+          rewrite [Selectors.q_round_at_round_start c h_round_range, one_mul] at hrot_gate hsplit_gate
+          replace hrot_gate := eq_neg_of_add_eq_zero_left hrot_gate
+          replace hsplit_gate := eq_neg_of_add_eq_zero_left hsplit_gate
+          rewrite [neg_involutive] at hrot_gate hsplit_gate
+          have h_row_range : (12*(round+1)) + 11 < c.n := by linarith
+          simp [to_cell_manager, h_row_range, to_decode, to_os] at hrot_gate hsplit_gate
+          rewrite [get_num_bits_per_base_chi_lookup_val, RHO_MATRIX]
+          unfold SplitUniform.constraint
+          apply And.intro
+          . rewrite [←hsplit_gate]
+            congr
+            simp [get_rotate_count, word_parts_known, target_part_sizes_known, rho_by_pi_num_word_parts_val, List.rotateRight]
+            simp [SplitUniform.input_parts, rho_pi_chi_cells, keccak_constants]
+          . simp [keccak_constants, word_parts_known, get_rotate_count, target_part_sizes_known, SplitUniform.rot_parts]
+
+
+
+          have h_row_range : (12*(round+1)) < c.n := by linarith
+          rewrite [get_num_bits_per_base_chi_lookup_val, RHO_MATRIX]
+          unfold SplitUniform.constraint
+          apply And.intro
+          . simp [rho_by_pi_num_word_parts_val, List.range_succ, SplitUniform.input_parts]
+            have h_find_zero: List.findIdx (λ x => x = 0) [63, 0, 1, 2] = 1 := by decide
+            rewrite [ h_find_zero,
+              ite_cond_eq_false, min_eq_left, ite_cond_eq_true, ite_cond_eq_true, ite_cond_eq_true,
+              ite_cond_eq_true, ite_cond_eq_true, ite_cond_eq_true, ite_cond_eq_true,
+              ite_cond_eq_true, ite_cond_eq_true, ite_cond_eq_true, ite_cond_eq_true,
+              ite_cond_eq_true, ite_cond_eq_true, ite_cond_eq_true
+            ]
+            . simp only [List.rotateLeft, cell_manager, ValidCircuit.get_advice_wrapped,
+              Nat.reduceDiv, Nat.reduceAdd, Nat.reduceMod, Nat.add_one_sub_one, rho_pi_chi_cells,
+              DEFAULT_KECCAK_ROWS, Fin.isValue, Fin.val_zero, mul_zero, add_zero, Fin.val_one',
+              rho_by_pi_num_word_parts_val, Nat.one_mod, Fin.val_two, Nat.reduceMul, zero_mul,
+              Fin.val_ofNat', Nat.mod_eq_of_lt h_row_range, Nat.mod_succ, List.length_cons,
+              List.length_singleton, Nat.not_ofNat_le_one, ↓reduceIte, get_rotate_count,
+              Nat.ofNat_pos, Nat.div_self, List.drop_succ_cons, List.drop_zero, List.take_succ_cons,
+              List.take_zero, List.cons_append, List.singleton_append, List.length_nil, List.nil_append]
+              simp only [Decode.expr, List.foldr_cons, List.foldr_nil, BIT_COUNT, Nat.reduceMul, zmod_2pow3, zmod_2pow9, zmod_2pow12, mul_comm]
+              simp only [mul_comm] at hgate_10
+              rewrite [hgate_10]
+              clear hgate_10
+              simp
+            all_goals decide
+          . simp [rho_by_pi_num_word_parts_val, List.range_succ, SplitUniform.rot_parts, List.findIdx, List.findIdx.go]
+            clear hgate_10
+            simp only [cell_manager, ValidCircuit.get_advice_wrapped, Nat.reduceAdd, Nat.reduceDiv, Nat.reduceMod, BIT_COUNT, zmod_2pow3, mul_comm _ (8: ZMod P), add_zero, Nat.mod_eq_of_lt h_row_range]
+            rewrite [hgate_9]
+            simp only [rho_pi_chi_cells, DEFAULT_KECCAK_ROWS, Fin.isValue, Fin.val_zero, mul_zero,
+              add_zero, Fin.val_two, rho_by_pi_num_word_parts_val, Nat.reduceMul, zero_add,
+              zero_mul, Nat.reduceMod, Nat.reduceAdd, Nat.reduceDiv, cell_manager]
+            unfold ValidCircuit.get_advice_wrapped
+            rfl
+
+
+      -- lemma gate_10_split_uniform (c: ValidCircuit P P_Prime) (hgate_10: gate_10 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (3, c.get_advice_wrapped 140 row 1),
+      --     (4, c.get_advice_wrapped 45 row 9),
+      --     (4, c.get_advice_wrapped 45 row 10),
+      --     (4, c.get_advice_wrapped 45 row 11),
+      --     (4, c.get_advice_wrapped 50 row 0),
+      --     (4, c.get_advice_wrapped 50 row 1),
+      --     (4, c.get_advice_wrapped 50 row 2),
+      --     (4, c.get_advice_wrapped 50 row 3),
+      --     (4, c.get_advice_wrapped 50 row 4),
+      --     (4, c.get_advice_wrapped 50 row 5),
+      --     (4, c.get_advice_wrapped 50 row 6),
+      --     (4, c.get_advice_wrapped 50 row 7),
+      --     (4, c.get_advice_wrapped 50 row 8),
+      --     (4, c.get_advice_wrapped 50 row 9),
+      --     (4, c.get_advice_wrapped 50 row 10),
+      --     (4, c.get_advice_wrapped 50 row 11),
+      --     (1, c.get_advice_wrapped 140 row 0)
+      --   ] = c.get_advice_wrapped 7 row 5 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 25 row 0),
+      --     (3, c.get_advice_wrapped 25 row 1),
+      --     (3, c.get_advice_wrapped 25 row 2),
+      --     (3, c.get_advice_wrapped 25 row 3),
+      --     (3, c.get_advice_wrapped 25 row 4),
+      --     (3, c.get_advice_wrapped 25 row 5),
+      --     (3, c.get_advice_wrapped 25 row 6),
+      --     (3, c.get_advice_wrapped 25 row 7),
+      --     (3, c.get_advice_wrapped 25 row 8),
+      --     (3, c.get_advice_wrapped 25 row 9),
+      --     (3, c.get_advice_wrapped 25 row 10),
+      --     (3, c.get_advice_wrapped 25 row 11),
+      --     (3, c.get_advice_wrapped 26 row 0),
+      --     (3, c.get_advice_wrapped 26 row 1),
+      --     (3, c.get_advice_wrapped 26 row 2),
+      --     (3, c.get_advice_wrapped 26 row 3),
+      --     (3, c.get_advice_wrapped 26 row 4),
+      --     (3, c.get_advice_wrapped 26 row 5),
+      --     (3, c.get_advice_wrapped 26 row 6),
+      --     (3, c.get_advice_wrapped 26 row 7),
+      --     (3, c.get_advice_wrapped 26 row 8),
+      --     (1, c.get_advice_wrapped 26 row 9),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 30 row 5),
+      --     (3, c.get_advice_wrapped 28 row 8),
+      --     (3, c.get_advice_wrapped 28 row 9),
+      --     (3, c.get_advice_wrapped 28 row 10),
+      --     (3, c.get_advice_wrapped 28 row 11),
+      --     (3, c.get_advice_wrapped 29 row 0),
+      --     (3, c.get_advice_wrapped 29 row 1),
+      --     (3, c.get_advice_wrapped 29 row 2),
+      --     (3, c.get_advice_wrapped 29 row 3),
+      --     (3, c.get_advice_wrapped 29 row 4),
+      --     (3, c.get_advice_wrapped 29 row 5),
+      --     (3, c.get_advice_wrapped 29 row 6),
+      --     (3, c.get_advice_wrapped 29 row 7),
+      --     (3, c.get_advice_wrapped 29 row 8),
+      --     (3, c.get_advice_wrapped 29 row 9),
+      --     (3, c.get_advice_wrapped 29 row 10),
+      --     (3, c.get_advice_wrapped 29 row 11),
+      --     (3, c.get_advice_wrapped 30 row 0),
+      --     (3, c.get_advice_wrapped 30 row 1),
+      --     (3, c.get_advice_wrapped 30 row 2),
+      --     (3, c.get_advice_wrapped 30 row 3),
+      --     (3, c.get_advice_wrapped 30 row 4),
+      --   ])
+      --   := by
+      --     unfold gate_10 at hgate_10
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_10 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_10 row)))
+      --         rewrite [neg_involutive] at hgate_10
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         exact hgate_10
+
+      -- lemma gate_12_split_uniform (c: ValidCircuit P P_Prime) (hgate_12: gate_12 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (2, c.get_advice_wrapped 140 row 3),
+      --     (4, c.get_advice_wrapped 60 row 4),
+      --     (4, c.get_advice_wrapped 60 row 5),
+      --     (4, c.get_advice_wrapped 60 row 6),
+      --     (4, c.get_advice_wrapped 60 row 7),
+      --     (4, c.get_advice_wrapped 60 row 8),
+      --     (4, c.get_advice_wrapped 60 row 9),
+      --     (4, c.get_advice_wrapped 60 row 10),
+      --     (4, c.get_advice_wrapped 60 row 11),
+      --     (4, c.get_advice_wrapped 65 row 0),
+      --     (4, c.get_advice_wrapped 65 row 1),
+      --     (4, c.get_advice_wrapped 65 row 2),
+      --     (4, c.get_advice_wrapped 65 row 3),
+      --     (4, c.get_advice_wrapped 65 row 4),
+      --     (4, c.get_advice_wrapped 65 row 5),
+      --     (4, c.get_advice_wrapped 65 row 6),
+      --     (2, c.get_advice_wrapped 140 row 2)
+      --   ] = c.get_advice_wrapped 7 row 10 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 26 row 10),
+      --     (3, c.get_advice_wrapped 26 row 11),
+      --     (3, c.get_advice_wrapped 27 row 0),
+      --     (3, c.get_advice_wrapped 27 row 1),
+      --     (3, c.get_advice_wrapped 27 row 2),
+      --     (3, c.get_advice_wrapped 27 row 3),
+      --     (3, c.get_advice_wrapped 27 row 4),
+      --     (3, c.get_advice_wrapped 27 row 5),
+      --     (3, c.get_advice_wrapped 27 row 6),
+      --     (3, c.get_advice_wrapped 27 row 7),
+      --     (3, c.get_advice_wrapped 27 row 8),
+      --     (3, c.get_advice_wrapped 27 row 9),
+      --     (3, c.get_advice_wrapped 27 row 10),
+      --     (3, c.get_advice_wrapped 27 row 11),
+      --     (3, c.get_advice_wrapped 28 row 0),
+      --     (3, c.get_advice_wrapped 28 row 1),
+      --     (3, c.get_advice_wrapped 28 row 2),
+      --     (3, c.get_advice_wrapped 28 row 3),
+      --     (3, c.get_advice_wrapped 28 row 4),
+      --     (3, c.get_advice_wrapped 28 row 5),
+      --     (3, c.get_advice_wrapped 28 row 6),
+      --     (1, c.get_advice_wrapped 28 row 7),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 32 row 3),
+      --     (3, c.get_advice_wrapped 30 row 6),
+      --     (3, c.get_advice_wrapped 30 row 7),
+      --     (3, c.get_advice_wrapped 30 row 8),
+      --     (3, c.get_advice_wrapped 30 row 9),
+      --     (3, c.get_advice_wrapped 30 row 10),
+      --     (3, c.get_advice_wrapped 30 row 11),
+      --     (3, c.get_advice_wrapped 31 row 0),
+      --     (3, c.get_advice_wrapped 31 row 1),
+      --     (3, c.get_advice_wrapped 31 row 2),
+      --     (3, c.get_advice_wrapped 31 row 3),
+      --     (3, c.get_advice_wrapped 31 row 4),
+      --     (3, c.get_advice_wrapped 31 row 5),
+      --     (3, c.get_advice_wrapped 31 row 6),
+      --     (3, c.get_advice_wrapped 31 row 7),
+      --     (3, c.get_advice_wrapped 31 row 8),
+      --     (3, c.get_advice_wrapped 31 row 9),
+      --     (3, c.get_advice_wrapped 31 row 10),
+      --     (3, c.get_advice_wrapped 31 row 11),
+      --     (3, c.get_advice_wrapped 32 row 0),
+      --     (3, c.get_advice_wrapped 32 row 1),
+      --     (3, c.get_advice_wrapped 32 row 2),
+      --   ])
+      --   := by
+      --     unfold gate_12 at hgate_12
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_12 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_12 row)))
+      --         rewrite [neg_involutive] at hgate_12
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         exact hgate_12
+
+
+      -- lemma gate_13_split_uniform (c: ValidCircuit P P_Prime) (hgate_13: gate_13 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (4, c.get_advice_wrapped 40 row 11),
+      --     (4, c.get_advice_wrapped 45 row 0),
+      --     (4, c.get_advice_wrapped 45 row 1),
+      --     (4, c.get_advice_wrapped 45 row 2),
+      --     (4, c.get_advice_wrapped 45 row 3),
+      --     (4, c.get_advice_wrapped 45 row 4),
+      --     (4, c.get_advice_wrapped 45 row 5),
+      --     (4, c.get_advice_wrapped 45 row 6),
+      --     (4, c.get_advice_wrapped 45 row 7),
+      --     (4, c.get_advice_wrapped 40 row 4),
+      --     (4, c.get_advice_wrapped 40 row 5),
+      --     (4, c.get_advice_wrapped 40 row 6),
+      --     (4, c.get_advice_wrapped 40 row 7),
+      --     (4, c.get_advice_wrapped 40 row 8),
+      --     (4, c.get_advice_wrapped 40 row 9),
+      --     (4, c.get_advice_wrapped 40 row 10),
+      --   ] = c.get_advice_wrapped 8 row 3 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 28 row 8),
+      --     (3, c.get_advice_wrapped 28 row 9),
+      --     (3, c.get_advice_wrapped 28 row 10),
+      --     (3, c.get_advice_wrapped 28 row 11),
+      --     (3, c.get_advice_wrapped 29 row 0),
+      --     (3, c.get_advice_wrapped 29 row 1),
+      --     (3, c.get_advice_wrapped 29 row 2),
+      --     (3, c.get_advice_wrapped 29 row 3),
+      --     (3, c.get_advice_wrapped 29 row 4),
+      --     (3, c.get_advice_wrapped 29 row 5),
+      --     (3, c.get_advice_wrapped 29 row 6),
+      --     (3, c.get_advice_wrapped 29 row 7),
+      --     (3, c.get_advice_wrapped 29 row 8),
+      --     (3, c.get_advice_wrapped 29 row 9),
+      --     (3, c.get_advice_wrapped 29 row 10),
+      --     (3, c.get_advice_wrapped 29 row 11),
+      --     (3, c.get_advice_wrapped 30 row 0),
+      --     (3, c.get_advice_wrapped 30 row 1),
+      --     (3, c.get_advice_wrapped 30 row 2),
+      --     (3, c.get_advice_wrapped 30 row 3),
+      --     (3, c.get_advice_wrapped 30 row 4),
+      --     (1, c.get_advice_wrapped 30 row 5),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 34 row 1),
+      --     (3, c.get_advice_wrapped 32 row 4),
+      --     (3, c.get_advice_wrapped 32 row 5),
+      --     (3, c.get_advice_wrapped 32 row 6),
+      --     (3, c.get_advice_wrapped 32 row 7),
+      --     (3, c.get_advice_wrapped 32 row 8),
+      --     (3, c.get_advice_wrapped 32 row 9),
+      --     (3, c.get_advice_wrapped 32 row 10),
+      --     (3, c.get_advice_wrapped 32 row 11),
+      --     (3, c.get_advice_wrapped 33 row 0),
+      --     (3, c.get_advice_wrapped 33 row 1),
+      --     (3, c.get_advice_wrapped 33 row 2),
+      --     (3, c.get_advice_wrapped 33 row 3),
+      --     (3, c.get_advice_wrapped 33 row 4),
+      --     (3, c.get_advice_wrapped 33 row 5),
+      --     (3, c.get_advice_wrapped 33 row 6),
+      --     (3, c.get_advice_wrapped 33 row 7),
+      --     (3, c.get_advice_wrapped 33 row 8),
+      --     (3, c.get_advice_wrapped 33 row 9),
+      --     (3, c.get_advice_wrapped 33 row 10),
+      --     (3, c.get_advice_wrapped 33 row 11),
+      --     (3, c.get_advice_wrapped 34 row 0),
+      --   ])
+      --   := by
+      --     unfold gate_13 at hgate_13
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_13 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_13 row)))
+      --         rewrite [neg_involutive] at hgate_13
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         exact hgate_13
+
+      -- lemma gate_15_split_uniform (c: ValidCircuit P P_Prime) (hgate_15: gate_15 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 140 row 5),
+      --     (4, c.get_advice_wrapped 55 row 7),
+      --     (4, c.get_advice_wrapped 55 row 8),
+      --     (4, c.get_advice_wrapped 55 row 9),
+      --     (4, c.get_advice_wrapped 55 row 10),
+      --     (4, c.get_advice_wrapped 55 row 11),
+      --     (4, c.get_advice_wrapped 60 row 0),
+      --     (4, c.get_advice_wrapped 60 row 1),
+      --     (4, c.get_advice_wrapped 60 row 2),
+      --     (4, c.get_advice_wrapped 60 row 3),
+      --     (4, c.get_advice_wrapped 55 row 0),
+      --     (4, c.get_advice_wrapped 55 row 1),
+      --     (4, c.get_advice_wrapped 55 row 2),
+      --     (4, c.get_advice_wrapped 55 row 3),
+      --     (4, c.get_advice_wrapped 55 row 4),
+      --     (4, c.get_advice_wrapped 55 row 5),
+      --     (3, c.get_advice_wrapped 140 row 4)
+      --   ] = c.get_advice_wrapped 8 row 8 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 30 row 6),
+      --     (3, c.get_advice_wrapped 30 row 7),
+      --     (3, c.get_advice_wrapped 30 row 8),
+      --     (3, c.get_advice_wrapped 30 row 9),
+      --     (3, c.get_advice_wrapped 30 row 10),
+      --     (3, c.get_advice_wrapped 30 row 11),
+      --     (3, c.get_advice_wrapped 31 row 0),
+      --     (3, c.get_advice_wrapped 31 row 1),
+      --     (3, c.get_advice_wrapped 31 row 2),
+      --     (3, c.get_advice_wrapped 31 row 3),
+      --     (3, c.get_advice_wrapped 31 row 4),
+      --     (3, c.get_advice_wrapped 31 row 5),
+      --     (3, c.get_advice_wrapped 31 row 6),
+      --     (3, c.get_advice_wrapped 31 row 7),
+      --     (3, c.get_advice_wrapped 31 row 8),
+      --     (3, c.get_advice_wrapped 31 row 9),
+      --     (3, c.get_advice_wrapped 31 row 10),
+      --     (3, c.get_advice_wrapped 31 row 11),
+      --     (3, c.get_advice_wrapped 32 row 0),
+      --     (3, c.get_advice_wrapped 32 row 1),
+      --     (3, c.get_advice_wrapped 32 row 2),
+      --     (1, c.get_advice_wrapped 32 row 3),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 26 row 9),
+      --     (3, c.get_advice_wrapped 25 row 0),
+      --     (3, c.get_advice_wrapped 25 row 1),
+      --     (3, c.get_advice_wrapped 25 row 2),
+      --     (3, c.get_advice_wrapped 25 row 3),
+      --     (3, c.get_advice_wrapped 25 row 4),
+      --     (3, c.get_advice_wrapped 25 row 5),
+      --     (3, c.get_advice_wrapped 25 row 6),
+      --     (3, c.get_advice_wrapped 25 row 7),
+      --     (3, c.get_advice_wrapped 25 row 8),
+      --     (3, c.get_advice_wrapped 25 row 9),
+      --     (3, c.get_advice_wrapped 25 row 10),
+      --     (3, c.get_advice_wrapped 25 row 11),
+      --     (3, c.get_advice_wrapped 26 row 0),
+      --     (3, c.get_advice_wrapped 26 row 1),
+      --     (3, c.get_advice_wrapped 26 row 2),
+      --     (3, c.get_advice_wrapped 26 row 3),
+      --     (3, c.get_advice_wrapped 26 row 4),
+      --     (3, c.get_advice_wrapped 26 row 5),
+      --     (3, c.get_advice_wrapped 26 row 6),
+      --     (3, c.get_advice_wrapped 26 row 7),
+      --     (3, c.get_advice_wrapped 26 row 8),
+      --   ])
+      --   := by
+      --     unfold gate_15 at hgate_15
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_15 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_15 row)))
+      --         rewrite [neg_involutive] at hgate_15
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         exact hgate_15
+
+      -- lemma gate_16_split_uniform (c: ValidCircuit P P_Prime) (hgate_16: gate_16 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (4, c.get_advice_wrapped 56 row 9),
+      --     (4, c.get_advice_wrapped 56 row 10),
+      --     (4, c.get_advice_wrapped 56 row 11),
+      --     (4, c.get_advice_wrapped 61 row 0),
+      --     (4, c.get_advice_wrapped 61 row 1),
+      --     (4, c.get_advice_wrapped 61 row 2),
+      --     (4, c.get_advice_wrapped 61 row 3),
+      --     (4, c.get_advice_wrapped 56 row 0),
+      --     (4, c.get_advice_wrapped 56 row 1),
+      --     (4, c.get_advice_wrapped 56 row 2),
+      --     (4, c.get_advice_wrapped 56 row 3),
+      --     (4, c.get_advice_wrapped 56 row 4),
+      --     (4, c.get_advice_wrapped 56 row 5),
+      --     (4, c.get_advice_wrapped 56 row 6),
+      --     (4, c.get_advice_wrapped 56 row 7),
+      --     (4, c.get_advice_wrapped 56 row 8)
+      --   ] = c.get_advice_wrapped 7 row 1 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 32 row 4),
+      --     (3, c.get_advice_wrapped 32 row 5),
+      --     (3, c.get_advice_wrapped 32 row 6),
+      --     (3, c.get_advice_wrapped 32 row 7),
+      --     (3, c.get_advice_wrapped 32 row 8),
+      --     (3, c.get_advice_wrapped 32 row 9),
+      --     (3, c.get_advice_wrapped 32 row 10),
+      --     (3, c.get_advice_wrapped 32 row 11),
+      --     (3, c.get_advice_wrapped 33 row 0),
+      --     (3, c.get_advice_wrapped 33 row 1),
+      --     (3, c.get_advice_wrapped 33 row 2),
+      --     (3, c.get_advice_wrapped 33 row 3),
+      --     (3, c.get_advice_wrapped 33 row 4),
+      --     (3, c.get_advice_wrapped 33 row 5),
+      --     (3, c.get_advice_wrapped 33 row 6),
+      --     (3, c.get_advice_wrapped 33 row 7),
+      --     (3, c.get_advice_wrapped 33 row 8),
+      --     (3, c.get_advice_wrapped 33 row 9),
+      --     (3, c.get_advice_wrapped 33 row 10),
+      --     (3, c.get_advice_wrapped 33 row 11),
+      --     (3, c.get_advice_wrapped 34 row 0),
+      --     (1, c.get_advice_wrapped 34 row 1),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 28 row 7),
+      --     (3, c.get_advice_wrapped 26 row 10),
+      --     (3, c.get_advice_wrapped 26 row 11),
+      --     (3, c.get_advice_wrapped 27 row 0),
+      --     (3, c.get_advice_wrapped 27 row 1),
+      --     (3, c.get_advice_wrapped 27 row 2),
+      --     (3, c.get_advice_wrapped 27 row 3),
+      --     (3, c.get_advice_wrapped 27 row 4),
+      --     (3, c.get_advice_wrapped 27 row 5),
+      --     (3, c.get_advice_wrapped 27 row 6),
+      --     (3, c.get_advice_wrapped 27 row 7),
+      --     (3, c.get_advice_wrapped 27 row 8),
+      --     (3, c.get_advice_wrapped 27 row 9),
+      --     (3, c.get_advice_wrapped 27 row 10),
+      --     (3, c.get_advice_wrapped 27 row 11),
+      --     (3, c.get_advice_wrapped 28 row 0),
+      --     (3, c.get_advice_wrapped 28 row 1),
+      --     (3, c.get_advice_wrapped 28 row 2),
+      --     (3, c.get_advice_wrapped 28 row 3),
+      --     (3, c.get_advice_wrapped 28 row 4),
+      --     (3, c.get_advice_wrapped 28 row 5),
+      --     (3, c.get_advice_wrapped 28 row 6),
+      --   ])
+      --   := by
+      --     unfold gate_16 at hgate_16
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_16 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_16 row)))
+      --         rewrite [neg_involutive] at hgate_16
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         exact hgate_16
+
+      -- lemma gate_17_split_uniform (c: ValidCircuit P P_Prime) (hgate_17: gate_17 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (4, c.get_advice_wrapped 36 row 11),
+      --     (4, c.get_advice_wrapped 41 row 0),
+      --     (4, c.get_advice_wrapped 41 row 1),
+      --     (4, c.get_advice_wrapped 41 row 2),
+      --     (4, c.get_advice_wrapped 41 row 3),
+      --     (4, c.get_advice_wrapped 36 row 0),
+      --     (4, c.get_advice_wrapped 36 row 1),
+      --     (4, c.get_advice_wrapped 36 row 2),
+      --     (4, c.get_advice_wrapped 36 row 3),
+      --     (4, c.get_advice_wrapped 36 row 4),
+      --     (4, c.get_advice_wrapped 36 row 5),
+      --     (4, c.get_advice_wrapped 36 row 6),
+      --     (4, c.get_advice_wrapped 36 row 7),
+      --     (4, c.get_advice_wrapped 36 row 8),
+      --     (4, c.get_advice_wrapped 36 row 9),
+      --     (4, c.get_advice_wrapped 36 row 10),
+      --   ] = c.get_advice_wrapped 7 row 6 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 25 row 0),
+      --     (3, c.get_advice_wrapped 25 row 1),
+      --     (3, c.get_advice_wrapped 25 row 2),
+      --     (3, c.get_advice_wrapped 25 row 3),
+      --     (3, c.get_advice_wrapped 25 row 4),
+      --     (3, c.get_advice_wrapped 25 row 5),
+      --     (3, c.get_advice_wrapped 25 row 6),
+      --     (3, c.get_advice_wrapped 25 row 7),
+      --     (3, c.get_advice_wrapped 25 row 8),
+      --     (3, c.get_advice_wrapped 25 row 9),
+      --     (3, c.get_advice_wrapped 25 row 10),
+      --     (3, c.get_advice_wrapped 25 row 11),
+      --     (3, c.get_advice_wrapped 26 row 0),
+      --     (3, c.get_advice_wrapped 26 row 1),
+      --     (3, c.get_advice_wrapped 26 row 2),
+      --     (3, c.get_advice_wrapped 26 row 3),
+      --     (3, c.get_advice_wrapped 26 row 4),
+      --     (3, c.get_advice_wrapped 26 row 5),
+      --     (3, c.get_advice_wrapped 26 row 6),
+      --     (3, c.get_advice_wrapped 26 row 7),
+      --     (3, c.get_advice_wrapped 26 row 8),
+      --     (1, c.get_advice_wrapped 26 row 9),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 30 row 5),
+      --     (3, c.get_advice_wrapped 28 row 8),
+      --     (3, c.get_advice_wrapped 28 row 9),
+      --     (3, c.get_advice_wrapped 28 row 10),
+      --     (3, c.get_advice_wrapped 28 row 11),
+      --     (3, c.get_advice_wrapped 29 row 0),
+      --     (3, c.get_advice_wrapped 29 row 1),
+      --     (3, c.get_advice_wrapped 29 row 2),
+      --     (3, c.get_advice_wrapped 29 row 3),
+      --     (3, c.get_advice_wrapped 29 row 4),
+      --     (3, c.get_advice_wrapped 29 row 5),
+      --     (3, c.get_advice_wrapped 29 row 6),
+      --     (3, c.get_advice_wrapped 29 row 7),
+      --     (3, c.get_advice_wrapped 29 row 8),
+      --     (3, c.get_advice_wrapped 29 row 9),
+      --     (3, c.get_advice_wrapped 29 row 10),
+      --     (3, c.get_advice_wrapped 29 row 11),
+      --     (3, c.get_advice_wrapped 30 row 0),
+      --     (3, c.get_advice_wrapped 30 row 1),
+      --     (3, c.get_advice_wrapped 30 row 2),
+      --     (3, c.get_advice_wrapped 30 row 3),
+      --     (3, c.get_advice_wrapped 30 row 4),
+      --   ])
+      --   := by
+      --     unfold gate_17 at hgate_17
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_17 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_17 row)))
+      --         rewrite [neg_involutive] at hgate_17
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         exact hgate_17
+
+      -- lemma gate_19_split_uniform (c: ValidCircuit P P_Prime) (hgate_19: gate_19 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (2, c.get_advice_wrapped 140 row 7),
+      --     (4, c.get_advice_wrapped 46 row 10),
+      --     (4, c.get_advice_wrapped 46 row 11),
+      --     (4, c.get_advice_wrapped 51 row 0),
+      --     (4, c.get_advice_wrapped 51 row 1),
+      --     (4, c.get_advice_wrapped 51 row 2),
+      --     (4, c.get_advice_wrapped 51 row 3),
+      --     (4, c.get_advice_wrapped 51 row 4),
+      --     (4, c.get_advice_wrapped 51 row 5),
+      --     (4, c.get_advice_wrapped 51 row 6),
+      --     (4, c.get_advice_wrapped 51 row 7),
+      --     (4, c.get_advice_wrapped 51 row 8),
+      --     (4, c.get_advice_wrapped 51 row 9),
+      --     (4, c.get_advice_wrapped 51 row 10),
+      --     (4, c.get_advice_wrapped 51 row 11),
+      --     (4, c.get_advice_wrapped 46 row 8),
+      --     (2, c.get_advice_wrapped 140 row 6)
+      --   ] = c.get_advice_wrapped 7 row 11 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 26 row 10),
+      --     (3, c.get_advice_wrapped 26 row 11),
+      --     (3, c.get_advice_wrapped 27 row 0),
+      --     (3, c.get_advice_wrapped 27 row 1),
+      --     (3, c.get_advice_wrapped 27 row 2),
+      --     (3, c.get_advice_wrapped 27 row 3),
+      --     (3, c.get_advice_wrapped 27 row 4),
+      --     (3, c.get_advice_wrapped 27 row 5),
+      --     (3, c.get_advice_wrapped 27 row 6),
+      --     (3, c.get_advice_wrapped 27 row 7),
+      --     (3, c.get_advice_wrapped 27 row 8),
+      --     (3, c.get_advice_wrapped 27 row 9),
+      --     (3, c.get_advice_wrapped 27 row 10),
+      --     (3, c.get_advice_wrapped 27 row 11),
+      --     (3, c.get_advice_wrapped 28 row 0),
+      --     (3, c.get_advice_wrapped 28 row 1),
+      --     (3, c.get_advice_wrapped 28 row 2),
+      --     (3, c.get_advice_wrapped 28 row 3),
+      --     (3, c.get_advice_wrapped 28 row 4),
+      --     (3, c.get_advice_wrapped 28 row 5),
+      --     (3, c.get_advice_wrapped 28 row 6),
+      --     (1, c.get_advice_wrapped 28 row 7),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 32 row 3),
+      --     (3, c.get_advice_wrapped 30 row 6),
+      --     (3, c.get_advice_wrapped 30 row 7),
+      --     (3, c.get_advice_wrapped 30 row 8),
+      --     (3, c.get_advice_wrapped 30 row 9),
+      --     (3, c.get_advice_wrapped 30 row 10),
+      --     (3, c.get_advice_wrapped 30 row 11),
+      --     (3, c.get_advice_wrapped 31 row 0),
+      --     (3, c.get_advice_wrapped 31 row 1),
+      --     (3, c.get_advice_wrapped 31 row 2),
+      --     (3, c.get_advice_wrapped 31 row 3),
+      --     (3, c.get_advice_wrapped 31 row 4),
+      --     (3, c.get_advice_wrapped 31 row 5),
+      --     (3, c.get_advice_wrapped 31 row 6),
+      --     (3, c.get_advice_wrapped 31 row 7),
+      --     (3, c.get_advice_wrapped 31 row 8),
+      --     (3, c.get_advice_wrapped 31 row 9),
+      --     (3, c.get_advice_wrapped 31 row 10),
+      --     (3, c.get_advice_wrapped 31 row 11),
+      --     (3, c.get_advice_wrapped 32 row 0),
+      --     (3, c.get_advice_wrapped 32 row 1),
+      --     (3, c.get_advice_wrapped 32 row 2),
+      --   ])
+      --   := by
+      --     unfold gate_19 at hgate_19
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_19 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_19 row)))
+      --         rewrite [neg_involutive] at hgate_19
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_19]
+      --         clear hgate_19
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+
+      -- lemma gate_21_split_uniform (c: ValidCircuit P P_Prime) (hgate_21: gate_21 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 140 row 9),
+      --     (4, c.get_advice_wrapped 66 row 6),
+      --     (4, c.get_advice_wrapped 66 row 7),
+      --     (4, c.get_advice_wrapped 61 row 4),
+      --     (4, c.get_advice_wrapped 61 row 5),
+      --     (4, c.get_advice_wrapped 61 row 6),
+      --     (4, c.get_advice_wrapped 61 row 7),
+      --     (4, c.get_advice_wrapped 61 row 8),
+      --     (4, c.get_advice_wrapped 61 row 9),
+      --     (4, c.get_advice_wrapped 61 row 10),
+      --     (4, c.get_advice_wrapped 61 row 11),
+      --     (4, c.get_advice_wrapped 66 row 0),
+      --     (4, c.get_advice_wrapped 66 row 1),
+      --     (4, c.get_advice_wrapped 66 row 2),
+      --     (4, c.get_advice_wrapped 66 row 3),
+      --     (4, c.get_advice_wrapped 66 row 4),
+      --     (3, c.get_advice_wrapped 140 row 8)
+      --   ] = c.get_advice_wrapped 8 row 4 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 28 row 8),
+      --     (3, c.get_advice_wrapped 28 row 9),
+      --     (3, c.get_advice_wrapped 28 row 10),
+      --     (3, c.get_advice_wrapped 28 row 11),
+      --     (3, c.get_advice_wrapped 29 row 0),
+      --     (3, c.get_advice_wrapped 29 row 1),
+      --     (3, c.get_advice_wrapped 29 row 2),
+      --     (3, c.get_advice_wrapped 29 row 3),
+      --     (3, c.get_advice_wrapped 29 row 4),
+      --     (3, c.get_advice_wrapped 29 row 5),
+      --     (3, c.get_advice_wrapped 29 row 6),
+      --     (3, c.get_advice_wrapped 29 row 7),
+      --     (3, c.get_advice_wrapped 29 row 8),
+      --     (3, c.get_advice_wrapped 29 row 9),
+      --     (3, c.get_advice_wrapped 29 row 10),
+      --     (3, c.get_advice_wrapped 29 row 11),
+      --     (3, c.get_advice_wrapped 30 row 0),
+      --     (3, c.get_advice_wrapped 30 row 1),
+      --     (3, c.get_advice_wrapped 30 row 2),
+      --     (3, c.get_advice_wrapped 30 row 3),
+      --     (3, c.get_advice_wrapped 30 row 4),
+      --     (1, c.get_advice_wrapped 30 row 5),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 34 row 1),
+      --     (3, c.get_advice_wrapped 32 row 4),
+      --     (3, c.get_advice_wrapped 32 row 5),
+      --     (3, c.get_advice_wrapped 32 row 6),
+      --     (3, c.get_advice_wrapped 32 row 7),
+      --     (3, c.get_advice_wrapped 32 row 8),
+      --     (3, c.get_advice_wrapped 32 row 9),
+      --     (3, c.get_advice_wrapped 32 row 10),
+      --     (3, c.get_advice_wrapped 32 row 11),
+      --     (3, c.get_advice_wrapped 33 row 0),
+      --     (3, c.get_advice_wrapped 33 row 1),
+      --     (3, c.get_advice_wrapped 33 row 2),
+      --     (3, c.get_advice_wrapped 33 row 3),
+      --     (3, c.get_advice_wrapped 33 row 4),
+      --     (3, c.get_advice_wrapped 33 row 5),
+      --     (3, c.get_advice_wrapped 33 row 6),
+      --     (3, c.get_advice_wrapped 33 row 7),
+      --     (3, c.get_advice_wrapped 33 row 8),
+      --     (3, c.get_advice_wrapped 33 row 9),
+      --     (3, c.get_advice_wrapped 33 row 10),
+      --     (3, c.get_advice_wrapped 33 row 11),
+      --     (3, c.get_advice_wrapped 34 row 0),
+      --   ])
+      --   := by
+      --     unfold gate_21 at hgate_21
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_21 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_21 row)))
+      --         rewrite [neg_involutive] at hgate_21
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_21]
+      --         clear hgate_21
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_22_split_uniform (c: ValidCircuit P P_Prime) (hgate_22: gate_22 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (4, c.get_advice_wrapped 41 row 9),
+      --     (4, c.get_advice_wrapped 41 row 10),
+      --     (4, c.get_advice_wrapped 41 row 11),
+      --     (4, c.get_advice_wrapped 46 row 0),
+      --     (4, c.get_advice_wrapped 46 row 1),
+      --     (4, c.get_advice_wrapped 46 row 2),
+      --     (4, c.get_advice_wrapped 46 row 3),
+      --     (4, c.get_advice_wrapped 46 row 4),
+      --     (4, c.get_advice_wrapped 46 row 5),
+      --     (4, c.get_advice_wrapped 46 row 6),
+      --     (4, c.get_advice_wrapped 46 row 7),
+      --     (4, c.get_advice_wrapped 41 row 4),
+      --     (4, c.get_advice_wrapped 41 row 5),
+      --     (4, c.get_advice_wrapped 41 row 6),
+      --     (4, c.get_advice_wrapped 41 row 7),
+      --     (4, c.get_advice_wrapped 41 row 8)
+      --   ] = c.get_advice_wrapped 8 row 9 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 30 row 6),
+      --     (3, c.get_advice_wrapped 30 row 7),
+      --     (3, c.get_advice_wrapped 30 row 8),
+      --     (3, c.get_advice_wrapped 30 row 9),
+      --     (3, c.get_advice_wrapped 30 row 10),
+      --     (3, c.get_advice_wrapped 30 row 11),
+      --     (3, c.get_advice_wrapped 31 row 0),
+      --     (3, c.get_advice_wrapped 31 row 1),
+      --     (3, c.get_advice_wrapped 31 row 2),
+      --     (3, c.get_advice_wrapped 31 row 3),
+      --     (3, c.get_advice_wrapped 31 row 4),
+      --     (3, c.get_advice_wrapped 31 row 5),
+      --     (3, c.get_advice_wrapped 31 row 6),
+      --     (3, c.get_advice_wrapped 31 row 7),
+      --     (3, c.get_advice_wrapped 31 row 8),
+      --     (3, c.get_advice_wrapped 31 row 9),
+      --     (3, c.get_advice_wrapped 31 row 10),
+      --     (3, c.get_advice_wrapped 31 row 11),
+      --     (3, c.get_advice_wrapped 32 row 0),
+      --     (3, c.get_advice_wrapped 32 row 1),
+      --     (3, c.get_advice_wrapped 32 row 2),
+      --     (1, c.get_advice_wrapped 32 row 3),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 26 row 9),
+      --     (3, c.get_advice_wrapped 25 row 0),
+      --     (3, c.get_advice_wrapped 25 row 1),
+      --     (3, c.get_advice_wrapped 25 row 2),
+      --     (3, c.get_advice_wrapped 25 row 3),
+      --     (3, c.get_advice_wrapped 25 row 4),
+      --     (3, c.get_advice_wrapped 25 row 5),
+      --     (3, c.get_advice_wrapped 25 row 6),
+      --     (3, c.get_advice_wrapped 25 row 7),
+      --     (3, c.get_advice_wrapped 25 row 8),
+      --     (3, c.get_advice_wrapped 25 row 9),
+      --     (3, c.get_advice_wrapped 25 row 10),
+      --     (3, c.get_advice_wrapped 25 row 11),
+      --     (3, c.get_advice_wrapped 26 row 0),
+      --     (3, c.get_advice_wrapped 26 row 1),
+      --     (3, c.get_advice_wrapped 26 row 2),
+      --     (3, c.get_advice_wrapped 26 row 3),
+      --     (3, c.get_advice_wrapped 26 row 4),
+      --     (3, c.get_advice_wrapped 26 row 5),
+      --     (3, c.get_advice_wrapped 26 row 6),
+      --     (3, c.get_advice_wrapped 26 row 7),
+      --     (3, c.get_advice_wrapped 26 row 8),
+      --   ])
+      --   := by
+      --     unfold gate_22 at hgate_22
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_22 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_22 row)))
+      --         rewrite [neg_involutive] at hgate_22
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_22]
+      --         clear hgate_22
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_24_split_uniform (c: ValidCircuit P P_Prime) (hgate_24: gate_24 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 140 row 11),
+      --     (4, c.get_advice_wrapped 42 row 5),
+      --     (4, c.get_advice_wrapped 42 row 6),
+      --     (4, c.get_advice_wrapped 42 row 7),
+      --     (4, c.get_advice_wrapped 42 row 8),
+      --     (4, c.get_advice_wrapped 42 row 9),
+      --     (4, c.get_advice_wrapped 42 row 10),
+      --     (4, c.get_advice_wrapped 42 row 11),
+      --     (4, c.get_advice_wrapped 47 row 0),
+      --     (4, c.get_advice_wrapped 47 row 1),
+      --     (4, c.get_advice_wrapped 47 row 2),
+      --     (4, c.get_advice_wrapped 47 row 3),
+      --     (4, c.get_advice_wrapped 47 row 4),
+      --     (4, c.get_advice_wrapped 47 row 5),
+      --     (4, c.get_advice_wrapped 47 row 6),
+      --     (4, c.get_advice_wrapped 47 row 7),
+      --     (3, c.get_advice_wrapped 140 row 10)
+      --   ] = c.get_advice_wrapped 7 row 2 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 32 row 4),
+      --     (3, c.get_advice_wrapped 32 row 5),
+      --     (3, c.get_advice_wrapped 32 row 6),
+      --     (3, c.get_advice_wrapped 32 row 7),
+      --     (3, c.get_advice_wrapped 32 row 8),
+      --     (3, c.get_advice_wrapped 32 row 9),
+      --     (3, c.get_advice_wrapped 32 row 10),
+      --     (3, c.get_advice_wrapped 32 row 11),
+      --     (3, c.get_advice_wrapped 33 row 0),
+      --     (3, c.get_advice_wrapped 33 row 1),
+      --     (3, c.get_advice_wrapped 33 row 2),
+      --     (3, c.get_advice_wrapped 33 row 3),
+      --     (3, c.get_advice_wrapped 33 row 4),
+      --     (3, c.get_advice_wrapped 33 row 5),
+      --     (3, c.get_advice_wrapped 33 row 6),
+      --     (3, c.get_advice_wrapped 33 row 7),
+      --     (3, c.get_advice_wrapped 33 row 8),
+      --     (3, c.get_advice_wrapped 33 row 9),
+      --     (3, c.get_advice_wrapped 33 row 10),
+      --     (3, c.get_advice_wrapped 33 row 11),
+      --     (3, c.get_advice_wrapped 34 row 0),
+      --     (1, c.get_advice_wrapped 34 row 1),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 28 row 7),
+      --     (3, c.get_advice_wrapped 26 row 10),
+      --     (3, c.get_advice_wrapped 26 row 11),
+      --     (3, c.get_advice_wrapped 27 row 0),
+      --     (3, c.get_advice_wrapped 27 row 1),
+      --     (3, c.get_advice_wrapped 27 row 2),
+      --     (3, c.get_advice_wrapped 27 row 3),
+      --     (3, c.get_advice_wrapped 27 row 4),
+      --     (3, c.get_advice_wrapped 27 row 5),
+      --     (3, c.get_advice_wrapped 27 row 6),
+      --     (3, c.get_advice_wrapped 27 row 7),
+      --     (3, c.get_advice_wrapped 27 row 8),
+      --     (3, c.get_advice_wrapped 27 row 9),
+      --     (3, c.get_advice_wrapped 27 row 10),
+      --     (3, c.get_advice_wrapped 27 row 11),
+      --     (3, c.get_advice_wrapped 28 row 0),
+      --     (3, c.get_advice_wrapped 28 row 1),
+      --     (3, c.get_advice_wrapped 28 row 2),
+      --     (3, c.get_advice_wrapped 28 row 3),
+      --     (3, c.get_advice_wrapped 28 row 4),
+      --     (3, c.get_advice_wrapped 28 row 5),
+      --     (3, c.get_advice_wrapped 28 row 6),
+      --   ])
+      --   := by
+      --     unfold gate_24 at hgate_24
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_24 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_24 row)))
+      --         rewrite [neg_involutive] at hgate_24
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_24]
+      --         clear hgate_24
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_26_split_uniform (c: ValidCircuit P P_Prime) (hgate_26: gate_26 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (2, c.get_advice_wrapped 141 row 1),
+      --     (4, c.get_advice_wrapped 57 row 3),
+      --     (4, c.get_advice_wrapped 57 row 4),
+      --     (4, c.get_advice_wrapped 57 row 5),
+      --     (4, c.get_advice_wrapped 57 row 6),
+      --     (4, c.get_advice_wrapped 57 row 7),
+      --     (4, c.get_advice_wrapped 57 row 8),
+      --     (4, c.get_advice_wrapped 57 row 9),
+      --     (4, c.get_advice_wrapped 57 row 10),
+      --     (4, c.get_advice_wrapped 57 row 11),
+      --     (4, c.get_advice_wrapped 62 row 0),
+      --     (4, c.get_advice_wrapped 62 row 1),
+      --     (4, c.get_advice_wrapped 62 row 2),
+      --     (4, c.get_advice_wrapped 62 row 3),
+      --     (4, c.get_advice_wrapped 57 row 0),
+      --     (4, c.get_advice_wrapped 57 row 1),
+      --     (2, c.get_advice_wrapped 141 row 0)
+      --   ] = c.get_advice_wrapped 7 row 7 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 25 row 0),
+      --     (3, c.get_advice_wrapped 25 row 1),
+      --     (3, c.get_advice_wrapped 25 row 2),
+      --     (3, c.get_advice_wrapped 25 row 3),
+      --     (3, c.get_advice_wrapped 25 row 4),
+      --     (3, c.get_advice_wrapped 25 row 5),
+      --     (3, c.get_advice_wrapped 25 row 6),
+      --     (3, c.get_advice_wrapped 25 row 7),
+      --     (3, c.get_advice_wrapped 25 row 8),
+      --     (3, c.get_advice_wrapped 25 row 9),
+      --     (3, c.get_advice_wrapped 25 row 10),
+      --     (3, c.get_advice_wrapped 25 row 11),
+      --     (3, c.get_advice_wrapped 26 row 0),
+      --     (3, c.get_advice_wrapped 26 row 1),
+      --     (3, c.get_advice_wrapped 26 row 2),
+      --     (3, c.get_advice_wrapped 26 row 3),
+      --     (3, c.get_advice_wrapped 26 row 4),
+      --     (3, c.get_advice_wrapped 26 row 5),
+      --     (3, c.get_advice_wrapped 26 row 6),
+      --     (3, c.get_advice_wrapped 26 row 7),
+      --     (3, c.get_advice_wrapped 26 row 8),
+      --     (1, c.get_advice_wrapped 26 row 9),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 30 row 5),
+      --     (3, c.get_advice_wrapped 28 row 8),
+      --     (3, c.get_advice_wrapped 28 row 9),
+      --     (3, c.get_advice_wrapped 28 row 10),
+      --     (3, c.get_advice_wrapped 28 row 11),
+      --     (3, c.get_advice_wrapped 29 row 0),
+      --     (3, c.get_advice_wrapped 29 row 1),
+      --     (3, c.get_advice_wrapped 29 row 2),
+      --     (3, c.get_advice_wrapped 29 row 3),
+      --     (3, c.get_advice_wrapped 29 row 4),
+      --     (3, c.get_advice_wrapped 29 row 5),
+      --     (3, c.get_advice_wrapped 29 row 6),
+      --     (3, c.get_advice_wrapped 29 row 7),
+      --     (3, c.get_advice_wrapped 29 row 8),
+      --     (3, c.get_advice_wrapped 29 row 9),
+      --     (3, c.get_advice_wrapped 29 row 10),
+      --     (3, c.get_advice_wrapped 29 row 11),
+      --     (3, c.get_advice_wrapped 30 row 0),
+      --     (3, c.get_advice_wrapped 30 row 1),
+      --     (3, c.get_advice_wrapped 30 row 2),
+      --     (3, c.get_advice_wrapped 30 row 3),
+      --     (3, c.get_advice_wrapped 30 row 4),
+      --   ])
+      --   := by
+      --     unfold gate_26 at hgate_26
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_26 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_26 row)))
+      --         rewrite [neg_involutive] at hgate_26
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_26]
+      --         clear hgate_26
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_28_split_uniform (c: ValidCircuit P P_Prime) (hgate_28: gate_28 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 141 row 3),
+      --     (4, c.get_advice_wrapped 37 row 11),
+      --     (4, c.get_advice_wrapped 42 row 0),
+      --     (4, c.get_advice_wrapped 42 row 1),
+      --     (4, c.get_advice_wrapped 42 row 2),
+      --     (4, c.get_advice_wrapped 42 row 3),
+      --     (4, c.get_advice_wrapped 37 row 0),
+      --     (4, c.get_advice_wrapped 37 row 1),
+      --     (4, c.get_advice_wrapped 37 row 2),
+      --     (4, c.get_advice_wrapped 37 row 3),
+      --     (4, c.get_advice_wrapped 37 row 4),
+      --     (4, c.get_advice_wrapped 37 row 5),
+      --     (4, c.get_advice_wrapped 37 row 6),
+      --     (4, c.get_advice_wrapped 37 row 7),
+      --     (4, c.get_advice_wrapped 37 row 8),
+      --     (4, c.get_advice_wrapped 37 row 9),
+      --     (3, c.get_advice_wrapped 141 row 2)
+      --   ] = c.get_advice_wrapped 8 row 0 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 26 row 10),
+      --     (3, c.get_advice_wrapped 26 row 11),
+      --     (3, c.get_advice_wrapped 27 row 0),
+      --     (3, c.get_advice_wrapped 27 row 1),
+      --     (3, c.get_advice_wrapped 27 row 2),
+      --     (3, c.get_advice_wrapped 27 row 3),
+      --     (3, c.get_advice_wrapped 27 row 4),
+      --     (3, c.get_advice_wrapped 27 row 5),
+      --     (3, c.get_advice_wrapped 27 row 6),
+      --     (3, c.get_advice_wrapped 27 row 7),
+      --     (3, c.get_advice_wrapped 27 row 8),
+      --     (3, c.get_advice_wrapped 27 row 9),
+      --     (3, c.get_advice_wrapped 27 row 10),
+      --     (3, c.get_advice_wrapped 27 row 11),
+      --     (3, c.get_advice_wrapped 28 row 0),
+      --     (3, c.get_advice_wrapped 28 row 1),
+      --     (3, c.get_advice_wrapped 28 row 2),
+      --     (3, c.get_advice_wrapped 28 row 3),
+      --     (3, c.get_advice_wrapped 28 row 4),
+      --     (3, c.get_advice_wrapped 28 row 5),
+      --     (3, c.get_advice_wrapped 28 row 6),
+      --     (1, c.get_advice_wrapped 28 row 7),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 32 row 3),
+      --     (3, c.get_advice_wrapped 30 row 6),
+      --     (3, c.get_advice_wrapped 30 row 7),
+      --     (3, c.get_advice_wrapped 30 row 8),
+      --     (3, c.get_advice_wrapped 30 row 9),
+      --     (3, c.get_advice_wrapped 30 row 10),
+      --     (3, c.get_advice_wrapped 30 row 11),
+      --     (3, c.get_advice_wrapped 31 row 0),
+      --     (3, c.get_advice_wrapped 31 row 1),
+      --     (3, c.get_advice_wrapped 31 row 2),
+      --     (3, c.get_advice_wrapped 31 row 3),
+      --     (3, c.get_advice_wrapped 31 row 4),
+      --     (3, c.get_advice_wrapped 31 row 5),
+      --     (3, c.get_advice_wrapped 31 row 6),
+      --     (3, c.get_advice_wrapped 31 row 7),
+      --     (3, c.get_advice_wrapped 31 row 8),
+      --     (3, c.get_advice_wrapped 31 row 9),
+      --     (3, c.get_advice_wrapped 31 row 10),
+      --     (3, c.get_advice_wrapped 31 row 11),
+      --     (3, c.get_advice_wrapped 32 row 0),
+      --     (3, c.get_advice_wrapped 32 row 1),
+      --     (3, c.get_advice_wrapped 32 row 2),
+      --   ])
+      --   := by
+      --     unfold gate_28 at hgate_28
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_28 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_28 row)))
+      --         rewrite [neg_involutive] at hgate_28
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_28]
+      --         clear hgate_28
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_30_split_uniform (c: ValidCircuit P P_Prime) (hgate_30: gate_30 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (3, c.get_advice_wrapped 141 row 5),
+      --     (4, c.get_advice_wrapped 52 row 3),
+      --     (4, c.get_advice_wrapped 52 row 4),
+      --     (4, c.get_advice_wrapped 52 row 5),
+      --     (4, c.get_advice_wrapped 52 row 6),
+      --     (4, c.get_advice_wrapped 52 row 7),
+      --     (4, c.get_advice_wrapped 52 row 8),
+      --     (4, c.get_advice_wrapped 52 row 9),
+      --     (4, c.get_advice_wrapped 52 row 10),
+      --     (4, c.get_advice_wrapped 52 row 11),
+      --     (4, c.get_advice_wrapped 47 row 8),
+      --     (4, c.get_advice_wrapped 47 row 9),
+      --     (4, c.get_advice_wrapped 47 row 10),
+      --     (4, c.get_advice_wrapped 47 row 11),
+      --     (4, c.get_advice_wrapped 52 row 0),
+      --     (4, c.get_advice_wrapped 52 row 1),
+      --     (1, c.get_advice_wrapped 141 row 4)
+      --   ] = c.get_advice_wrapped 8 row 5 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 28 row 8),
+      --     (3, c.get_advice_wrapped 28 row 9),
+      --     (3, c.get_advice_wrapped 28 row 10),
+      --     (3, c.get_advice_wrapped 28 row 11),
+      --     (3, c.get_advice_wrapped 29 row 0),
+      --     (3, c.get_advice_wrapped 29 row 1),
+      --     (3, c.get_advice_wrapped 29 row 2),
+      --     (3, c.get_advice_wrapped 29 row 3),
+      --     (3, c.get_advice_wrapped 29 row 4),
+      --     (3, c.get_advice_wrapped 29 row 5),
+      --     (3, c.get_advice_wrapped 29 row 6),
+      --     (3, c.get_advice_wrapped 29 row 7),
+      --     (3, c.get_advice_wrapped 29 row 8),
+      --     (3, c.get_advice_wrapped 29 row 9),
+      --     (3, c.get_advice_wrapped 29 row 10),
+      --     (3, c.get_advice_wrapped 29 row 11),
+      --     (3, c.get_advice_wrapped 30 row 0),
+      --     (3, c.get_advice_wrapped 30 row 1),
+      --     (3, c.get_advice_wrapped 30 row 2),
+      --     (3, c.get_advice_wrapped 30 row 3),
+      --     (3, c.get_advice_wrapped 30 row 4),
+      --     (1, c.get_advice_wrapped 30 row 5),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 34 row 1),
+      --     (3, c.get_advice_wrapped 32 row 4),
+      --     (3, c.get_advice_wrapped 32 row 5),
+      --     (3, c.get_advice_wrapped 32 row 6),
+      --     (3, c.get_advice_wrapped 32 row 7),
+      --     (3, c.get_advice_wrapped 32 row 8),
+      --     (3, c.get_advice_wrapped 32 row 9),
+      --     (3, c.get_advice_wrapped 32 row 10),
+      --     (3, c.get_advice_wrapped 32 row 11),
+      --     (3, c.get_advice_wrapped 33 row 0),
+      --     (3, c.get_advice_wrapped 33 row 1),
+      --     (3, c.get_advice_wrapped 33 row 2),
+      --     (3, c.get_advice_wrapped 33 row 3),
+      --     (3, c.get_advice_wrapped 33 row 4),
+      --     (3, c.get_advice_wrapped 33 row 5),
+      --     (3, c.get_advice_wrapped 33 row 6),
+      --     (3, c.get_advice_wrapped 33 row 7),
+      --     (3, c.get_advice_wrapped 33 row 8),
+      --     (3, c.get_advice_wrapped 33 row 9),
+      --     (3, c.get_advice_wrapped 33 row 10),
+      --     (3, c.get_advice_wrapped 33 row 11),
+      --     (3, c.get_advice_wrapped 34 row 0),
+      --   ])
+      --   := by
+      --     unfold gate_30 at hgate_30
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_30 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_30 row)))
+      --         rewrite [neg_involutive] at hgate_30
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_30]
+      --         clear hgate_30
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_32_split_uniform (c: ValidCircuit P P_Prime) (hgate_32: gate_32 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 141 row 7),
+      --     (4, c.get_advice_wrapped 67 row 2),
+      --     (4, c.get_advice_wrapped 67 row 3),
+      --     (4, c.get_advice_wrapped 67 row 4),
+      --     (4, c.get_advice_wrapped 67 row 5),
+      --     (4, c.get_advice_wrapped 67 row 6),
+      --     (4, c.get_advice_wrapped 67 row 7),
+      --     (4, c.get_advice_wrapped 62 row 4),
+      --     (4, c.get_advice_wrapped 62 row 5),
+      --     (4, c.get_advice_wrapped 62 row 6),
+      --     (4, c.get_advice_wrapped 62 row 7),
+      --     (4, c.get_advice_wrapped 62 row 8),
+      --     (4, c.get_advice_wrapped 62 row 9),
+      --     (4, c.get_advice_wrapped 62 row 10),
+      --     (4, c.get_advice_wrapped 62 row 11),
+      --     (4, c.get_advice_wrapped 67 row 0),
+      --     (3, c.get_advice_wrapped 141 row 6)
+      --   ] = c.get_advice_wrapped 8 row 10 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 30 row 6),
+      --     (3, c.get_advice_wrapped 30 row 7),
+      --     (3, c.get_advice_wrapped 30 row 8),
+      --     (3, c.get_advice_wrapped 30 row 9),
+      --     (3, c.get_advice_wrapped 30 row 10),
+      --     (3, c.get_advice_wrapped 30 row 11),
+      --     (3, c.get_advice_wrapped 31 row 0),
+      --     (3, c.get_advice_wrapped 31 row 1),
+      --     (3, c.get_advice_wrapped 31 row 2),
+      --     (3, c.get_advice_wrapped 31 row 3),
+      --     (3, c.get_advice_wrapped 31 row 4),
+      --     (3, c.get_advice_wrapped 31 row 5),
+      --     (3, c.get_advice_wrapped 31 row 6),
+      --     (3, c.get_advice_wrapped 31 row 7),
+      --     (3, c.get_advice_wrapped 31 row 8),
+      --     (3, c.get_advice_wrapped 31 row 9),
+      --     (3, c.get_advice_wrapped 31 row 10),
+      --     (3, c.get_advice_wrapped 31 row 11),
+      --     (3, c.get_advice_wrapped 32 row 0),
+      --     (3, c.get_advice_wrapped 32 row 1),
+      --     (3, c.get_advice_wrapped 32 row 2),
+      --     (1, c.get_advice_wrapped 32 row 3),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 26 row 9),
+      --     (3, c.get_advice_wrapped 25 row 0),
+      --     (3, c.get_advice_wrapped 25 row 1),
+      --     (3, c.get_advice_wrapped 25 row 2),
+      --     (3, c.get_advice_wrapped 25 row 3),
+      --     (3, c.get_advice_wrapped 25 row 4),
+      --     (3, c.get_advice_wrapped 25 row 5),
+      --     (3, c.get_advice_wrapped 25 row 6),
+      --     (3, c.get_advice_wrapped 25 row 7),
+      --     (3, c.get_advice_wrapped 25 row 8),
+      --     (3, c.get_advice_wrapped 25 row 9),
+      --     (3, c.get_advice_wrapped 25 row 10),
+      --     (3, c.get_advice_wrapped 25 row 11),
+      --     (3, c.get_advice_wrapped 26 row 0),
+      --     (3, c.get_advice_wrapped 26 row 1),
+      --     (3, c.get_advice_wrapped 26 row 2),
+      --     (3, c.get_advice_wrapped 26 row 3),
+      --     (3, c.get_advice_wrapped 26 row 4),
+      --     (3, c.get_advice_wrapped 26 row 5),
+      --     (3, c.get_advice_wrapped 26 row 6),
+      --     (3, c.get_advice_wrapped 26 row 7),
+      --     (3, c.get_advice_wrapped 26 row 8),
+      --   ])
+      --   := by
+      --     unfold gate_32 at hgate_32
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_32 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_32 row)))
+      --         rewrite [neg_involutive] at hgate_32
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_32]
+      --         clear hgate_32
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_34_split_uniform (c: ValidCircuit P P_Prime) (hgate_34: gate_34 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (3, c.get_advice_wrapped 141 row 9),
+      --     (4, c.get_advice_wrapped 68 row 3),
+      --     (4, c.get_advice_wrapped 68 row 4),
+      --     (4, c.get_advice_wrapped 68 row 5),
+      --     (4, c.get_advice_wrapped 68 row 6),
+      --     (4, c.get_advice_wrapped 68 row 7),
+      --     (4, c.get_advice_wrapped 63 row 4),
+      --     (4, c.get_advice_wrapped 63 row 5),
+      --     (4, c.get_advice_wrapped 63 row 6),
+      --     (4, c.get_advice_wrapped 63 row 7),
+      --     (4, c.get_advice_wrapped 63 row 8),
+      --     (4, c.get_advice_wrapped 63 row 9),
+      --     (4, c.get_advice_wrapped 63 row 10),
+      --     (4, c.get_advice_wrapped 63 row 11),
+      --     (4, c.get_advice_wrapped 68 row 0),
+      --     (4, c.get_advice_wrapped 68 row 1),
+      --     (1, c.get_advice_wrapped 141 row 8)
+      --   ] = c.get_advice_wrapped 7 row 3 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 32 row 4),
+      --     (3, c.get_advice_wrapped 32 row 5),
+      --     (3, c.get_advice_wrapped 32 row 6),
+      --     (3, c.get_advice_wrapped 32 row 7),
+      --     (3, c.get_advice_wrapped 32 row 8),
+      --     (3, c.get_advice_wrapped 32 row 9),
+      --     (3, c.get_advice_wrapped 32 row 10),
+      --     (3, c.get_advice_wrapped 32 row 11),
+      --     (3, c.get_advice_wrapped 33 row 0),
+      --     (3, c.get_advice_wrapped 33 row 1),
+      --     (3, c.get_advice_wrapped 33 row 2),
+      --     (3, c.get_advice_wrapped 33 row 3),
+      --     (3, c.get_advice_wrapped 33 row 4),
+      --     (3, c.get_advice_wrapped 33 row 5),
+      --     (3, c.get_advice_wrapped 33 row 6),
+      --     (3, c.get_advice_wrapped 33 row 7),
+      --     (3, c.get_advice_wrapped 33 row 8),
+      --     (3, c.get_advice_wrapped 33 row 9),
+      --     (3, c.get_advice_wrapped 33 row 10),
+      --     (3, c.get_advice_wrapped 33 row 11),
+      --     (3, c.get_advice_wrapped 34 row 0),
+      --     (1, c.get_advice_wrapped 34 row 1),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 28 row 7),
+      --     (3, c.get_advice_wrapped 26 row 10),
+      --     (3, c.get_advice_wrapped 26 row 11),
+      --     (3, c.get_advice_wrapped 27 row 0),
+      --     (3, c.get_advice_wrapped 27 row 1),
+      --     (3, c.get_advice_wrapped 27 row 2),
+      --     (3, c.get_advice_wrapped 27 row 3),
+      --     (3, c.get_advice_wrapped 27 row 4),
+      --     (3, c.get_advice_wrapped 27 row 5),
+      --     (3, c.get_advice_wrapped 27 row 6),
+      --     (3, c.get_advice_wrapped 27 row 7),
+      --     (3, c.get_advice_wrapped 27 row 8),
+      --     (3, c.get_advice_wrapped 27 row 9),
+      --     (3, c.get_advice_wrapped 27 row 10),
+      --     (3, c.get_advice_wrapped 27 row 11),
+      --     (3, c.get_advice_wrapped 28 row 0),
+      --     (3, c.get_advice_wrapped 28 row 1),
+      --     (3, c.get_advice_wrapped 28 row 2),
+      --     (3, c.get_advice_wrapped 28 row 3),
+      --     (3, c.get_advice_wrapped 28 row 4),
+      --     (3, c.get_advice_wrapped 28 row 5),
+      --     (3, c.get_advice_wrapped 28 row 6),
+      --   ])
+      --   := by
+      --     unfold gate_34 at hgate_34
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_34 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_34 row)))
+      --         rewrite [neg_involutive] at hgate_34
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_34]
+      --         clear hgate_34
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_36_split_uniform (c: ValidCircuit P P_Prime) (hgate_36: gate_36 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (3, c.get_advice_wrapped 141 row 11),
+      --     (4, c.get_advice_wrapped 48 row 4),
+      --     (4, c.get_advice_wrapped 48 row 5),
+      --     (4, c.get_advice_wrapped 48 row 6),
+      --     (4, c.get_advice_wrapped 48 row 7),
+      --     (4, c.get_advice_wrapped 43 row 4),
+      --     (4, c.get_advice_wrapped 43 row 5),
+      --     (4, c.get_advice_wrapped 43 row 6),
+      --     (4, c.get_advice_wrapped 43 row 7),
+      --     (4, c.get_advice_wrapped 43 row 8),
+      --     (4, c.get_advice_wrapped 43 row 9),
+      --     (4, c.get_advice_wrapped 43 row 10),
+      --     (4, c.get_advice_wrapped 43 row 11),
+      --     (4, c.get_advice_wrapped 48 row 0),
+      --     (4, c.get_advice_wrapped 48 row 1),
+      --     (4, c.get_advice_wrapped 48 row 2),
+      --     (1, c.get_advice_wrapped 141 row 10)
+      --   ] = c.get_advice_wrapped 7 row 8 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 25 row 0),
+      --     (3, c.get_advice_wrapped 25 row 1),
+      --     (3, c.get_advice_wrapped 25 row 2),
+      --     (3, c.get_advice_wrapped 25 row 3),
+      --     (3, c.get_advice_wrapped 25 row 4),
+      --     (3, c.get_advice_wrapped 25 row 5),
+      --     (3, c.get_advice_wrapped 25 row 6),
+      --     (3, c.get_advice_wrapped 25 row 7),
+      --     (3, c.get_advice_wrapped 25 row 8),
+      --     (3, c.get_advice_wrapped 25 row 9),
+      --     (3, c.get_advice_wrapped 25 row 10),
+      --     (3, c.get_advice_wrapped 25 row 11),
+      --     (3, c.get_advice_wrapped 26 row 0),
+      --     (3, c.get_advice_wrapped 26 row 1),
+      --     (3, c.get_advice_wrapped 26 row 2),
+      --     (3, c.get_advice_wrapped 26 row 3),
+      --     (3, c.get_advice_wrapped 26 row 4),
+      --     (3, c.get_advice_wrapped 26 row 5),
+      --     (3, c.get_advice_wrapped 26 row 6),
+      --     (3, c.get_advice_wrapped 26 row 7),
+      --     (3, c.get_advice_wrapped 26 row 8),
+      --     (1, c.get_advice_wrapped 26 row 9),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 30 row 5),
+      --     (3, c.get_advice_wrapped 28 row 8),
+      --     (3, c.get_advice_wrapped 28 row 9),
+      --     (3, c.get_advice_wrapped 28 row 10),
+      --     (3, c.get_advice_wrapped 28 row 11),
+      --     (3, c.get_advice_wrapped 29 row 0),
+      --     (3, c.get_advice_wrapped 29 row 1),
+      --     (3, c.get_advice_wrapped 29 row 2),
+      --     (3, c.get_advice_wrapped 29 row 3),
+      --     (3, c.get_advice_wrapped 29 row 4),
+      --     (3, c.get_advice_wrapped 29 row 5),
+      --     (3, c.get_advice_wrapped 29 row 6),
+      --     (3, c.get_advice_wrapped 29 row 7),
+      --     (3, c.get_advice_wrapped 29 row 8),
+      --     (3, c.get_advice_wrapped 29 row 9),
+      --     (3, c.get_advice_wrapped 29 row 10),
+      --     (3, c.get_advice_wrapped 29 row 11),
+      --     (3, c.get_advice_wrapped 30 row 0),
+      --     (3, c.get_advice_wrapped 30 row 1),
+      --     (3, c.get_advice_wrapped 30 row 2),
+      --     (3, c.get_advice_wrapped 30 row 3),
+      --     (3, c.get_advice_wrapped 30 row 4),
+      --   ])
+      --   := by
+      --     unfold gate_36 at hgate_36
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_36 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_36 row)))
+      --         rewrite [neg_involutive] at hgate_36
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_36]
+      --         clear hgate_36
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_38_split_uniform (c: ValidCircuit P P_Prime) (hgate_38: gate_38 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 142 row 1),
+      --     (4, c.get_advice_wrapped 58 row 4),
+      --     (4, c.get_advice_wrapped 58 row 5),
+      --     (4, c.get_advice_wrapped 58 row 6),
+      --     (4, c.get_advice_wrapped 58 row 7),
+      --     (4, c.get_advice_wrapped 58 row 8),
+      --     (4, c.get_advice_wrapped 58 row 9),
+      --     (4, c.get_advice_wrapped 58 row 10),
+      --     (4, c.get_advice_wrapped 58 row 11),
+      --     (4, c.get_advice_wrapped 63 row 0),
+      --     (4, c.get_advice_wrapped 63 row 1),
+      --     (4, c.get_advice_wrapped 63 row 2),
+      --     (4, c.get_advice_wrapped 63 row 3),
+      --     (4, c.get_advice_wrapped 58 row 0),
+      --     (4, c.get_advice_wrapped 58 row 1),
+      --     (4, c.get_advice_wrapped 58 row 2),
+      --     (3, c.get_advice_wrapped 142 row 0)
+      --   ] = c.get_advice_wrapped 8 row 1 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 26 row 10),
+      --     (3, c.get_advice_wrapped 26 row 11),
+      --     (3, c.get_advice_wrapped 27 row 0),
+      --     (3, c.get_advice_wrapped 27 row 1),
+      --     (3, c.get_advice_wrapped 27 row 2),
+      --     (3, c.get_advice_wrapped 27 row 3),
+      --     (3, c.get_advice_wrapped 27 row 4),
+      --     (3, c.get_advice_wrapped 27 row 5),
+      --     (3, c.get_advice_wrapped 27 row 6),
+      --     (3, c.get_advice_wrapped 27 row 7),
+      --     (3, c.get_advice_wrapped 27 row 8),
+      --     (3, c.get_advice_wrapped 27 row 9),
+      --     (3, c.get_advice_wrapped 27 row 10),
+      --     (3, c.get_advice_wrapped 27 row 11),
+      --     (3, c.get_advice_wrapped 28 row 0),
+      --     (3, c.get_advice_wrapped 28 row 1),
+      --     (3, c.get_advice_wrapped 28 row 2),
+      --     (3, c.get_advice_wrapped 28 row 3),
+      --     (3, c.get_advice_wrapped 28 row 4),
+      --     (3, c.get_advice_wrapped 28 row 5),
+      --     (3, c.get_advice_wrapped 28 row 6),
+      --     (1, c.get_advice_wrapped 28 row 7),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 32 row 3),
+      --     (3, c.get_advice_wrapped 30 row 6),
+      --     (3, c.get_advice_wrapped 30 row 7),
+      --     (3, c.get_advice_wrapped 30 row 8),
+      --     (3, c.get_advice_wrapped 30 row 9),
+      --     (3, c.get_advice_wrapped 30 row 10),
+      --     (3, c.get_advice_wrapped 30 row 11),
+      --     (3, c.get_advice_wrapped 31 row 0),
+      --     (3, c.get_advice_wrapped 31 row 1),
+      --     (3, c.get_advice_wrapped 31 row 2),
+      --     (3, c.get_advice_wrapped 31 row 3),
+      --     (3, c.get_advice_wrapped 31 row 4),
+      --     (3, c.get_advice_wrapped 31 row 5),
+      --     (3, c.get_advice_wrapped 31 row 6),
+      --     (3, c.get_advice_wrapped 31 row 7),
+      --     (3, c.get_advice_wrapped 31 row 8),
+      --     (3, c.get_advice_wrapped 31 row 9),
+      --     (3, c.get_advice_wrapped 31 row 10),
+      --     (3, c.get_advice_wrapped 31 row 11),
+      --     (3, c.get_advice_wrapped 32 row 0),
+      --     (3, c.get_advice_wrapped 32 row 1),
+      --     (3, c.get_advice_wrapped 32 row 2),
+      --   ])
+      --   := by
+      --     unfold gate_38 at hgate_38
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_38 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_38 row)))
+      --         rewrite [neg_involutive] at hgate_38
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_38]
+      --         clear hgate_38
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_40_split_uniform (c: ValidCircuit P P_Prime) (hgate_40: gate_40 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (3, c.get_advice_wrapped 142 row 3),
+      --     (4, c.get_advice_wrapped 38 row 6),
+      --     (4, c.get_advice_wrapped 38 row 7),
+      --     (4, c.get_advice_wrapped 38 row 8),
+      --     (4, c.get_advice_wrapped 38 row 9),
+      --     (4, c.get_advice_wrapped 38 row 10),
+      --     (4, c.get_advice_wrapped 38 row 11),
+      --     (4, c.get_advice_wrapped 43 row 0),
+      --     (4, c.get_advice_wrapped 43 row 1),
+      --     (4, c.get_advice_wrapped 43 row 2),
+      --     (4, c.get_advice_wrapped 43 row 3),
+      --     (4, c.get_advice_wrapped 38 row 0),
+      --     (4, c.get_advice_wrapped 38 row 1),
+      --     (4, c.get_advice_wrapped 38 row 2),
+      --     (4, c.get_advice_wrapped 38 row 3),
+      --     (4, c.get_advice_wrapped 38 row 4),
+      --     (1, c.get_advice_wrapped 142 row 2)
+      --   ] = c.get_advice_wrapped 8 row 6 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 28 row 8),
+      --     (3, c.get_advice_wrapped 28 row 9),
+      --     (3, c.get_advice_wrapped 28 row 10),
+      --     (3, c.get_advice_wrapped 28 row 11),
+      --     (3, c.get_advice_wrapped 29 row 0),
+      --     (3, c.get_advice_wrapped 29 row 1),
+      --     (3, c.get_advice_wrapped 29 row 2),
+      --     (3, c.get_advice_wrapped 29 row 3),
+      --     (3, c.get_advice_wrapped 29 row 4),
+      --     (3, c.get_advice_wrapped 29 row 5),
+      --     (3, c.get_advice_wrapped 29 row 6),
+      --     (3, c.get_advice_wrapped 29 row 7),
+      --     (3, c.get_advice_wrapped 29 row 8),
+      --     (3, c.get_advice_wrapped 29 row 9),
+      --     (3, c.get_advice_wrapped 29 row 10),
+      --     (3, c.get_advice_wrapped 29 row 11),
+      --     (3, c.get_advice_wrapped 30 row 0),
+      --     (3, c.get_advice_wrapped 30 row 1),
+      --     (3, c.get_advice_wrapped 30 row 2),
+      --     (3, c.get_advice_wrapped 30 row 3),
+      --     (3, c.get_advice_wrapped 30 row 4),
+      --     (1, c.get_advice_wrapped 30 row 5),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 34 row 1),
+      --     (3, c.get_advice_wrapped 32 row 4),
+      --     (3, c.get_advice_wrapped 32 row 5),
+      --     (3, c.get_advice_wrapped 32 row 6),
+      --     (3, c.get_advice_wrapped 32 row 7),
+      --     (3, c.get_advice_wrapped 32 row 8),
+      --     (3, c.get_advice_wrapped 32 row 9),
+      --     (3, c.get_advice_wrapped 32 row 10),
+      --     (3, c.get_advice_wrapped 32 row 11),
+      --     (3, c.get_advice_wrapped 33 row 0),
+      --     (3, c.get_advice_wrapped 33 row 1),
+      --     (3, c.get_advice_wrapped 33 row 2),
+      --     (3, c.get_advice_wrapped 33 row 3),
+      --     (3, c.get_advice_wrapped 33 row 4),
+      --     (3, c.get_advice_wrapped 33 row 5),
+      --     (3, c.get_advice_wrapped 33 row 6),
+      --     (3, c.get_advice_wrapped 33 row 7),
+      --     (3, c.get_advice_wrapped 33 row 8),
+      --     (3, c.get_advice_wrapped 33 row 9),
+      --     (3, c.get_advice_wrapped 33 row 10),
+      --     (3, c.get_advice_wrapped 33 row 11),
+      --     (3, c.get_advice_wrapped 34 row 0),
+      --   ])
+      --   := by
+      --     unfold gate_40 at hgate_40
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_40 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_40 row)))
+      --         rewrite [neg_involutive] at hgate_40
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_40]
+      --         clear hgate_40
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_41_split_uniform (c: ValidCircuit P P_Prime) (hgate_41: gate_41 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (4, c.get_advice_wrapped 48 row 10),
+      --     (4, c.get_advice_wrapped 48 row 11),
+      --     (4, c.get_advice_wrapped 53 row 0),
+      --     (4, c.get_advice_wrapped 53 row 1),
+      --     (4, c.get_advice_wrapped 53 row 2),
+      --     (4, c.get_advice_wrapped 53 row 3),
+      --     (4, c.get_advice_wrapped 53 row 4),
+      --     (4, c.get_advice_wrapped 53 row 5),
+      --     (4, c.get_advice_wrapped 53 row 6),
+      --     (4, c.get_advice_wrapped 53 row 7),
+      --     (4, c.get_advice_wrapped 53 row 8),
+      --     (4, c.get_advice_wrapped 53 row 9),
+      --     (4, c.get_advice_wrapped 53 row 10),
+      --     (4, c.get_advice_wrapped 53 row 11),
+      --     (4, c.get_advice_wrapped 48 row 8),
+      --     (4, c.get_advice_wrapped 48 row 9),
+      --   ] = c.get_advice_wrapped 8 row 11 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 30 row 6),
+      --     (3, c.get_advice_wrapped 30 row 7),
+      --     (3, c.get_advice_wrapped 30 row 8),
+      --     (3, c.get_advice_wrapped 30 row 9),
+      --     (3, c.get_advice_wrapped 30 row 10),
+      --     (3, c.get_advice_wrapped 30 row 11),
+      --     (3, c.get_advice_wrapped 31 row 0),
+      --     (3, c.get_advice_wrapped 31 row 1),
+      --     (3, c.get_advice_wrapped 31 row 2),
+      --     (3, c.get_advice_wrapped 31 row 3),
+      --     (3, c.get_advice_wrapped 31 row 4),
+      --     (3, c.get_advice_wrapped 31 row 5),
+      --     (3, c.get_advice_wrapped 31 row 6),
+      --     (3, c.get_advice_wrapped 31 row 7),
+      --     (3, c.get_advice_wrapped 31 row 8),
+      --     (3, c.get_advice_wrapped 31 row 9),
+      --     (3, c.get_advice_wrapped 31 row 10),
+      --     (3, c.get_advice_wrapped 31 row 11),
+      --     (3, c.get_advice_wrapped 32 row 0),
+      --     (3, c.get_advice_wrapped 32 row 1),
+      --     (3, c.get_advice_wrapped 32 row 2),
+      --     (1, c.get_advice_wrapped 32 row 3),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 26 row 9),
+      --     (3, c.get_advice_wrapped 25 row 0),
+      --     (3, c.get_advice_wrapped 25 row 1),
+      --     (3, c.get_advice_wrapped 25 row 2),
+      --     (3, c.get_advice_wrapped 25 row 3),
+      --     (3, c.get_advice_wrapped 25 row 4),
+      --     (3, c.get_advice_wrapped 25 row 5),
+      --     (3, c.get_advice_wrapped 25 row 6),
+      --     (3, c.get_advice_wrapped 25 row 7),
+      --     (3, c.get_advice_wrapped 25 row 8),
+      --     (3, c.get_advice_wrapped 25 row 9),
+      --     (3, c.get_advice_wrapped 25 row 10),
+      --     (3, c.get_advice_wrapped 25 row 11),
+      --     (3, c.get_advice_wrapped 26 row 0),
+      --     (3, c.get_advice_wrapped 26 row 1),
+      --     (3, c.get_advice_wrapped 26 row 2),
+      --     (3, c.get_advice_wrapped 26 row 3),
+      --     (3, c.get_advice_wrapped 26 row 4),
+      --     (3, c.get_advice_wrapped 26 row 5),
+      --     (3, c.get_advice_wrapped 26 row 6),
+      --     (3, c.get_advice_wrapped 26 row 7),
+      --     (3, c.get_advice_wrapped 26 row 8),
+      --   ])
+      --   := by
+      --     unfold gate_41 at hgate_41
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_41 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_41 row)))
+      --         rewrite [neg_involutive] at hgate_41
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_41]
+      --         clear hgate_41
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_43_split_uniform (c: ValidCircuit P P_Prime) (hgate_43: gate_43 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (2, c.get_advice_wrapped 142 row 5),
+      --     (4, c.get_advice_wrapped 54 row 1),
+      --     (4, c.get_advice_wrapped 54 row 2),
+      --     (4, c.get_advice_wrapped 54 row 3),
+      --     (4, c.get_advice_wrapped 54 row 4),
+      --     (4, c.get_advice_wrapped 54 row 5),
+      --     (4, c.get_advice_wrapped 54 row 6),
+      --     (4, c.get_advice_wrapped 54 row 7),
+      --     (4, c.get_advice_wrapped 54 row 8),
+      --     (4, c.get_advice_wrapped 54 row 9),
+      --     (4, c.get_advice_wrapped 54 row 10),
+      --     (4, c.get_advice_wrapped 54 row 11),
+      --     (4, c.get_advice_wrapped 49 row 8),
+      --     (4, c.get_advice_wrapped 49 row 9),
+      --     (4, c.get_advice_wrapped 49 row 10),
+      --     (4, c.get_advice_wrapped 49 row 11),
+      --     (2, c.get_advice_wrapped 142 row 4)
+      --   ] = c.get_advice_wrapped 7 row 4 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 32 row 4),
+      --     (3, c.get_advice_wrapped 32 row 5),
+      --     (3, c.get_advice_wrapped 32 row 6),
+      --     (3, c.get_advice_wrapped 32 row 7),
+      --     (3, c.get_advice_wrapped 32 row 8),
+      --     (3, c.get_advice_wrapped 32 row 9),
+      --     (3, c.get_advice_wrapped 32 row 10),
+      --     (3, c.get_advice_wrapped 32 row 11),
+      --     (3, c.get_advice_wrapped 33 row 0),
+      --     (3, c.get_advice_wrapped 33 row 1),
+      --     (3, c.get_advice_wrapped 33 row 2),
+      --     (3, c.get_advice_wrapped 33 row 3),
+      --     (3, c.get_advice_wrapped 33 row 4),
+      --     (3, c.get_advice_wrapped 33 row 5),
+      --     (3, c.get_advice_wrapped 33 row 6),
+      --     (3, c.get_advice_wrapped 33 row 7),
+      --     (3, c.get_advice_wrapped 33 row 8),
+      --     (3, c.get_advice_wrapped 33 row 9),
+      --     (3, c.get_advice_wrapped 33 row 10),
+      --     (3, c.get_advice_wrapped 33 row 11),
+      --     (3, c.get_advice_wrapped 34 row 0),
+      --     (1, c.get_advice_wrapped 34 row 1),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 28 row 7),
+      --     (3, c.get_advice_wrapped 26 row 10),
+      --     (3, c.get_advice_wrapped 26 row 11),
+      --     (3, c.get_advice_wrapped 27 row 0),
+      --     (3, c.get_advice_wrapped 27 row 1),
+      --     (3, c.get_advice_wrapped 27 row 2),
+      --     (3, c.get_advice_wrapped 27 row 3),
+      --     (3, c.get_advice_wrapped 27 row 4),
+      --     (3, c.get_advice_wrapped 27 row 5),
+      --     (3, c.get_advice_wrapped 27 row 6),
+      --     (3, c.get_advice_wrapped 27 row 7),
+      --     (3, c.get_advice_wrapped 27 row 8),
+      --     (3, c.get_advice_wrapped 27 row 9),
+      --     (3, c.get_advice_wrapped 27 row 10),
+      --     (3, c.get_advice_wrapped 27 row 11),
+      --     (3, c.get_advice_wrapped 28 row 0),
+      --     (3, c.get_advice_wrapped 28 row 1),
+      --     (3, c.get_advice_wrapped 28 row 2),
+      --     (3, c.get_advice_wrapped 28 row 3),
+      --     (3, c.get_advice_wrapped 28 row 4),
+      --     (3, c.get_advice_wrapped 28 row 5),
+      --     (3, c.get_advice_wrapped 28 row 6),
+      --   ])
+      --   := by
+      --     unfold gate_43 at hgate_43
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_43 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_43 row)))
+      --         rewrite [neg_involutive] at hgate_43
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_43]
+      --         clear hgate_43
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_45_split_uniform (c: ValidCircuit P P_Prime) (hgate_45: gate_45 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (2, c.get_advice_wrapped 142 row 7),
+      --     (4, c.get_advice_wrapped 64 row 5),
+      --     (4, c.get_advice_wrapped 64 row 6),
+      --     (4, c.get_advice_wrapped 64 row 7),
+      --     (4, c.get_advice_wrapped 64 row 8),
+      --     (4, c.get_advice_wrapped 64 row 9),
+      --     (4, c.get_advice_wrapped 64 row 10),
+      --     (4, c.get_advice_wrapped 64 row 11),
+      --     (4, c.get_advice_wrapped 69 row 0),
+      --     (4, c.get_advice_wrapped 69 row 1),
+      --     (4, c.get_advice_wrapped 69 row 2),
+      --     (4, c.get_advice_wrapped 69 row 3),
+      --     (4, c.get_advice_wrapped 69 row 4),
+      --     (4, c.get_advice_wrapped 69 row 5),
+      --     (4, c.get_advice_wrapped 69 row 6),
+      --     (4, c.get_advice_wrapped 69 row 7),
+      --     (2, c.get_advice_wrapped 142 row 6)
+      --   ] = c.get_advice_wrapped 7 row 9 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 25 row 0),
+      --     (3, c.get_advice_wrapped 25 row 1),
+      --     (3, c.get_advice_wrapped 25 row 2),
+      --     (3, c.get_advice_wrapped 25 row 3),
+      --     (3, c.get_advice_wrapped 25 row 4),
+      --     (3, c.get_advice_wrapped 25 row 5),
+      --     (3, c.get_advice_wrapped 25 row 6),
+      --     (3, c.get_advice_wrapped 25 row 7),
+      --     (3, c.get_advice_wrapped 25 row 8),
+      --     (3, c.get_advice_wrapped 25 row 9),
+      --     (3, c.get_advice_wrapped 25 row 10),
+      --     (3, c.get_advice_wrapped 25 row 11),
+      --     (3, c.get_advice_wrapped 26 row 0),
+      --     (3, c.get_advice_wrapped 26 row 1),
+      --     (3, c.get_advice_wrapped 26 row 2),
+      --     (3, c.get_advice_wrapped 26 row 3),
+      --     (3, c.get_advice_wrapped 26 row 4),
+      --     (3, c.get_advice_wrapped 26 row 5),
+      --     (3, c.get_advice_wrapped 26 row 6),
+      --     (3, c.get_advice_wrapped 26 row 7),
+      --     (3, c.get_advice_wrapped 26 row 8),
+      --     (1, c.get_advice_wrapped 26 row 9),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 30 row 5),
+      --     (3, c.get_advice_wrapped 28 row 8),
+      --     (3, c.get_advice_wrapped 28 row 9),
+      --     (3, c.get_advice_wrapped 28 row 10),
+      --     (3, c.get_advice_wrapped 28 row 11),
+      --     (3, c.get_advice_wrapped 29 row 0),
+      --     (3, c.get_advice_wrapped 29 row 1),
+      --     (3, c.get_advice_wrapped 29 row 2),
+      --     (3, c.get_advice_wrapped 29 row 3),
+      --     (3, c.get_advice_wrapped 29 row 4),
+      --     (3, c.get_advice_wrapped 29 row 5),
+      --     (3, c.get_advice_wrapped 29 row 6),
+      --     (3, c.get_advice_wrapped 29 row 7),
+      --     (3, c.get_advice_wrapped 29 row 8),
+      --     (3, c.get_advice_wrapped 29 row 9),
+      --     (3, c.get_advice_wrapped 29 row 10),
+      --     (3, c.get_advice_wrapped 29 row 11),
+      --     (3, c.get_advice_wrapped 30 row 0),
+      --     (3, c.get_advice_wrapped 30 row 1),
+      --     (3, c.get_advice_wrapped 30 row 2),
+      --     (3, c.get_advice_wrapped 30 row 3),
+      --     (3, c.get_advice_wrapped 30 row 4),
+      --   ])
+      --   := by
+      --     unfold gate_45 at hgate_45
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_45 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_45 row)))
+      --         rewrite [neg_involutive] at hgate_45
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_45]
+      --         clear hgate_45
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_47_split_uniform (c: ValidCircuit P P_Prime) (hgate_47: gate_47 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (3, c.get_advice_wrapped 142 row 9),
+      --     (4, c.get_advice_wrapped 44 row 4),
+      --     (4, c.get_advice_wrapped 44 row 5),
+      --     (4, c.get_advice_wrapped 44 row 6),
+      --     (4, c.get_advice_wrapped 44 row 7),
+      --     (4, c.get_advice_wrapped 44 row 8),
+      --     (4, c.get_advice_wrapped 44 row 9),
+      --     (4, c.get_advice_wrapped 44 row 10),
+      --     (4, c.get_advice_wrapped 44 row 11),
+      --     (4, c.get_advice_wrapped 49 row 0),
+      --     (4, c.get_advice_wrapped 49 row 1),
+      --     (4, c.get_advice_wrapped 49 row 2),
+      --     (4, c.get_advice_wrapped 49 row 3),
+      --     (4, c.get_advice_wrapped 49 row 4),
+      --     (4, c.get_advice_wrapped 49 row 5),
+      --     (4, c.get_advice_wrapped 49 row 6),
+      --     (1, c.get_advice_wrapped 142 row 8)
+      --   ] = c.get_advice_wrapped 8 row 2 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 26 row 10),
+      --     (3, c.get_advice_wrapped 26 row 11),
+      --     (3, c.get_advice_wrapped 27 row 0),
+      --     (3, c.get_advice_wrapped 27 row 1),
+      --     (3, c.get_advice_wrapped 27 row 2),
+      --     (3, c.get_advice_wrapped 27 row 3),
+      --     (3, c.get_advice_wrapped 27 row 4),
+      --     (3, c.get_advice_wrapped 27 row 5),
+      --     (3, c.get_advice_wrapped 27 row 6),
+      --     (3, c.get_advice_wrapped 27 row 7),
+      --     (3, c.get_advice_wrapped 27 row 8),
+      --     (3, c.get_advice_wrapped 27 row 9),
+      --     (3, c.get_advice_wrapped 27 row 10),
+      --     (3, c.get_advice_wrapped 27 row 11),
+      --     (3, c.get_advice_wrapped 28 row 0),
+      --     (3, c.get_advice_wrapped 28 row 1),
+      --     (3, c.get_advice_wrapped 28 row 2),
+      --     (3, c.get_advice_wrapped 28 row 3),
+      --     (3, c.get_advice_wrapped 28 row 4),
+      --     (3, c.get_advice_wrapped 28 row 5),
+      --     (3, c.get_advice_wrapped 28 row 6),
+      --     (1, c.get_advice_wrapped 28 row 7),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 32 row 3),
+      --     (3, c.get_advice_wrapped 30 row 6),
+      --     (3, c.get_advice_wrapped 30 row 7),
+      --     (3, c.get_advice_wrapped 30 row 8),
+      --     (3, c.get_advice_wrapped 30 row 9),
+      --     (3, c.get_advice_wrapped 30 row 10),
+      --     (3, c.get_advice_wrapped 30 row 11),
+      --     (3, c.get_advice_wrapped 31 row 0),
+      --     (3, c.get_advice_wrapped 31 row 1),
+      --     (3, c.get_advice_wrapped 31 row 2),
+      --     (3, c.get_advice_wrapped 31 row 3),
+      --     (3, c.get_advice_wrapped 31 row 4),
+      --     (3, c.get_advice_wrapped 31 row 5),
+      --     (3, c.get_advice_wrapped 31 row 6),
+      --     (3, c.get_advice_wrapped 31 row 7),
+      --     (3, c.get_advice_wrapped 31 row 8),
+      --     (3, c.get_advice_wrapped 31 row 9),
+      --     (3, c.get_advice_wrapped 31 row 10),
+      --     (3, c.get_advice_wrapped 31 row 11),
+      --     (3, c.get_advice_wrapped 32 row 0),
+      --     (3, c.get_advice_wrapped 32 row 1),
+      --     (3, c.get_advice_wrapped 32 row 2),
+      --   ])
+      --   := by
+      --     unfold gate_47 at hgate_47
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_47 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_47 row)))
+      --         rewrite [neg_involutive] at hgate_47
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_47]
+      --         clear hgate_47
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_48_split_uniform (c: ValidCircuit P P_Prime) (hgate_48: gate_48 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (4, c.get_advice_wrapped 64 row 2),
+      --     (4, c.get_advice_wrapped 64 row 3),
+      --     (4, c.get_advice_wrapped 59 row 0),
+      --     (4, c.get_advice_wrapped 59 row 1),
+      --     (4, c.get_advice_wrapped 59 row 2),
+      --     (4, c.get_advice_wrapped 59 row 3),
+      --     (4, c.get_advice_wrapped 59 row 4),
+      --     (4, c.get_advice_wrapped 59 row 5),
+      --     (4, c.get_advice_wrapped 59 row 6),
+      --     (4, c.get_advice_wrapped 59 row 7),
+      --     (4, c.get_advice_wrapped 59 row 8),
+      --     (4, c.get_advice_wrapped 59 row 9),
+      --     (4, c.get_advice_wrapped 59 row 10),
+      --     (4, c.get_advice_wrapped 59 row 11),
+      --     (4, c.get_advice_wrapped 64 row 0),
+      --     (4, c.get_advice_wrapped 64 row 1)
+      --   ] = c.get_advice_wrapped 8 row 7 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 28 row 8),
+      --     (3, c.get_advice_wrapped 28 row 9),
+      --     (3, c.get_advice_wrapped 28 row 10),
+      --     (3, c.get_advice_wrapped 28 row 11),
+      --     (3, c.get_advice_wrapped 29 row 0),
+      --     (3, c.get_advice_wrapped 29 row 1),
+      --     (3, c.get_advice_wrapped 29 row 2),
+      --     (3, c.get_advice_wrapped 29 row 3),
+      --     (3, c.get_advice_wrapped 29 row 4),
+      --     (3, c.get_advice_wrapped 29 row 5),
+      --     (3, c.get_advice_wrapped 29 row 6),
+      --     (3, c.get_advice_wrapped 29 row 7),
+      --     (3, c.get_advice_wrapped 29 row 8),
+      --     (3, c.get_advice_wrapped 29 row 9),
+      --     (3, c.get_advice_wrapped 29 row 10),
+      --     (3, c.get_advice_wrapped 29 row 11),
+      --     (3, c.get_advice_wrapped 30 row 0),
+      --     (3, c.get_advice_wrapped 30 row 1),
+      --     (3, c.get_advice_wrapped 30 row 2),
+      --     (3, c.get_advice_wrapped 30 row 3),
+      --     (3, c.get_advice_wrapped 30 row 4),
+      --     (1, c.get_advice_wrapped 30 row 5),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 34 row 1),
+      --     (3, c.get_advice_wrapped 32 row 4),
+      --     (3, c.get_advice_wrapped 32 row 5),
+      --     (3, c.get_advice_wrapped 32 row 6),
+      --     (3, c.get_advice_wrapped 32 row 7),
+      --     (3, c.get_advice_wrapped 32 row 8),
+      --     (3, c.get_advice_wrapped 32 row 9),
+      --     (3, c.get_advice_wrapped 32 row 10),
+      --     (3, c.get_advice_wrapped 32 row 11),
+      --     (3, c.get_advice_wrapped 33 row 0),
+      --     (3, c.get_advice_wrapped 33 row 1),
+      --     (3, c.get_advice_wrapped 33 row 2),
+      --     (3, c.get_advice_wrapped 33 row 3),
+      --     (3, c.get_advice_wrapped 33 row 4),
+      --     (3, c.get_advice_wrapped 33 row 5),
+      --     (3, c.get_advice_wrapped 33 row 6),
+      --     (3, c.get_advice_wrapped 33 row 7),
+      --     (3, c.get_advice_wrapped 33 row 8),
+      --     (3, c.get_advice_wrapped 33 row 9),
+      --     (3, c.get_advice_wrapped 33 row 10),
+      --     (3, c.get_advice_wrapped 33 row 11),
+      --     (3, c.get_advice_wrapped 34 row 0),
+      --   ])
+      --   := by
+      --     unfold gate_48 at hgate_48
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_48 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_48 row)))
+      --         rewrite [neg_involutive] at hgate_48
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_48]
+      --         clear hgate_48
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+      -- lemma gate_50_split_uniform (c: ValidCircuit P P_Prime) (hgate_50: gate_50 c): ∀ row < c.n,
+      --   c.get_fixed 2 row = 0 ∨
+      --   Decode.expr [
+      --     (2, c.get_advice_wrapped 142 row 11),
+      --     (4, c.get_advice_wrapped 39 row 4),
+      --     (4, c.get_advice_wrapped 39 row 5),
+      --     (4, c.get_advice_wrapped 39 row 6),
+      --     (4, c.get_advice_wrapped 39 row 7),
+      --     (4, c.get_advice_wrapped 39 row 8),
+      --     (4, c.get_advice_wrapped 39 row 9),
+      --     (4, c.get_advice_wrapped 39 row 10),
+      --     (4, c.get_advice_wrapped 39 row 11),
+      --     (4, c.get_advice_wrapped 44 row 0),
+      --     (4, c.get_advice_wrapped 44 row 1),
+      --     (4, c.get_advice_wrapped 44 row 2),
+      --     (4, c.get_advice_wrapped 44 row 3),
+      --     (4, c.get_advice_wrapped 39 row 0),
+      --     (4, c.get_advice_wrapped 39 row 1),
+      --     (4, c.get_advice_wrapped 39 row 2),
+      --     (2, c.get_advice_wrapped 142 row 10),
+      --   ] = c.get_advice_wrapped 9 row 0 +
+      --   (Decode.expr [
+      --     (3, c.get_advice_wrapped 30 row 6),
+      --     (3, c.get_advice_wrapped 30 row 7),
+      --     (3, c.get_advice_wrapped 30 row 8),
+      --     (3, c.get_advice_wrapped 30 row 9),
+      --     (3, c.get_advice_wrapped 30 row 10),
+      --     (3, c.get_advice_wrapped 30 row 11),
+      --     (3, c.get_advice_wrapped 31 row 0),
+      --     (3, c.get_advice_wrapped 31 row 1),
+      --     (3, c.get_advice_wrapped 31 row 2),
+      --     (3, c.get_advice_wrapped 31 row 3),
+      --     (3, c.get_advice_wrapped 31 row 4),
+      --     (3, c.get_advice_wrapped 31 row 5),
+      --     (3, c.get_advice_wrapped 31 row 6),
+      --     (3, c.get_advice_wrapped 31 row 7),
+      --     (3, c.get_advice_wrapped 31 row 8),
+      --     (3, c.get_advice_wrapped 31 row 9),
+      --     (3, c.get_advice_wrapped 31 row 10),
+      --     (3, c.get_advice_wrapped 31 row 11),
+      --     (3, c.get_advice_wrapped 32 row 0),
+      --     (3, c.get_advice_wrapped 32 row 1),
+      --     (3, c.get_advice_wrapped 32 row 2),
+      --     (1, c.get_advice_wrapped 32 row 3),
+      --   ] +
+      --   Decode.expr [
+      --     (1, c.get_advice_wrapped 26 row 9),
+      --     (3, c.get_advice_wrapped 25 row 0),
+      --     (3, c.get_advice_wrapped 25 row 1),
+      --     (3, c.get_advice_wrapped 25 row 2),
+      --     (3, c.get_advice_wrapped 25 row 3),
+      --     (3, c.get_advice_wrapped 25 row 4),
+      --     (3, c.get_advice_wrapped 25 row 5),
+      --     (3, c.get_advice_wrapped 25 row 6),
+      --     (3, c.get_advice_wrapped 25 row 7),
+      --     (3, c.get_advice_wrapped 25 row 8),
+      --     (3, c.get_advice_wrapped 25 row 9),
+      --     (3, c.get_advice_wrapped 25 row 10),
+      --     (3, c.get_advice_wrapped 25 row 11),
+      --     (3, c.get_advice_wrapped 26 row 0),
+      --     (3, c.get_advice_wrapped 26 row 1),
+      --     (3, c.get_advice_wrapped 26 row 2),
+      --     (3, c.get_advice_wrapped 26 row 3),
+      --     (3, c.get_advice_wrapped 26 row 4),
+      --     (3, c.get_advice_wrapped 26 row 5),
+      --     (3, c.get_advice_wrapped 26 row 6),
+      --     (3, c.get_advice_wrapped 26 row 7),
+      --     (3, c.get_advice_wrapped 26 row 8),
+      --   ])
+      --   := by
+      --     unfold gate_50 at hgate_50
+      --     intro row h_row_range
+      --     cases eq_zero_or_neZero (c.get_fixed 2 row) with
+      --       | inl hzero => left; assumption
+      --       | inr h_non_zero =>
+      --         right
+      --         have no_zero_div := no_zero_divisors_zmod_p P_Prime
+      --         replace hgate_50 := eq_neg_of_add_eq_zero_left ((or_iff_right (h_non_zero.out)).mp (eq_zero_or_eq_zero_of_mul_eq_zero (hgate_50 row)))
+      --         rewrite [neg_involutive] at hgate_50
+      --         simp only [ValidCircuit.get_advice_wrapped, add_zero, Nat.mod_eq_of_lt h_row_range]
+      --         unfold Decode.expr
+      --         simp only [BIT_COUNT, List.foldr_nil, List.foldr_cons, Nat.reduceMul, zmod_2pow6, zmod_2pow12, zmod_2pow3, zmod_2pow9, mul_comm]
+      --         simp only [mul_comm (0: ZMod P)]
+      --         rewrite [hgate_50]
+      --         clear hgate_50
+      --         rewrite [add_right_inj]
+      --         apply split_add
+      --         rfl
+      --         rfl
+
+    end SplitUniform
+
+  end Gates
+
+end Keccak
