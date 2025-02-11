@@ -48,7 +48,11 @@ lemma list_rotateLeft_eq_of_eq_rotateRight {l l': List T} (h: l = l'.rotateRight
         have h_x_range: x < l'.length := by simp [←h_x]; apply Nat.mod_lt; linarith
         simp [Nat.sub_sub_eq_min, min_eq_right (le_of_lt h_x_range)]
       simp [h2]
+      apply List.ext_get?
+      simp [List.getElem?_append]
+      intro n
       sorry
+
 
 
 lemma split_add [Add G] (a b c d: G) (h1: a = c) (h2: b = d): a + b = c + d := by
