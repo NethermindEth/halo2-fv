@@ -1,7 +1,7 @@
 import Examples.Scroll.Keccak.Spec.Program
 import Examples.Scroll.Keccak.Spec.Decode
 import Examples.Scroll.Keccak.Spec.KeccakConstants
-import Examples.Scroll.Keccak.Spec.Os
+import Examples.Scroll.Keccak.Spec.Os.All
 
 namespace Keccak
 
@@ -13,12 +13,12 @@ namespace Keccak
 
       lemma gate_16_split_uniform (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hsplit_gate: gate_16 c) (h_n: 299 < c.n):
         ∀ round ≤ 23,
-        SplitUniform.constraint c round
-          (output_cells := rho_pi_chi_cells c round 0 1 3)
+        SplitUniform.constraint c (round+1)
+          (output_cells := rho_pi_chi_cells c (round+1) 0 1 3)
           (cell_offset := 1600)
           (rot := RHO_MATRIX 0 1)
           (target_part_size := get_num_bits_per_base_chi_lookup)
-          (input := os c round 0 1)
+          (input := os c (round+1) 0 1)
         := by
           unfold gate_16 at hsplit_gate
           intro round h_round_range
@@ -42,12 +42,12 @@ namespace Keccak
 
       lemma gate_17_split_uniform (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hsplit_gate: gate_17 c) (h_n: 299 < c.n):
         ∀ round ≤ 23,
-        SplitUniform.constraint c round
-          (output_cells := rho_pi_chi_cells c round 0 1 0)
+        SplitUniform.constraint c (round+1)
+          (output_cells := rho_pi_chi_cells c (round+1) 0 1 0)
           (cell_offset := 1600)
           (rot := RHO_MATRIX 1 1)
           (target_part_size := get_num_bits_per_base_chi_lookup)
-          (input := os c round 1 1)
+          (input := os c (round+1) 1 1)
         := by
           unfold gate_17 at hsplit_gate
           intro round h_round_range
@@ -70,12 +70,12 @@ namespace Keccak
 
       lemma gate_18_19_split_uniform (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hrot_gate: gate_18 c) (hsplit_gate: gate_19 c) (h_n: 299 < c.n):
         ∀ round ≤ 23,
-        SplitUniform.constraint c round
-          (output_cells := rho_pi_chi_cells c round 0 1 2)
+        SplitUniform.constraint c (round+1)
+          (output_cells := rho_pi_chi_cells c (round+1) 0 1 2)
           (cell_offset := 1602)
           (rot := RHO_MATRIX 2 1)
           (target_part_size := get_num_bits_per_base_chi_lookup)
-          (input := os c round 2 1)
+          (input := os c (round+1) 2 1)
         := by
           unfold gate_18 at hrot_gate
           unfold gate_19 at hsplit_gate
@@ -104,12 +104,12 @@ namespace Keccak
 
       lemma gate_20_21_split_uniform (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hrot_gate: gate_20 c) (hsplit_gate: gate_21 c) (h_n: 299 < c.n):
         ∀ round ≤ 23,
-        SplitUniform.constraint c round
-          (output_cells := rho_pi_chi_cells c round 0 1 4)
+        SplitUniform.constraint c (round+1)
+          (output_cells := rho_pi_chi_cells c (round+1) 0 1 4)
           (cell_offset := 1604)
           (rot := RHO_MATRIX 3 1)
           (target_part_size := get_num_bits_per_base_chi_lookup)
-          (input := os c round 3 1)
+          (input := os c (round+1) 3 1)
         := by
           unfold gate_20 at hrot_gate
           unfold gate_21 at hsplit_gate
@@ -141,12 +141,12 @@ namespace Keccak
 
       lemma gate_22_split_uniform (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hsplit_gate: gate_22 c) (h_n: 299 < c.n):
         ∀ round ≤ 23,
-        SplitUniform.constraint c round
-          (output_cells := rho_pi_chi_cells c round 0 1 1)
+        SplitUniform.constraint c (round+1)
+          (output_cells := rho_pi_chi_cells c (round+1) 0 1 1)
           (cell_offset := 1606)
           (rot := RHO_MATRIX 4 1)
           (target_part_size := get_num_bits_per_base_chi_lookup)
-          (input := os c round 4 1)
+          (input := os c (round+1) 4 1)
         := by
           unfold gate_22 at hsplit_gate
           intro round h_round_range

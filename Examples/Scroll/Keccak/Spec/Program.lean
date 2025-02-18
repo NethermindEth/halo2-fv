@@ -265,4 +265,11 @@ namespace Keccak
   -- Squeeze (line 477)
   def continue_hash (c: ValidCircuit P P_Prime) (row: ℕ) : Prop := ¬start_new_hash c row
 
+  -- Some general input checks (line 592)
+  def boolean_is_final (c: ValidCircuit P P_Prime): Prop :=
+    ∀ round ≤ 25, is_final c (12*round) = 0 ∨ is_final c (12*round) = 1
+
+  def is_final_disabled_on_first_row (c: ValidCircuit P P_Prime): Prop :=
+    is_final c 0 = 0
+
 end Keccak

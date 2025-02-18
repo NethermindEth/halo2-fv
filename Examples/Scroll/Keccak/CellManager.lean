@@ -4,14 +4,14 @@ import Examples.Scroll.Keccak.Util
 
 namespace Keccak
   def cell_manager (c: ValidCircuit P P_Prime) (round idx: ℕ) :=
-    c.get_advice_wrapped (7 + idx/12) (12*(round+1)) (idx % 12)
+    c.get_advice_wrapped (7 + idx/12) (12*round) (idx % 12)
 
-  lemma cell_manager_to_raw: cell_manager c round idx = c.get_advice (7 + idx/12) (((12*(round+1)) + (idx % 12)) % c.n) := by
+  lemma cell_manager_to_raw: cell_manager c round idx = c.get_advice (7 + idx/12) (((12*round) + (idx % 12)) % c.n) := by
     rfl
 
-  lemma get_advice_with_rot_to_cell_manager (c: ValidCircuit P P_Prime) (h_range: row + rot < c.n) (h_col: 7 ≤ col) (h_row: 12 ≤ row):
+  lemma get_advice_with_rot_to_cell_manager (c: ValidCircuit P P_Prime) (h_range: row + rot < c.n) (h_col: 7 ≤ col):
     c.get_advice col ((row + rot) % c.n) =
-    cell_manager c (round := ((row+rot)/12)-1) (idx := 12*(col-7)+((row+rot)%12))
+    cell_manager c (round := (row+rot)/12) (idx := 12*(col-7)+((row+rot)%12))
   := by
     simp only [cell_manager_to_raw, Nat.add_mod_mod, Nat.mod_eq_of_lt h_range]
     congr
@@ -21,31 +21,26 @@ namespace Keccak
     rewrite [add_mul, mul_comm 12]
     simp [Nat.mod_lt]
     simp [Nat.add_mod _ (row+rot) 12]
-    have h_sub_add: (row + rot) / 12 - 1 + 1 = (row + rot) / 12 := by
-      rw [Nat.sub_add_cancel]
-      simp [h_row, Nat.le_div_iff_mul_le']
-      exact Nat.le_add_right_of_le h_row
-    rewrite [h_sub_add]
     simp [add_comm, Nat.mod_add_div, Nat.mod_eq_of_lt h_range]
 
-  lemma get_advice_in_round_to_cell_manager_zero_rot (h_col: 7 ≤ col) (h_range: 12*(round+1) < c.n):
-    c.get_advice col (12*(round+1)) =
+  lemma get_advice_in_round_to_cell_manager_zero_rot (h_col: 7 ≤ col) (h_range: 12*round < c.n):
+    c.get_advice col (12*round) =
     cell_manager c round (12*(col-7))
   := by
     simp only [cell_manager_to_raw]
     rewrite [Nat.mul_div_cancel_left (col-7) (by trivial)]
     simp [h_col, Nat.mod_eq_of_lt h_range]
 
-  @[to_cell_manager] lemma get_advice_in_round_to_cell_manager_zero_rot' (h_col: 7 ≤ col) (h_range: 12*(round+1) + 11 < c.n):
-    c.get_advice col (12*(round+1)) =
+  @[to_cell_manager] lemma get_advice_in_round_to_cell_manager_zero_rot' (h_col: 7 ≤ col) (h_range: 12*round + 11 < c.n):
+    c.get_advice col (12*round) =
     cell_manager c round (12*(col-7))
   := by
     rw [get_advice_in_round_to_cell_manager_zero_rot]
     assumption
     linarith
 
-  @[to_cell_manager] lemma get_advice_in_round_to_cell_manager_zero_rot_mod (h_col: 7 ≤ col) (h_range: (12*(round+1) + 11 < c.n)):
-    c.get_advice col ((12*(round+1)) % c.n) =
+  @[to_cell_manager] lemma get_advice_in_round_to_cell_manager_zero_rot_mod (h_col: 7 ≤ col) (h_range: (12*round + 11 < c.n)):
+    c.get_advice col ((12*round) % c.n) =
     cell_manager c round (12*(col-7))
   := by
     rw [Nat.mod_eq_of_lt, get_advice_in_round_to_cell_manager_zero_rot]
@@ -53,24 +48,21 @@ namespace Keccak
     linarith
     linarith
 
-  @[to_cell_manager] lemma get_advice_in_round_to_cell_manager_with_rot (h_col: 7 ≤ col) (h_range: 12*(round+1) + 11 < c.n) (h_rot: rot < 12):
-    c.get_advice col ((12*(round+1) + rot) % c.n) =
+  @[to_cell_manager] lemma get_advice_in_round_to_cell_manager_with_rot (h_col: 7 ≤ col) (h_range: 12*round + 11 < c.n) (h_rot: rot < 12):
+    c.get_advice col ((12*round + rot) % c.n) =
     cell_manager c round (12*(col-7)+rot)
   := by
-    have h_rot_range : 12*(round+1) + rot < c.n := by
-      linarith
+    have h_rot_range : 12*round + rot < c.n := by linarith
     simp [get_advice_with_rot_to_cell_manager, *]
     simp [Nat.mul_add_mod, Nat.mod_eq_of_lt h_rot]
     congr
     simp [Nat.mul_add_div, Nat.div_eq_zero_iff, h_rot]
 
-  @[to_cell_manager] lemma get_advice_wrapped_to_cell_manager (h_col: 7 ≤ col) (h_range: 12*(round+1) + 11 < c.n) (h_rot: rot < 12):
-    c.get_advice_wrapped col (12*(round+1)) rot =
+  @[to_cell_manager] lemma get_advice_wrapped_to_cell_manager (h_col: 7 ≤ col) (h_range: 12*round + 11 < c.n) (h_rot: rot < 12):
+    c.get_advice_wrapped col (12*round) rot =
     cell_manager c round (12*(col-7)+rot)
   := by
     simp only [ValidCircuit.get_advice_wrapped, get_advice_in_round_to_cell_manager_with_rot, *]
-
-
 
 end Keccak
 

@@ -8,7 +8,7 @@ namespace Keccak
   namespace Gates
 
     namespace AbsorbVerifyInput
-      lemma gate_78_absorb_verify_input (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hgate: gate_78 c):
+      lemma gate_78_absorb_verify_input (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hgate: gate_78 c) (h_n: 300 < c.n):
         ∀ round, (round = 0 ∨ round = 25) →
           continue_hash c (12*round) → (
             absorb_from c (round+1) = s c round 0 0
@@ -40,6 +40,11 @@ namespace Keccak
             rewrite [neg_involutive] at heq
             unfold absorb_from s cell_manager ValidCircuit.get_advice_wrapped
             norm_num
+            simp only [mul_add, Nat.reduceMul, add_assoc, Nat.reduceAdd]
+            rewrite [heq]
+            cases hround with
+              | inl hround => simp only [hround, mul_zero, Nat.zero_mod]
+              | inr hround => simp only [hround, Nat.reduceMul, Nat.mod_eq_of_lt h_n]
 
     end AbsorbVerifyInput
 

@@ -11,7 +11,7 @@ namespace Keccak
 
       lemma gate_68_next_row_check (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hgate: gate_68 c) (h_n: 311 < c.n):
         ∀ round ≤ 23,
-        iota_s c round 3 1 = s c (round+1) 3 1
+        iota_s c (round+1) 3 1 = s c (round+2) 3 1
       := by
         unfold gate_68 at hgate
         intro round h_round_range

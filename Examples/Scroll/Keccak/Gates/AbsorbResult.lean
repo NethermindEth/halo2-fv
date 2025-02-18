@@ -9,11 +9,11 @@ namespace Keccak
 
       lemma gate_1_absorb_result (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hgate_1: gate_1 c) (h_n: 299 < c.n):
         ∀ round ≤ 23,
-        Split.constraint c round
+        Split.constraint c (round+1)
           (cell_offset := 48)
           (rot := 0)
           (target_part_size := get_num_bits_per_absorb_lookup)
-          (input := absorb_result c round)
+          (input := absorb_result c (round+1))
         := by
           unfold gate_1 at hgate_1
           intro round h_round_range

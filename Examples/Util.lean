@@ -81,6 +81,13 @@ lemma list_rotateLeft_eq_of_eq_rotateRight {l l': List T} (h: l = l'.rotateRight
     }
   }
 
+lemma list_eq_rotateRight_of_rotateLeft_eq {l l': List T} (h: l.rotateLeft k = l'): l = l'.rotateRight k := by
+  subst h
+  simp only [List.rotateRight, list_rotateLeft_length]
+  simp only [List.rotateLeft]
+  if h_l: l.length ≤ 1
+  then simp [h_l]
+  else simp [h_l]
 
 lemma split_add [Add G] (a b c d: G) (h1: a = c) (h2: b = d): a + b = c + d := by
   rewrite [h1, h2]
@@ -89,6 +96,20 @@ lemma split_add [Add G] (a b c d: G) (h1: a = c) (h2: b = d): a + b = c + d := b
 lemma no_zero_divisors_zmod_p {P: ℕ} (P_Prime: Nat.Prime P): NoZeroDivisors (ZMod P) := by
   have fact_prime : Fact P.Prime := by simp [fact_iff, P_Prime]
   refine IsDomain.to_noZeroDivisors (ZMod P)
+
+lemma zmod_p_one_neq_zero {P: ℕ} (P_Prime: Nat.Prime P) : (1: ZMod P) ≠ (0: ZMod P) := by
+  simp_all only [ne_eq]
+  apply Aesop.BuiltinRules.not_intro
+  intro a
+  have h: (1: ZMod P).val = 0 := by simp [ZMod.val_eq_one, a]
+  rw [ZMod.val_one_eq_one_mod] at h
+  rw [Nat.one_mod_eq_zero_iff] at h
+  rw [h] at P_Prime
+  contradiction
+
+lemma zmod_not_zero_eq_one {P: ℕ} {P_Prime: Nat.Prime P}: ((@OfNat.ofNat (ZMod P) 0 Zero.toOfNat0) = (@OfNat.ofNat (ZMod P) 1 One.toOfNat1)) = False := by
+  have h := zmod_p_one_neq_zero P_Prime
+  aesop
 
 lemma zmod_pow {P: ℕ} (a b c:ℕ) (h: a^b=c): ((a: ZMod P)^b) = (c: ZMod P) := by
   aesop
