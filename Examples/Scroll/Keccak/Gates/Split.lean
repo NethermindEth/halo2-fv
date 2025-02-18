@@ -1,3 +1,5 @@
+import Examples.Scroll.Keccak.Spec.Decode
+import Examples.Scroll.Keccak.Spec.IotaS
 import Examples.Scroll.Keccak.Spec.KeccakConstants
 import Examples.Scroll.Keccak.Spec.Program
 
@@ -160,26 +162,7 @@ namespace Keccak
           (cell_offset := 1632)
           (rot := 0)
           (target_part_size := get_num_bits_per_absorb_lookup)
-          (input :=
-            Decode.expr [ -- chi_os[0][0]
-              (4, c.get_advice_wrapped 105 (12*(round+1)) 0),
-              (4, c.get_advice_wrapped 105 (12*(round+1)) 1),
-              (4, c.get_advice_wrapped 105 (12*(round+1)) 2),
-              (4, c.get_advice_wrapped 105 (12*(round+1)) 3),
-              (4, c.get_advice_wrapped 105 (12*(round+1)) 4),
-              (4, c.get_advice_wrapped 105 (12*(round+1)) 5),
-              (4, c.get_advice_wrapped 105 (12*(round+1)) 6),
-              (4, c.get_advice_wrapped 105 (12*(round+1)) 7),
-              (4, c.get_advice_wrapped 105 (12*(round+1)) 8),
-              (4, c.get_advice_wrapped 105 (12*(round+1)) 9),
-              (4, c.get_advice_wrapped 105 (12*(round+1)) 10),
-              (4, c.get_advice_wrapped 105 (12*(round+1)) 11),
-              (4, c.get_advice_wrapped 110 (12*(round+1)) 0),
-              (4, c.get_advice_wrapped 110 (12*(round+1)) 1),
-              (4, c.get_advice_wrapped 110 (12*(round+1)) 2),
-              (4, c.get_advice_wrapped 110 (12*(round+1)) 3)
-            ] + round_cst c (12*(round+1))
-          )
+          (input := os' c round 0 0 + round_cst c (12*(round+1)))
         := by
           unfold gate_51 at hgate
           intro round h_round_range
@@ -189,10 +172,17 @@ namespace Keccak
           replace hgate := eq_neg_of_add_eq_zero_left hgate
           rewrite [neg_involutive] at hgate
           have h_row_range : (12 * (round+1)) + 11 < c.n := by linarith
+          simp only [to_decode] at hgate
           simp [to_cell_manager, h_row_range] at hgate
-          simp [Split.constraint, keccak_constants, Split.expr, word_parts_known, List.enum, Decode.expr, zmod_pow_simps]
-          rewrite [hgate]
-          simp [to_cell_manager, h_row_range, round_cst, h_fixed, ValidCircuit.get_fixed]
+          simp only [to_iota_s] at hgate
+          unfold Split.constraint
+          simp only [keccak_constants]
+          unfold Split.expr
+          simp only [word_parts_known]
+          simp only [round_cst, ValidCircuit.get_fixed, h_fixed]
+          rw [←hgate]
+          rfl
+
 
       lemma gate_77_split (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hgate: gate_77 c) (h_n: 299 < c.n):
         ∀ round ≤ 23,

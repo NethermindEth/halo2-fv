@@ -13,6 +13,47 @@ namespace Keccak
       simp only [OfNat.ofNat, Nat.mod_eq_of_lt, hp, hi, hj, hidx']
       simp only [mul_assoc, Nat.reduceMul]
 
+  @[to_iota_s] lemma to_os'_0_0: Decode.expr [
+      (4, cell_manager c round 1176),
+      (4, cell_manager c round 1177),
+      (4, cell_manager c round 1178),
+      (4, cell_manager c round 1179),
+      (4, cell_manager c round 1180),
+      (4, cell_manager c round 1181),
+      (4, cell_manager c round 1182),
+      (4, cell_manager c round 1183),
+      (4, cell_manager c round 1184),
+      (4, cell_manager c round 1185),
+      (4, cell_manager c round 1186),
+      (4, cell_manager c round 1187),
+      (4, cell_manager c round 1236),
+      (4, cell_manager c round 1237),
+      (4, cell_manager c round 1238),
+      (4, cell_manager c round 1239),
+    ] = os' c round 0 0 := by
+    unfold os'
+    congr
+    simp only [keccak_constants]
+    simp only [List.range, List.range.loop]
+    simp only [List.map]
+    simp only [Fin.isValue, Nat.cast_zero, Nat.cast_one, Nat.cast_ofNat, List.cons.injEq, Prod.mk.injEq, true_and, and_true]
+    apply And.intro; rw [rho_pi_chi_cells_address 2 0 0 0 (by trivial) (by trivial) (by trivial) ( by trivial)]
+    apply And.intro; rw [rho_pi_chi_cells_address 2 0 0 1 (by trivial) (by trivial) (by trivial) ( by trivial)]
+    apply And.intro; rw [rho_pi_chi_cells_address 2 0 0 2 (by trivial) (by trivial) (by trivial) ( by trivial)]
+    apply And.intro; rw [rho_pi_chi_cells_address 2 0 0 3 (by trivial) (by trivial) (by trivial) ( by trivial)]
+    apply And.intro; rw [rho_pi_chi_cells_address 2 0 0 4 (by trivial) (by trivial) (by trivial) ( by trivial)]
+    apply And.intro; rw [rho_pi_chi_cells_address 2 0 0 5 (by trivial) (by trivial) (by trivial) ( by trivial)]
+    apply And.intro; rw [rho_pi_chi_cells_address 2 0 0 6 (by trivial) (by trivial) (by trivial) ( by trivial)]
+    apply And.intro; rw [rho_pi_chi_cells_address 2 0 0 7 (by trivial) (by trivial) (by trivial) ( by trivial)]
+    apply And.intro; rw [rho_pi_chi_cells_address 2 0 0 8 (by trivial) (by trivial) (by trivial) ( by trivial)]
+    apply And.intro; rw [rho_pi_chi_cells_address 2 0 0 9 (by trivial) (by trivial) (by trivial) ( by trivial)]
+    apply And.intro; rw [rho_pi_chi_cells_address 2 0 0 10 (by trivial) (by trivial) (by trivial) ( by trivial)]
+    apply And.intro; rw [rho_pi_chi_cells_address 2 0 0 11 (by trivial) (by trivial) (by trivial) ( by trivial)]
+    apply And.intro; rw [rho_pi_chi_cells_address 2 0 0 12 (by trivial) (by trivial) (by trivial) ( by trivial)]
+    apply And.intro; rw [rho_pi_chi_cells_address 2 0 0 13 (by trivial) (by trivial) (by trivial) ( by trivial)]
+    apply And.intro; rw [rho_pi_chi_cells_address 2 0 0 14 (by trivial) (by trivial) (by trivial) ( by trivial)]
+    rw [rho_pi_chi_cells_address 2 0 0 15 (by trivial) (by trivial) (by trivial) ( by trivial)]
+
   @[to_iota_s] lemma to_iota_s_0_0: Decode.expr
     [(6, cell_manager c round 1644), (6, cell_manager c round 1645), (6, cell_manager c round 1646),
       (6, cell_manager c round 1647), (6, cell_manager c round 1648), (6, cell_manager c round 1649),

@@ -59,6 +59,13 @@ namespace Keccak
           | 0 => rfl | 1 => rfl | 2 => rfl | 3 => rfl | 4 => rfl | 5 => rfl | 6 => rfl | 7 => rfl | 8 => rfl | 9 => rfl
           | 10 => rfl | 11 => rfl | 12 => rfl | 13 => rfl | 14 => rfl | 15 => rfl | 16 => rfl | 17 => rfl | 18 => rfl | 19 => rfl
           | 20 => rfl | 21 => rfl | 22 => rfl | 23 => rfl | x+24 => aesop
+
+    --get_fixed 3
+    lemma q_absorb_at_start_or_end (c: ValidCircuit P P_Prime) (h_round: round = 0 ∨ round = 25):
+      fixed_func c 3 (12*round) = 1 := by
+        cases h_round with
+          | inl h => rewrite [h]; rfl
+          | inr h => rewrite [h]; rfl
   end Selectors
 
 end Keccak
