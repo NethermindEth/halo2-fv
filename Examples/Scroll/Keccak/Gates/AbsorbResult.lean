@@ -1,4 +1,5 @@
-import Examples.Scroll.Keccak.Spec
+import Examples.Scroll.Keccak.Spec.Program
+import Examples.Scroll.Keccak.Spec.KeccakConstants
 
 namespace Keccak
 

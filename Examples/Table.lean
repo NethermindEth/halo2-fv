@@ -3,6 +3,8 @@ import Mathlib.Data.Nat.Prime.Basic
 import Mathlib.Data.ZMod.Defs
 import Mathlib.Data.ZMod.Basic
 
+set_option linter.unusedVariables false
+
 namespace LookupExamples.Table
 
 inductive Value (P: ℕ) where
@@ -310,7 +312,7 @@ def advice_phase (c: ValidCircuit P P_Prime) : ℕ → ℕ :=
   λ col => match col with
   | 0 => 0
   | _ => 0
-def gate_0_0_range_check (c: ValidCircuit P P_Prime) (row: ℕ) : Prop := 
+def gate_0_0_range_check (c: ValidCircuit P P_Prime) (row: ℕ) : Prop :=
   (c.get_selector 0 row) * ((((((((c.get_advice 0 row) * (((.Real 1)) + (-(c.get_advice 0 row)))) * (((.Real 2)) + (-(c.get_advice 0 row)))) * (((.Real 3)) + (-(c.get_advice 0 row)))) * (((.Real 4)) + (-(c.get_advice 0 row)))) * (((.Real 5)) + (-(c.get_advice 0 row)))) * (((.Real 6)) + (-(c.get_advice 0 row)))) * (((.Real 7)) + (-(c.get_advice 0 row)))) = Value.Real 0
 def all_gates (c: ValidCircuit P P_Prime): Prop := ∀ row: ℕ,
     gate_0_0_range_check c row

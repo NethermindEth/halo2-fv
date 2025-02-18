@@ -44,6 +44,15 @@ namespace Keccak
     assumption
     linarith
 
+  @[to_cell_manager] lemma get_advice_in_round_to_cell_manager_zero_rot_mod (h_col: 7 ≤ col) (h_range: (12*(round+1) + 11 < c.n)):
+    c.get_advice col ((12*(round+1)) % c.n) =
+    cell_manager c round (12*(col-7))
+  := by
+    rw [Nat.mod_eq_of_lt, get_advice_in_round_to_cell_manager_zero_rot]
+    assumption
+    linarith
+    linarith
+
   @[to_cell_manager] lemma get_advice_in_round_to_cell_manager_with_rot (h_col: 7 ≤ col) (h_range: 12*(round+1) + 11 < c.n) (h_rot: rot < 12):
     c.get_advice col ((12*(round+1) + rot) % c.n) =
     cell_manager c round (12*(col-7)+rot)

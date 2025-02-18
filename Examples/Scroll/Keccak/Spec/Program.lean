@@ -42,34 +42,12 @@ namespace Keccak
   def get_num_bits_per_base_chi_lookup: ℕ := get_num_bits_per_lookup (max CHI_BASE_LOOKUP_RANGE RHO_PI_LOOKUP_RANGE)
   def get_num_bits_per_theta_c_lookup: ℕ := get_num_bits_per_lookup THETA_C_LOOKUP_RANGE
 
-  @[keccak_constants] lemma get_num_bits_per_absorb_lookup_val: get_num_bits_per_absorb_lookup = 6 := by
-    rewrite [get_num_bits_per_absorb_lookup, get_num_bits_per_lookup]
-    rewrite [Nat.log_eq_iff] <;> decide
-
-  @[keccak_constants] lemma get_num_bits_per_base_chi_lookup_val: get_num_bits_per_base_chi_lookup = 4 := by
-    rewrite [get_num_bits_per_base_chi_lookup, get_num_bits_per_lookup]
-    rewrite [Nat.log_eq_iff] <;> decide
-
-  @[keccak_constants] lemma get_num_bits_per_theta_c_lookup_val: get_num_bits_per_theta_c_lookup = 3 := by
-    rewrite [get_num_bits_per_theta_c_lookup, get_num_bits_per_lookup]
-    rewrite [Nat.log_eq_iff] <;> decide
-
   namespace Decode
     def expr (parts: List (ℕ × ZMod P)) : ZMod P :=
       List.foldr
         (λ (part: ℕ × ZMod P) (acc: ZMod P) => 2^(BIT_COUNT*part.1) * acc + part.2)
         0
         parts
-
-    @[to_decode] lemma to_decode_nil {P: ℕ}: (0: ZMod P) = expr [] := by rfl
-    @[to_decode] lemma to_decode_cons_1 {x: ZMod P}: 8 * expr l + x = expr ((1,x)::l) := by
-      unfold expr; simp [List.foldr_cons, keccak_constants, zmod_pow_simps]
-    @[to_decode] lemma to_decode_cons_2 {x: ZMod P}: 64 * expr l + x = expr ((2,x)::l) := by
-      unfold expr; simp [List.foldr_cons, keccak_constants, zmod_pow_simps]
-    @[to_decode] lemma to_decode_cons_3 {x: ZMod P}: 512 * expr l + x = expr ((3,x)::l) := by
-      unfold expr; simp [List.foldr_cons, keccak_constants, zmod_pow_simps]
-    @[to_decode] lemma to_decode_cons_4 {x: ZMod P}: 4096 * expr l + x = expr ((4,x)::l) := by
-      unfold expr; simp [List.foldr_cons, keccak_constants, zmod_pow_simps]
   end Decode
 
   namespace Split
@@ -132,12 +110,6 @@ namespace Keccak
       Split.expr c (cell_offset + transform_offset) round rot target_part_size
   end Transform
 
-  section asserts
-    -- NOTE: assert comment says DEFAULT_KECCAK_ROWS > (NUM_BYTES_PER_WORD + 1),
-    -- but the assert states the following
-    lemma get_num_rows_per_round_assert: DEFAULT_KECCAK_ROWS > NUM_BYTES_PER_WORD := by trivial
-  end asserts
-
   def start_new_hash (c: ValidCircuit P P_Prime) (row: ℕ): Prop := c.get_fixed 1 row = 1 ∨ c.get_advice 0 row = 1
   def round_cst (c: ValidCircuit P P_Prime) (row: ℕ): ZMod P := c.get_fixed 7 row
 
@@ -184,156 +156,119 @@ namespace Keccak
   def os (c: ValidCircuit P P_Prime) (round: ℕ) (x y: Fin 5) :=
     s c round x y + t c round x
 
-  @[to_os] lemma t_0 : Decode.expr
-        [(3, cell_manager c round 304), (3, cell_manager c round 305), (3, cell_manager c round 306),
-          (3, cell_manager c round 307), (3, cell_manager c round 308), (3, cell_manager c round 309),
-          (3, cell_manager c round 310), (3, cell_manager c round 311), (3, cell_manager c round 312),
-          (3, cell_manager c round 313), (3, cell_manager c round 314), (3, cell_manager c round 315),
-          (3, cell_manager c round 316), (3, cell_manager c round 317), (3, cell_manager c round 318),
-          (3, cell_manager c round 319), (3, cell_manager c round 320), (3, cell_manager c round 321),
-          (3, cell_manager c round 322), (3, cell_manager c round 323), (3, cell_manager c round 324),
-          (1, cell_manager c round 325)] +
-      Decode.expr
-        [(1, cell_manager c round 259), (3, cell_manager c round 238), (3, cell_manager c round 239),
-          (3, cell_manager c round 240), (3, cell_manager c round 241), (3, cell_manager c round 242),
-          (3, cell_manager c round 243), (3, cell_manager c round 244), (3, cell_manager c round 245),
-          (3, cell_manager c round 246), (3, cell_manager c round 247), (3, cell_manager c round 248),
-          (3, cell_manager c round 249), (3, cell_manager c round 250), (3, cell_manager c round 251),
-          (3, cell_manager c round 252), (3, cell_manager c round 253), (3, cell_manager c round 254),
-          (3, cell_manager c round 255), (3, cell_manager c round 256), (3, cell_manager c round 257),
-          (3, cell_manager c round 258)] = t c round 0
-  := by
-    have h: (↑(4: Fin 5)) = (4: ℕ) := rfl
-    simp [t, bc, c_parts, Transform.split_expr, Split.expr, part_size_c, get_num_bits_per_theta_c_lookup_val, word_parts_known, List.enum, h, get_rotate_count, List.rotateRight, s]
-
-  @[to_os] lemma t_1 : Decode.expr
-      [(3, cell_manager c round 216), (3, cell_manager c round 217), (3, cell_manager c round 218),
-        (3, cell_manager c round 219), (3, cell_manager c round 220), (3, cell_manager c round 221),
-        (3, cell_manager c round 222), (3, cell_manager c round 223), (3, cell_manager c round 224),
-        (3, cell_manager c round 225), (3, cell_manager c round 226), (3, cell_manager c round 227),
-        (3, cell_manager c round 228), (3, cell_manager c round 229), (3, cell_manager c round 230),
-        (3, cell_manager c round 231), (3, cell_manager c round 232), (3, cell_manager c round 233),
-        (3, cell_manager c round 234), (3, cell_manager c round 235), (3, cell_manager c round 236),
-        (1, cell_manager c round 237)] +
-    Decode.expr
-      [(1, cell_manager c round 281), (3, cell_manager c round 260), (3, cell_manager c round 261),
-        (3, cell_manager c round 262), (3, cell_manager c round 263), (3, cell_manager c round 264),
-        (3, cell_manager c round 265), (3, cell_manager c round 266), (3, cell_manager c round 267),
-        (3, cell_manager c round 268), (3, cell_manager c round 269), (3, cell_manager c round 270),
-        (3, cell_manager c round 271), (3, cell_manager c round 272), (3, cell_manager c round 273),
-        (3, cell_manager c round 274), (3, cell_manager c round 275), (3, cell_manager c round 276),
-        (3, cell_manager c round 277), (3, cell_manager c round 278), (3, cell_manager c round 279),
-        (3, cell_manager c round 280)] = t c round 1
-  := by
-    have h: (↑(4: Fin 5)) = (4: ℕ) := rfl
-    simp [t, bc, c_parts, Transform.split_expr, Split.expr, part_size_c, get_num_bits_per_theta_c_lookup_val, word_parts_known, List.enum, h, get_rotate_count, List.rotateRight, s]
-
-  @[to_os] lemma t_2 : Decode.expr
-      [(3, cell_manager c round 238), (3, cell_manager c round 239), (3, cell_manager c round 240),
-        (3, cell_manager c round 241), (3, cell_manager c round 242), (3, cell_manager c round 243),
-        (3, cell_manager c round 244), (3, cell_manager c round 245), (3, cell_manager c round 246),
-        (3, cell_manager c round 247), (3, cell_manager c round 248), (3, cell_manager c round 249),
-        (3, cell_manager c round 250), (3, cell_manager c round 251), (3, cell_manager c round 252),
-        (3, cell_manager c round 253), (3, cell_manager c round 254), (3, cell_manager c round 255),
-        (3, cell_manager c round 256), (3, cell_manager c round 257), (3, cell_manager c round 258),
-        (1, cell_manager c round 259)] +
-    Decode.expr
-      [(1, cell_manager c round 303), (3, cell_manager c round 282), (3, cell_manager c round 283),
-        (3, cell_manager c round 284), (3, cell_manager c round 285), (3, cell_manager c round 286),
-        (3, cell_manager c round 287), (3, cell_manager c round 288), (3, cell_manager c round 289),
-        (3, cell_manager c round 290), (3, cell_manager c round 291), (3, cell_manager c round 292),
-        (3, cell_manager c round 293), (3, cell_manager c round 294), (3, cell_manager c round 295),
-        (3, cell_manager c round 296), (3, cell_manager c round 297), (3, cell_manager c round 298),
-        (3, cell_manager c round 299), (3, cell_manager c round 300), (3, cell_manager c round 301),
-        (3, cell_manager c round 302)] = t c round 2
-  := by
-    have h: (↑(3: Fin 5)) = (3: ℕ) := rfl
-    simp [t, bc, c_parts, Transform.split_expr, Split.expr, part_size_c, get_num_bits_per_theta_c_lookup_val, word_parts_known, List.enum, h, get_rotate_count, List.rotateRight, s]
-
-  @[to_os] lemma t_3 : Decode.expr
-      [(3, cell_manager c round 260), (3, cell_manager c round 261), (3, cell_manager c round 262),
-        (3, cell_manager c round 263), (3, cell_manager c round 264), (3, cell_manager c round 265),
-        (3, cell_manager c round 266), (3, cell_manager c round 267), (3, cell_manager c round 268),
-        (3, cell_manager c round 269), (3, cell_manager c round 270), (3, cell_manager c round 271),
-        (3, cell_manager c round 272), (3, cell_manager c round 273), (3, cell_manager c round 274),
-        (3, cell_manager c round 275), (3, cell_manager c round 276), (3, cell_manager c round 277),
-        (3, cell_manager c round 278), (3, cell_manager c round 279), (3, cell_manager c round 280),
-        (1, cell_manager c round 281)] +
-    Decode.expr
-      [(1, cell_manager c round 325), (3, cell_manager c round 304), (3, cell_manager c round 305),
-        (3, cell_manager c round 306), (3, cell_manager c round 307), (3, cell_manager c round 308),
-        (3, cell_manager c round 309), (3, cell_manager c round 310), (3, cell_manager c round 311),
-        (3, cell_manager c round 312), (3, cell_manager c round 313), (3, cell_manager c round 314),
-        (3, cell_manager c round 315), (3, cell_manager c round 316), (3, cell_manager c round 317),
-        (3, cell_manager c round 318), (3, cell_manager c round 319), (3, cell_manager c round 320),
-        (3, cell_manager c round 321), (3, cell_manager c round 322), (3, cell_manager c round 323),
-        (3, cell_manager c round 324)] = t c round 3
-  := by
-    have h: (↑(4: Fin 5)) = (4: ℕ) := rfl
-    simp [t, bc, c_parts, Transform.split_expr, Split.expr, part_size_c, get_num_bits_per_theta_c_lookup_val, word_parts_known, List.enum, h, get_rotate_count, List.rotateRight, s]
-
-  @[to_os] lemma t_4 : Decode.expr
-      [(3, cell_manager c round 282), (3, cell_manager c round 283), (3, cell_manager c round 284),
-        (3, cell_manager c round 285), (3, cell_manager c round 286), (3, cell_manager c round 287),
-        (3, cell_manager c round 288), (3, cell_manager c round 289), (3, cell_manager c round 290),
-        (3, cell_manager c round 291), (3, cell_manager c round 292), (3, cell_manager c round 293),
-        (3, cell_manager c round 294), (3, cell_manager c round 295), (3, cell_manager c round 296),
-        (3, cell_manager c round 297), (3, cell_manager c round 298), (3, cell_manager c round 299),
-        (3, cell_manager c round 300), (3, cell_manager c round 301), (3, cell_manager c round 302),
-        (1, cell_manager c round 303)] +
-    Decode.expr
-      [(1, cell_manager c round 237), (3, cell_manager c round 216), (3, cell_manager c round 217),
-        (3, cell_manager c round 218), (3, cell_manager c round 219), (3, cell_manager c round 220),
-        (3, cell_manager c round 221), (3, cell_manager c round 222), (3, cell_manager c round 223),
-        (3, cell_manager c round 224), (3, cell_manager c round 225), (3, cell_manager c round 226),
-        (3, cell_manager c round 227), (3, cell_manager c round 228), (3, cell_manager c round 229),
-        (3, cell_manager c round 230), (3, cell_manager c round 231), (3, cell_manager c round 232),
-        (3, cell_manager c round 233), (3, cell_manager c round 234), (3, cell_manager c round 235),
-        (3, cell_manager c round 236)] = t c round 4
-  := by
-    have h: (↑(3: Fin 5)) = (3: ℕ) := rfl
-    simp [t, bc, c_parts, Transform.split_expr, Split.expr, part_size_c, get_num_bits_per_theta_c_lookup_val, word_parts_known, List.enum, h, get_rotate_count, List.rotateRight, s]
-
-  @[to_os] lemma os_0_0: cell_manager c round 0 + t c round 0 = os c round 0 0 := rfl
-  @[to_os] lemma os_0_1: cell_manager c round 1 + t c round 0 = os c round 0 1 := rfl
-  @[to_os] lemma os_0_2: cell_manager c round 2 + t c round 0 = os c round 0 2 := rfl
-  @[to_os] lemma os_0_3: cell_manager c round 3 + t c round 0 = os c round 0 3 := rfl
-  @[to_os] lemma os_0_4: cell_manager c round 4 + t c round 0 = os c round 0 4 := rfl
-  @[to_os] lemma os_1_0: cell_manager c round 5 + t c round 1 = os c round 1 0 := rfl
-  @[to_os] lemma os_1_1: cell_manager c round 6 + t c round 1 = os c round 1 1 := rfl
-  @[to_os] lemma os_1_2: cell_manager c round 7 + t c round 1 = os c round 1 2 := rfl
-  @[to_os] lemma os_1_3: cell_manager c round 8 + t c round 1 = os c round 1 3 := rfl
-  @[to_os] lemma os_1_4: cell_manager c round 9 + t c round 1 = os c round 1 4 := rfl
-  @[to_os] lemma os_2_0: cell_manager c round 10 + t c round 2 = os c round 2 0 := rfl
-  @[to_os] lemma os_2_1: cell_manager c round 11 + t c round 2 = os c round 2 1 := rfl
-  @[to_os] lemma os_2_2: cell_manager c round 12 + t c round 2 = os c round 2 2 := rfl
-  @[to_os] lemma os_2_3: cell_manager c round 13 + t c round 2 = os c round 2 3 := rfl
-  @[to_os] lemma os_2_4: cell_manager c round 14 + t c round 2 = os c round 2 4 := rfl
-  @[to_os] lemma os_3_0: cell_manager c round 15 + t c round 3 = os c round 3 0 := rfl
-  @[to_os] lemma os_3_1: cell_manager c round 16 + t c round 3 = os c round 3 1 := rfl
-  @[to_os] lemma os_3_2: cell_manager c round 17 + t c round 3 = os c round 3 2 := rfl
-  @[to_os] lemma os_3_3: cell_manager c round 18 + t c round 3 = os c round 3 3 := rfl
-  @[to_os] lemma os_3_4: cell_manager c round 19 + t c round 3 = os c round 3 4 := rfl
-  @[to_os] lemma os_4_0: cell_manager c round 20 + t c round 4 = os c round 4 0 := rfl
-  @[to_os] lemma os_4_1: cell_manager c round 21 + t c round 4 = os c round 4 1 := rfl
-  @[to_os] lemma os_4_2: cell_manager c round 22 + t c round 4 = os c round 4 2 := rfl
-  @[to_os] lemma os_4_3: cell_manager c round 23 + t c round 4 = os c round 4 3 := rfl
-  @[to_os] lemma os_4_4: cell_manager c round 24 + t c round 4 = os c round 4 4 := rfl
-
   -- Rho/Pi
   def rho_by_pi_num_word_parts := (target_part_sizes_rot get_num_bits_per_base_chi_lookup 0).length
-  @[keccak_constants] lemma rho_by_pi_num_word_parts_val : rho_by_pi_num_word_parts = 16 := by
-    simp [rho_by_pi_num_word_parts, get_num_bits_per_base_chi_lookup_val, target_part_sizes, List.length]
   instance : NeZero rho_by_pi_num_word_parts where
-    out := by simp [rho_by_pi_num_word_parts, get_num_bits_per_base_chi_lookup_val, target_part_sizes_rot, List.map]
-  def rho_pi_chi_cells (c: ValidCircuit P P_Prime) (round: ℕ) (p: Fin 3) (i j: Fin 5) (idx: Fin rho_by_pi_num_word_parts) :=
-    let row_idx: ℕ := ↑idx + ↑j * rho_by_pi_num_word_parts + ↑p * 5 * rho_by_pi_num_word_parts
+    out := by
+      unfold rho_by_pi_num_word_parts target_part_sizes_rot get_num_bits_per_base_chi_lookup CHI_BASE_LOOKUP_RANGE RHO_PI_LOOKUP_RANGE
+      simp only [Nat.reduceLeDiff, max_eq_left, tsub_zero, List.length_join, List.map_map, Nat.sum_eq_listSum, ne_eq]
+      unfold get_num_bits_per_lookup
+      have h: Nat.log 5 (2^KECCAK_DEGREE - keccak_unusable_rows) = 4 := by
+        rewrite [Nat.log_eq_iff] <;> decide
+      rewrite [h]
+      decide
+  def rho_pi_chi_cells (c: ValidCircuit P P_Prime) (round: ℕ) (p: Fin 3) (i j: Fin 5) (idx: Fin rho_by_pi_num_word_parts): ZMod P :=
+    -- let row_idx: ℕ := ↑idx + ↑j * rho_by_pi_num_word_parts + ↑p * 5 * rho_by_pi_num_word_parts
+    -- cell_manager c round (
+    --   336 + --start
+    --   DEFAULT_KECCAK_ROWS*↑i +
+    --   row_idx % DEFAULT_KECCAK_ROWS +
+    --   5 * (row_idx / DEFAULT_KECCAK_ROWS) * DEFAULT_KECCAK_ROWS
+    -- )
+    let row_idx: ℕ := (↑idx + ↑j * rho_by_pi_num_word_parts) % DEFAULT_KECCAK_ROWS
+    let col_idx: ℕ := (↑idx + ↑j * rho_by_pi_num_word_parts) / DEFAULT_KECCAK_ROWS
+    let cols_per_p: ℕ := 5 * ((rho_by_pi_num_word_parts * 5 + DEFAULT_KECCAK_ROWS - 1) / DEFAULT_KECCAK_ROWS)
     cell_manager c round (
-      336 + --start
-      DEFAULT_KECCAK_ROWS*↑i +
-      row_idx % DEFAULT_KECCAK_ROWS +
-      5 * (row_idx / DEFAULT_KECCAK_ROWS) * DEFAULT_KECCAK_ROWS
+      336 -- start
+      + p * cols_per_p * DEFAULT_KECCAK_ROWS
+      + row_idx
+      + i * DEFAULT_KECCAK_ROWS
+      + col_idx * DEFAULT_KECCAK_ROWS * 5
     )
+
+
+
+  -- 1240 =
+  -- 336 + 904 =
+  -- 336 + 75*12 + 4
+  -- row_idx%12 = 4
+  -- 12i + 5*(row_idx-4) = 75
+  -- i = 0
+  -- row+idx = 18
+  -- idx + j * 16 + p * 5 * 16 = 18
+  -- p = 0
+  -- idx = 2
+  -- j = 1
+  -- rho_pi_chi_cells
+  -- Chi
+
+
+
+
+
+
+
+  -- 336 - start
+  -- p = 0
+  --   start_region - at multiple of 12
+  --   row_idx = 0
+  --   j = 0
+  --     _ = 0
+  --       for i = 0..5 rho_pi_chi_cells[0][i][0][0] = cell manager start + DEFAULT_KECCAK_ROWS*i
+  --       row_idx += 1
+  --
+
+
+
+
+
+
+  --    | 28                                      | 29                     | 30                     | 31                     | 32                      |
+  -- 0  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 0] |[p=0][i=1][j=0][idx= 0] |[p=0][i=2][j=0][idx= 0] |[p=0][i=3][j=0][idx= 0] | [p=0][i=4][j=0][idx= 0] |
+  -- 1  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 1] |[p=0][i=1][j=0][idx= 1] |[p=0][i=2][j=0][idx= 1] |[p=0][i=3][j=0][idx= 1] | [p=0][i=4][j=0][idx= 1] |
+  -- 2  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 2] |[p=0][i=1][j=0][idx= 2] |[p=0][i=2][j=0][idx= 2] |[p=0][i=3][j=0][idx= 2] | [p=0][i=4][j=0][idx= 2] |
+  -- 3  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 3] |[p=0][i=1][j=0][idx= 3] |[p=0][i=2][j=0][idx= 3] |[p=0][i=3][j=0][idx= 3] | [p=0][i=4][j=0][idx= 3] |
+  -- 4  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 4] |[p=0][i=1][j=0][idx= 4] |[p=0][i=2][j=0][idx= 4] |[p=0][i=3][j=0][idx= 4] | [p=0][i=4][j=0][idx= 4] |
+  -- 5  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 5] |[p=0][i=1][j=0][idx= 5] |[p=0][i=2][j=0][idx= 5] |[p=0][i=3][j=0][idx= 5] | [p=0][i=4][j=0][idx= 5] |
+  -- 6  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 6] |[p=0][i=1][j=0][idx= 6] |[p=0][i=2][j=0][idx= 6] |[p=0][i=3][j=0][idx= 6] | [p=0][i=4][j=0][idx= 6] |
+  -- 7  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 7] |[p=0][i=1][j=0][idx= 7] |[p=0][i=2][j=0][idx= 7] |[p=0][i=3][j=0][idx= 7] | [p=0][i=4][j=0][idx= 7] |
+  -- 8  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 8] |[p=0][i=1][j=0][idx= 8] |[p=0][i=2][j=0][idx= 8] |[p=0][i=3][j=0][idx= 8] | [p=0][i=4][j=0][idx= 8] |
+  -- 9  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 9] |[p=0][i=1][j=0][idx= 9] |[p=0][i=2][j=0][idx= 9] |[p=0][i=3][j=0][idx= 9] | [p=0][i=4][j=0][idx= 9] |
+  -- 10 | rho_pi_chi_cells[p=0][i=0][j=0][idx=10] |[p=0][i=1][j=0][idx=10] |[p=0][i=2][j=0][idx=10] |[p=0][i=3][j=0][idx=10] | [p=0][i=4][j=0][idx=10] |
+  -- 11 | rho_pi_chi_cells[p=0][i=0][j=0][idx=11] |[p=0][i=1][j=0][idx=11] |[p=0][i=2][j=0][idx=11] |[p=0][i=3][j=0][idx=11] | [p=0][i=4][j=0][idx=11] |
+
+  def os' (c: ValidCircuit P P_Prime) (round: ℕ) (x y: Fin 5) :=
+    Decode.expr (
+      (List.range rho_by_pi_num_word_parts).map
+      (λ idx: ℕ => (get_num_bits_per_base_chi_lookup, rho_pi_chi_cells c round 2 x y idx))
+    )
+
+  -- iota (line 438)
+
+  def iota_s (c: ValidCircuit P P_Prime) (round: ℕ) (x y: Fin 5) :=
+    match x, y with
+      | 0, 0 => Decode.expr (
+        Transform.split_expr c round
+          (cell_offset := 1632)
+          (rot := 0)
+          (target_part_size := get_num_bits_per_absorb_lookup)
+          (transform_offset := 12) -- TODO
+      )
+      | _, _ => os' c round x y
+
+  -- @[to_iota_s] lemma to_iota_s_0_2: Decode.expr
+  --   [(4, cell_manager c round 1184), (4, cell_manager c round 1185), (4, cell_manager c round 1186),
+  --     (4, cell_manager c round 1187), (4, cell_manager c round 1236), (4, cell_manager c round 1237),
+  --     (4, cell_manager c round 1238), (4, cell_manager c round 1239), (4, cell_manager c round 1240),
+  --     (4, cell_manager c round 1241), (4, cell_manager c round 1242), (4, cell_manager c round 1243),
+  --     (4, cell_manager c round 1244), (4, cell_manager c round 1245), (4, cell_manager c round 1246),
+  --     (4, cell_manager c round 1247)] = iota_s c round 0 2 := by
+  --   unfold iota_s
+  --   simp [os', get_num_bits_per_base_chi_lookup_val, rho_by_pi_num_word_parts_val, List.range, List.range.loop, rho_pi_chi_cells]
+  --   congr
+  --   all_goals simp [OfNat.ofNat, rho_by_pi_num_word_parts_val, keccak_constants]
+
+
 
   -- line 471
   def squeeze_from (c: ValidCircuit P P_Prime) (round: ℕ):= cell_manager c round 1656

@@ -1,4 +1,7 @@
-import Examples.Scroll.Keccak.Spec
+import Examples.Scroll.Keccak.Spec.Program
+import Examples.Scroll.Keccak.Spec.Decode
+import Examples.Scroll.Keccak.Spec.KeccakConstants
+import Examples.Scroll.Keccak.Spec.Os
 
 namespace Keccak
 
