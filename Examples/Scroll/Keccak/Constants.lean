@@ -12,6 +12,7 @@ namespace Keccak
   @[keccak_constants] def NUM_BYTES_PER_WORD: ℕ := 8
   @[keccak_constants] def NUM_ROUNDS: ℕ := 24
   @[keccak_constants] def NUM_WORDS_TO_ABSORB: ℕ := 17
+  @[keccak_constants] def NUM_WORDS_TO_SQUEEZE: ℕ := 4
   @[keccak_constants] def RHO_MATRIX: Fin 5 → Fin 5 → ℕ
     | 0, 0 => 0  | 1, 0 => 1  | 2, 0 => 62 | 3, 0 => 28 | 4,0 => 27
     | 0, 1 => 36 | 1, 1 => 44 | 2, 1 => 6  | 3, 1 => 55 | 4,1 => 20

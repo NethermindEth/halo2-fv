@@ -110,7 +110,13 @@ namespace Keccak
       Split.expr c (cell_offset + transform_offset) round rot target_part_size
   end Transform
 
+  namespace ComposeRlc
+    def expr (expressions: List (ZMod P)) (r: ZMod P): ZMod P :=
+      (expressions.foldl (λ (rlc, mult) (expr) => (rlc + expr * mult, mult*r)) (0, 1)).1
+  end ComposeRlc
+
   def is_final (c: ValidCircuit P P_Prime) (row: ℕ): ZMod P := c.get_advice 0 row
+  def hash_rlc (c: ValidCircuit P P_Prime) (row: ℕ): ZMod P := c.get_advice 3 row
 
   def start_new_hash (c: ValidCircuit P P_Prime) (row: ℕ): Prop := c.get_fixed 1 row = 1 ∨ is_final c row = 1
   def round_cst (c: ValidCircuit P P_Prime) (row: ℕ): ZMod P := c.get_fixed 7 row
@@ -263,7 +269,65 @@ namespace Keccak
   def squeeze_from (c: ValidCircuit P P_Prime) (round: ℕ):= cell_manager c round 1656
 
   -- Squeeze (line 477)
+  def squeeze_bytes (c: ValidCircuit P P_Prime) (round: ℕ): List (ℕ × ZMod P) := Transform.split_expr c round
+    (cell_offset := 1657) -- TODO
+    (rot := 0)
+    (target_part_size := 8)
+    (transform_offset := 23)
+
+  -- Absorb (line 512)
   def continue_hash (c: ValidCircuit P P_Prime) (row: ℕ) : Prop := ¬start_new_hash c row
+
+  -- Collect the bytes that are spread out over previous rows (line 550)
+  def hash_bytes (c: ValidCircuit P P_Prime) (round: ℕ) :=
+    (
+      squeeze_bytes c (round-1) ++
+      squeeze_bytes c (round-2) ++
+      squeeze_bytes c (round-3) ++
+      squeeze_bytes c (round-4)
+    ).map (λ (_, val) => val)
+  -- [
+  --   cell_manager c (round-1) 1680,
+  --   cell_manager c (round-1) 1681,
+  --   cell_manager c (round-1) 1682,
+  --   cell_manager c (round-1) 1683,
+  --   cell_manager c (round-1) 1684,
+  --   cell_manager c (round-1) 1685,
+  --   cell_manager c (round-1) 1686,
+  --   cell_manager c (round-1) 1687,
+  --   cell_manager c (round-2) 1680,
+  --   cell_manager c (round-2) 1681,
+  --   cell_manager c (round-2) 1682,
+  --   cell_manager c (round-2) 1683,
+  --   cell_manager c (round-2) 1684,
+  --   cell_manager c (round-2) 1685,
+  --   cell_manager c (round-2) 1686,
+  --   cell_manager c (round-2) 1687,
+  --   cell_manager c (round-3) 1680,
+  --   cell_manager c (round-3) 1681,
+  --   cell_manager c (round-3) 1682,
+  --   cell_manager c (round-3) 1683,
+  --   cell_manager c (round-3) 1684,
+  --   cell_manager c (round-3) 1685,
+  --   cell_manager c (round-3) 1686,
+  --   cell_manager c (round-3) 1687,
+  --   cell_manager c (round-4) 1680,
+  --   cell_manager c (round-4) 1681,
+  --   cell_manager c (round-4) 1682,
+  --   cell_manager c (round-4) 1683,
+  --   cell_manager c (round-4) 1684,
+  --   cell_manager c (round-4) 1685,
+  --   cell_manager c (round-4) 1686,
+  --   cell_manager c (round-4) 1687
+  -- ]
+
+  def hash_bytes_le (c: ValidCircuit P P_Prime) (round: ℕ) := (hash_bytes c round).reverse
+
+  def hash_words (c: ValidCircuit P P_Prime) (round: ℕ): (Fin 4) → ZMod P
+    | 0 => s c round 0 0
+    | 1 => s c round 1 0
+    | 2 => s c round 2 0
+    | 3 => s c round 3 0
 
   -- Some general input checks (line 592)
   def boolean_is_final (c: ValidCircuit P P_Prime): Prop :=

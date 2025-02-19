@@ -123,6 +123,9 @@ namespace Keccak
         cases h_round with
           | inl h => rewrite [h]; rfl
           | inr h => rewrite [h]; rfl
+
+    lemma q_round_last_one (c: ValidCircuit P P_Prime):
+      fixed_func c 4 300 = 1 := by rfl
   end Selectors
 
 end Keccak
