@@ -60,6 +60,64 @@ namespace Keccak
           | 10 => rfl | 11 => rfl | 12 => rfl | 13 => rfl | 14 => rfl | 15 => rfl | 16 => rfl | 17 => rfl | 18 => rfl | 19 => rfl
           | 20 => rfl | 21 => rfl | 22 => rfl | 23 => rfl | 24 => rfl | 25 => rfl | x+26 => aesop
 
+    lemma q_enable_dvd (c: ValidCircuit P P_Prime) (hrow: row ≤ 311) (hrow_dvd: 12 ∣ row):
+      q_enable c row = 1 := by
+        unfold q_enable
+        have hrow': ¬(row > 311) := not_lt.mpr hrow
+        simp [hrow']
+        have h: row = 12*(row/12)+row%12 := by exact Eq.symm (Nat.div_add_mod row 12)
+        have h': row % 12 = 0 := by exact Nat.dvd_iff_mod_eq_zero.mp hrow_dvd
+        rewrite [h', add_zero] at h
+        generalize hround: row/12 = round
+        rewrite [hround] at h
+        subst h
+        match round with
+          | 0 => simp | 1 => simp | 2 => simp | 3 => simp
+          | 4 => simp | 5 => simp | 6 => simp | 7 => simp
+          | 8 => simp | 9 => simp | 10 => simp | 11 => simp
+          | 12 => simp | 13 => simp | 14 => simp | 15 => simp
+          | 16 => simp | 17 => simp | 18 => simp | 19 => simp
+          | 20 => simp | 21 => simp | 22 => simp | 23 => simp
+          | 24 => simp | 25 => simp | x+26 =>
+            exfalso
+            simp [mul_add] at hrow
+
+    lemma q_enable_not_dvd (c: ValidCircuit P P_Prime) (hrow: row ≤ 311) (hrow_dvd: ¬ 12 ∣ row):
+      q_enable c row = 0 := by
+        unfold q_enable
+        have hrow': ¬(row > 311) := not_lt.mpr hrow
+        simp [hrow']
+        intro h
+        have h_contr: 12 ∣ row := by
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+          cases h with | inl h => subst h; decide | inr h =>
+            subst h; decide
+        contradiction
+
+
     def q_first (c: ValidCircuit P P_Prime) (row: ℕ) :=
       if row = 0 then 1
       else if row ≤ 311 then 0
