@@ -1,6 +1,6 @@
 import Examples.Scroll.Keccak.CellManager
 import Examples.Scroll.Keccak.Spec.Absorb
-import Examples.Scroll.Keccak.Spec.IsFinal
+import Examples.Scroll.Keccak.Spec.Advice
 import Examples.Scroll.Keccak.Spec.Program
 import Examples.Scroll.Keccak.Spec.S
 import Examples.Scroll.Keccak.Selectors
@@ -30,7 +30,7 @@ namespace Keccak
           cases hround with
             | inl hround => simp [hround]; linarith
             | inr hround => simp [hround]; assumption
-        simp [h_factor, h_factor', h_factor'', to_cell_manager, h_n', h_n'', to_s, to_absorb, to_is_final] at hgate
+        simp [h_factor, h_factor', h_factor'', to_cell_manager, h_n', h_n'', to_s, to_absorb, to_named_advice] at hgate
         replace hgate := eq_neg_of_add_eq_zero_left hgate
         rewrite [neg_involutive] at hgate
         unfold boolean_is_final at h_is_final_bool

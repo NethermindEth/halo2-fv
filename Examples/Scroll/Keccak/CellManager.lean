@@ -58,6 +58,21 @@ namespace Keccak
     congr
     simp [Nat.mul_add_div, Nat.div_eq_zero_iff, h_rot]
 
+  -- @[to_cell_manager] lemma get_advice_in_round_to_cell_manager_with_negative_rot (h_col: 7 ≤ col) (h_range: 12*round + 11 < c.n) (h_rot: rot < 12) (h_rot': rot > 0) (h_round_lower: round > 0):
+  --   c.get_advice col ((12*round + c.n - rot % c.n) % c.n) =
+  --   cell_manager c (round-1) (12*(col-6)-rot)
+  -- := by
+  --   rewrite [cell_manager_to_raw]
+  --   congr
+  --   rewrite [←Nat.sub_eq_iff_eq_add]
+  --   have h_col: col-7+7 = col := Nat.sub_add_cancel h_col
+  --   have h_col': col-6 = col-7+1 := by exact Nat.sub_eq_of_eq_add (id (Eq.symm h_col))
+  --   rewrite [h_col']
+  --   rewrite [←h_col]
+  --   generalize h: col-7 = col'
+  --   simp [mul_add]
+  --   rewrite [Nat.add_sub_assoc (le_of_lt h_rot) (12*col'), Nat.add_div, ite_cond_eq_false, add_zero]
+
   @[to_cell_manager] lemma get_advice_wrapped_to_cell_manager (h_col: 7 ≤ col) (h_range: 12*round + 11 < c.n) (h_rot: rot < 12):
     c.get_advice_wrapped col (12*round) rot =
     cell_manager c round (12*(col-7)+rot)

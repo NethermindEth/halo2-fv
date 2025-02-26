@@ -1,4 +1,5 @@
 import Examples.Scroll.Keccak.Spec.Absorb
+import Examples.Scroll.Keccak.Spec.Advice
 import Examples.Scroll.Keccak.Spec.Asserts
 import Examples.Scroll.Keccak.Spec.Decode
 import Examples.Scroll.Keccak.Spec.IotaS

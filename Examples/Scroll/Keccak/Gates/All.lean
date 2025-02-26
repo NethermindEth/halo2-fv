@@ -2,10 +2,13 @@ import Examples.Scroll.Keccak.Gates.AbsorbResult
 import Examples.Scroll.Keccak.Gates.AbsorbResultCopy.All
 import Examples.Scroll.Keccak.Gates.AbsorbStateCopy.All
 import Examples.Scroll.Keccak.Gates.AbsorbVerifyInput.All
+import Examples.Scroll.Keccak.Gates.LengthAndDataRlc.All
 import Examples.Scroll.Keccak.Gates.FirstRow
 import Examples.Scroll.Keccak.Gates.HashRlcCheck
 import Examples.Scroll.Keccak.Gates.InputChecks
+import Examples.Scroll.Keccak.Gates.IsFinal
 import Examples.Scroll.Keccak.Gates.NextRowCheck.All
+import Examples.Scroll.Keccak.Gates.Padding.All
 import Examples.Scroll.Keccak.Gates.Split
 import Examples.Scroll.Keccak.Gates.SplitUniform.All
 import Examples.Scroll.Keccak.Gates.SqueezeVerifyPacked.All

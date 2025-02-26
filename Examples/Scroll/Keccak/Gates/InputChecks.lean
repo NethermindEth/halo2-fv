@@ -1,5 +1,5 @@
 import Examples.Scroll.Keccak.Selectors
-import Examples.Scroll.Keccak.Spec.IsFinal
+import Examples.Scroll.Keccak.Spec.Advice
 import Examples.Scroll.Keccak.Spec.Program
 
 namespace Keccak.Gates.InputChecks
@@ -11,7 +11,7 @@ namespace Keccak.Gates.InputChecks
     unfold gate_125 at hgate
     replace hgate := hgate (12*round)
     simp only [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_0_q_enable, Selectors.q_enable_at_round_start, hround, one_mul] at hgate
-    simp only [to_is_final] at hgate
+    simp only [to_named_advice] at hgate
     have no_zero_div := no_zero_divisors_zmod_p P_Prime
     simp [mul_eq_zero] at hgate
     cases hgate with

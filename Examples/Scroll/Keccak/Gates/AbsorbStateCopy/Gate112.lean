@@ -1,4 +1,4 @@
-import Examples.Scroll.Keccak.Spec.IsFinal
+import Examples.Scroll.Keccak.Spec.Advice
 import Examples.Scroll.Keccak.Spec.Program
 import Examples.Scroll.Keccak.Spec.S
 
@@ -19,7 +19,7 @@ namespace Keccak
           have h_factor: 12*round+13 = 12*(round+1)+1 := by trivial
           have h_n': 12*round+11<c.n := by cases hround <;> linarith
           have h_n'': 12*(round+1)+11<c.n := by cases hround <;> linarith
-          simp [h_factor, to_is_final, to_cell_manager, h_n', h_n'', to_s] at hgate
+          simp [h_factor, to_named_advice, to_cell_manager, h_n', h_n'', to_s] at hgate
           unfold continue_hash start_new_hash
           unfold is_final_disabled_on_first_row at h_is_final_first
           unfold boolean_is_final at h_is_final_bool

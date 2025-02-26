@@ -8,5 +8,6 @@ register_simp_attr to_absorb
 register_simp_attr to_cell_manager
 register_simp_attr to_decode
 register_simp_attr to_iota_s
+register_simp_attr to_named_advice
 register_simp_attr to_os
 register_simp_attr to_s

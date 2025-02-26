@@ -116,6 +116,8 @@ namespace Keccak
   end ComposeRlc
 
   def is_final (c: ValidCircuit P P_Prime) (row: ℕ): ZMod P := c.get_advice 0 row
+  def length (c: ValidCircuit P P_Prime) (row: ℕ): ZMod P := c.get_advice 2 row
+  def data_rlc (c: ValidCircuit P P_Prime) (row: ℕ): ZMod P := c.get_advice 1 row
   def hash_rlc (c: ValidCircuit P P_Prime) (row: ℕ): ZMod P := c.get_advice 3 row
 
   def start_new_hash (c: ValidCircuit P P_Prime) (row: ℕ): Prop := c.get_fixed 1 row = 1 ∨ is_final c row = 1
@@ -139,10 +141,26 @@ namespace Keccak
   -- absorb_res: lookup_0
 
   --Process inputs
-  -- packed_parts: gate 2
-  -- input_bytes: lookup_1
+  -- packed_parts: gate_2
+  def input_bytes (c: ValidCircuit P P_Prime) (round: ℕ) :=
+    Transform.split_expr c round
+      (cell_offset := 64) -- TODO check
+      (rot := 0)
+      (target_part_size := NUM_BYTES_PER_WORD)
+      (transform_offset := 8) -- TODO check
 
-  --Theta
+  -- Padding data (line 230)
+  def is_paddings (c: ValidCircuit P P_Prime) (round: ℕ): (Fin 8) → ZMod P
+    | 0 => cell_manager c round 84
+    | 1 => cell_manager c round 85
+    | 2 => cell_manager c round 86
+    | 3 => cell_manager c round 87
+    | 4 => cell_manager c round 88
+    | 5 => cell_manager c round 89
+    | 6 => cell_manager c round 90
+    | 7 => cell_manager c round 91
+
+  --Theta (line 241)
   -- Gates 3,4,5,6,7 handle the constraints for these splits
   def part_size_c := get_num_bits_per_theta_c_lookup
   def c_parts (c: ValidCircuit P P_Prime) (round: ℕ) (idx: Fin 5) : List (ℕ × ZMod P) :=
@@ -286,40 +304,6 @@ namespace Keccak
       squeeze_bytes c (round-3) ++
       squeeze_bytes c (round-4)
     ).map (λ (_, val) => val)
-  -- [
-  --   cell_manager c (round-1) 1680,
-  --   cell_manager c (round-1) 1681,
-  --   cell_manager c (round-1) 1682,
-  --   cell_manager c (round-1) 1683,
-  --   cell_manager c (round-1) 1684,
-  --   cell_manager c (round-1) 1685,
-  --   cell_manager c (round-1) 1686,
-  --   cell_manager c (round-1) 1687,
-  --   cell_manager c (round-2) 1680,
-  --   cell_manager c (round-2) 1681,
-  --   cell_manager c (round-2) 1682,
-  --   cell_manager c (round-2) 1683,
-  --   cell_manager c (round-2) 1684,
-  --   cell_manager c (round-2) 1685,
-  --   cell_manager c (round-2) 1686,
-  --   cell_manager c (round-2) 1687,
-  --   cell_manager c (round-3) 1680,
-  --   cell_manager c (round-3) 1681,
-  --   cell_manager c (round-3) 1682,
-  --   cell_manager c (round-3) 1683,
-  --   cell_manager c (round-3) 1684,
-  --   cell_manager c (round-3) 1685,
-  --   cell_manager c (round-3) 1686,
-  --   cell_manager c (round-3) 1687,
-  --   cell_manager c (round-4) 1680,
-  --   cell_manager c (round-4) 1681,
-  --   cell_manager c (round-4) 1682,
-  --   cell_manager c (round-4) 1683,
-  --   cell_manager c (round-4) 1684,
-  --   cell_manager c (round-4) 1685,
-  --   cell_manager c (round-4) 1686,
-  --   cell_manager c (round-4) 1687
-  -- ]
 
   def hash_bytes_le (c: ValidCircuit P P_Prime) (round: ℕ) := (hash_bytes c round).reverse
 
@@ -333,7 +317,18 @@ namespace Keccak
   def boolean_is_final (c: ValidCircuit P P_Prime): Prop :=
     ∀ round ≤ 25, is_final c (12*round) = 0 ∨ is_final c (12*round) = 1
 
+  -- Enforce fixed values on the first row (line 602)
   def is_final_disabled_on_first_row (c: ValidCircuit P P_Prime): Prop :=
     is_final c 0 = 0
 
+  -- Enforce logic for when this block is the last block for a hash (line 612)
+  def last_is_padding_in_block (c: ValidCircuit P P_Prime) (round: ℕ) :=
+    is_paddings c (round - (NUM_ROUNDS + 1 - NUM_WORDS_TO_ABSORB))
+
+  def is_padding_prev (c: ValidCircuit P P_Prime) (round: ℕ): (Fin 8) → ZMod P
+    | 0 => is_paddings c (round-1) 7
+    | x => is_paddings c round (x-1)
+
+  def is_first_padding (c: ValidCircuit P P_Prime) (round: ℕ) (idx: Fin 8): ZMod P :=
+    is_paddings c round idx - is_padding_prev c round idx
 end Keccak
