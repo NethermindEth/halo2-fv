@@ -2386,6 +2386,7 @@ def fixed_func_col_8 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   else if row ≥ 600 ∧ row ≤ 699 then fixed_func_col_8_600_to_699 c row
   else if row ≥ 700 ∧ row ≤ 727 then fixed_func_col_8_700_to_727 c row
   else if row = 728 then 74898
+  else if row ≥ 729 ∧ row < c.usable_rows then 0
   else c.1.FixedUnassigned 8 row
 def fixed_func_col_9_0_to_9 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   λ row =>
@@ -3438,6 +3439,7 @@ def fixed_func_col_9 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   else if row ≥ 600 ∧ row ≤ 699 then fixed_func_col_9_600_to_699 c row
   else if row ≥ 700 ∧ row ≤ 727 then fixed_func_col_9_700_to_727 c row
   else if row = 728 then 0
+  else if row ≥ 729 ∧ row < c.usable_rows then 0
   else c.1.FixedUnassigned 9 row
 def fixed_func_col_10_0_to_9 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   λ row =>
@@ -3809,6 +3811,7 @@ def fixed_func_col_10 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   else if row ≥ 100 ∧ row ≤ 199 then fixed_func_col_10_100_to_199 c row
   else if row ≥ 200 ∧ row ≤ 254 then fixed_func_col_10_200_to_254 c row
   else if row = 255 then 1755
+  else if row ≥ 256 ∧ row < c.usable_rows then 0
   else c.1.FixedUnassigned 10 row
 def fixed_func_col_11_0_to_9 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   λ row =>
@@ -4180,6 +4183,7 @@ def fixed_func_col_11 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   else if row ≥ 100 ∧ row ≤ 199 then fixed_func_col_11_100_to_199 c row
   else if row ≥ 200 ∧ row ≤ 254 then fixed_func_col_11_200_to_254 c row
   else if row = 255 then 585
+  else if row ≥ 256 ∧ row < c.usable_rows then 0
   else c.1.FixedUnassigned 11 row
 def fixed_func_col_12_0_to_9 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   λ row =>
@@ -4491,6 +4495,7 @@ def fixed_func_col_12 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   else if row = 213 then 237
   else if row = 214 then 301
   else if row = 215 then 365
+  else if row ≥ 216 ∧ row < c.usable_rows then 0
   else c.1.FixedUnassigned 12 row
 def fixed_func_col_13_0_to_9 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   λ row =>
@@ -4802,6 +4807,7 @@ def fixed_func_col_13 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   else if row = 213 then 73
   else if row = 214 then 9
   else if row = 215 then 73
+  else if row ≥ 216 ∧ row < c.usable_rows then 0
   else c.1.FixedUnassigned 13 row
 def fixed_func_col_14_0_to_9 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   λ row =>
@@ -5706,6 +5712,7 @@ def fixed_func_col_14 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   else if row = 622 then 1316
   else if row = 623 then 1828
   else if row = 624 then 2340
+  else if row ≥ 625 ∧ row < c.usable_rows then 0
   else c.1.FixedUnassigned 14 row
 def fixed_func_col_15_0_to_17 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   λ row =>
@@ -6158,6 +6165,7 @@ def fixed_func_col_15 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   else if row ≥ 618 ∧ row ≤ 620 then 0
   else if row ≥ 621 ∧ row ≤ 622 then 512
   else if row ≥ 623 ∧ row ≤ 624 then 0
+  else if row ≥ 625 ∧ row < c.usable_rows then 0
   else c.1.FixedUnassigned 15 row
 def fixed_func_col_16_0_to_9 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   λ row =>
@@ -6529,6 +6537,7 @@ def fixed_func_col_16 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   else if row ≥ 100 ∧ row ≤ 199 then fixed_func_col_16_100_to_199 c row
   else if row ≥ 200 ∧ row ≤ 254 then fixed_func_col_16_200_to_254 c row
   else if row = 255 then 255
+  else if row ≥ 256 ∧ row < c.usable_rows then 0
   else c.1.FixedUnassigned 16 row
 def fixed_func_col_17_0_to_9 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   λ row =>
@@ -6900,6 +6909,7 @@ def fixed_func_col_17 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   else if row ≥ 100 ∧ row ≤ 199 then fixed_func_col_17_100_to_199 c row
   else if row ≥ 200 ∧ row ≤ 254 then fixed_func_col_17_200_to_254 c row
   else if row = 255 then 2396745
+  else if row ≥ 256 ∧ row < c.usable_rows then 0
   else c.1.FixedUnassigned 17 row
 def fixed_func (c: ValidCircuit P P_Prime) : ℕ → ℕ → ZMod P :=
   λ col row => match col with
