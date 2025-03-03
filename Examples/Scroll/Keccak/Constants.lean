@@ -4,6 +4,8 @@ import Examples.Scroll.Keccak.Extraction
 namespace Keccak
   @[keccak_constants] def ABSORB_LOOKUP_RANGE: ℕ := 3
   @[keccak_constants] def BIT_COUNT: ℕ := 3
+  def BIT_SIZE: ℕ := 2^BIT_COUNT
+  @[keccak_constants] def BIT_SIZE_val: BIT_SIZE = 8 := rfl
   @[keccak_constants] def CHI_BASE_LOOKUP_RANGE: ℕ := 5
   @[keccak_constants] def DEFAULT_KECCAK_ROWS: ℕ := 12
   @[keccak_constants] def KECCAK_DEGREE: ℕ := 10 -- environment variable during run
