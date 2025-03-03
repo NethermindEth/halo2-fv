@@ -33,6 +33,46 @@ namespace Keccak.Lookups.Normalize_3
   def output_by_row (P: ℕ) (row: ℕ) : ZMod P :=
     output P (row / 243) ((row / 81) % 3) ((row / 27) % 3) ((row / 9) % 3) ((row / 3) % 3) (row % 3)
 
+def x : Nat := 42
+
+-- {P : ℕ} {P_Prime : Nat.Prime P} (c : ValidCircuit P P_Prime) : ℕ → ZMod P
+  set_option maxRecDepth 1000 in
+  lemma ABC (c : ValidCircuit P P_Prime) (n : Fin 729) :
+    fixed_func_col_8 c n = input_by_row P n := by sorry
+  -- rcases n with ⟨n, hn⟩
+
+  -- rcases n with _ | n
+  -- simp [fixed_func_col_8, input_by_row, fixed_func_col_8_0_to_99, input, fixed_func_col_8_0_to_9]
+  -- iterate 90
+  --   (
+  --     rcases n with _ | n
+  --     simp [
+  --       fixed_func_col_8, input_by_row, fixed_func_col_8_0_to_99,
+  --       input, fixed_func_col_8_0_to_9, keccak_constants, fixed_func_col_8_10_to_19,
+  --       fixed_func_col_8_20_to_29,
+  --       fixed_func_col_8_30_to_39,
+  --       fixed_func_col_8_40_to_49,
+  --       fixed_func_col_8_50_to_59,
+  --       fixed_func_col_8_60_to_69
+  --     ]
+  --   )
+  
+  
+  
+  -- rcases n with _ | n
+  -- sorry
+  -- rcases n with _ | n
+  -- sorry
+  -- rcases n with _ | n
+  -- sorry
+  -- rcases n with _ | n
+  -- sorry
+
+  -- fin_cases n
+  -- any_goals simp [fixed_func_col_8, fixed_func_col_8_0_to_99, input_by_row, input, fixed_func_col_8_0_to_9, keccak_constants]
+  -- 
+  
+
   def output_0_to_9 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
     λ row =>
     if row = 0 then output P 0 0 0 0 0 0  -- 0: normalize_3 output
@@ -111,7 +151,8 @@ namespace Keccak.Lookups.Normalize_3
   lemma fixed_9_output_0_to_9 (c: ValidCircuit P P_Prime): fixed_func_col_9_0_to_9 c row = output_0_to_9 c row := by
     simp [fixed_func_col_9_0_to_9, output_0_to_9, output, keccak_constants]
 
-  lemma lookup_0_normalize_3_input (c: ValidCircuit P P_Prime) (hlookup: lookup_0 c):
+  lemma lookup_0_normalize_3_input
+    (c: ValidCircuit P P_Prime) (hlookup: lookup_0 c) (h_fixed: c.1.Fixed = fixed_func c):
     ∀ row < c.usable_rows, ∃ x0 x1 x2 x3 x4 x5: ℕ,
       x0 < 3 ∧
       x1 < 3 ∧
@@ -125,7 +166,21 @@ namespace Keccak.Lookups.Normalize_3
       unfold lookup_0 at hlookup
       intro row hrow
       obtain ⟨lookup_row, ⟨hlookup_row, hlookup⟩⟩ := hlookup row hrow
-      have h_input: c.get_fixed 8 lookup_row = input_by_row P lookup_row := by sorry
+      have := @ABC P P_Prime c
+      have h_input: c.get_fixed 8 lookup_row = input_by_row P lookup_row := by
+        simp [ValidCircuit.get_fixed, h_fixed, fixed_func]
+        by_cases eq : lookup_row < 729
+        · specialize this ⟨lookup_row, eq⟩
+          convert this
+        · simp at eq
+          unfold fixed_func_col_8
+          repeat ( rw [if_neg (by omega)] )
+          simp [*]
+          done
+
+
+          done
+        done
       have h_output: c.get_fixed 9 lookup_row = output_by_row P lookup_row := by sorry
       rewrite [h_input, h_output, input_by_row, output_by_row] at hlookup
       use lookup_row/243
@@ -135,6 +190,8 @@ namespace Keccak.Lookups.Normalize_3
       use lookup_row/3 % 3
       use lookup_row % 3
       simp_all [Nat.mod_lt]
+      
+
       sorry
 
 end Keccak.Lookups.Normalize_3
