@@ -81,7 +81,7 @@ namespace Keccak
       [57, 58, 59],
       [60, 61, 62],
       [63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_3_1_false: new 3 1 false = [
       [0, 1, 2],
@@ -106,7 +106,7 @@ namespace Keccak
       [57, 58, 59],
       [60, 61, 62],
       [63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_0_true : new 4 0 true = [
       [0, 1, 2, 3],
@@ -125,7 +125,7 @@ namespace Keccak
       [52, 53, 54, 55],
       [56, 57, 58, 59],
       [60, 61, 62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_1_true : new 4 1 true = [
       [0, 1, 2],
@@ -145,7 +145,7 @@ namespace Keccak
       [55, 56, 57, 58],
       [59, 60, 61, 62],
       [63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_2_true : new 4 2 true = [
       [0, 1],
@@ -165,7 +165,7 @@ namespace Keccak
       [54, 55, 56, 57],
       [58, 59, 60, 61],
       [62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_3_true : new 4 3 true = [
       [0],
@@ -185,7 +185,7 @@ namespace Keccak
       [53, 54, 55, 56],
       [57, 58, 59, 60],
       [61, 62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_6_true : new 4 6 true = [
       [0, 1],
@@ -205,7 +205,7 @@ namespace Keccak
       [54, 55, 56, 57],
       [58, 59, 60, 61],
       [62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_8_true : new 4 8 true = [
       [0, 1, 2, 3],
@@ -224,7 +224,7 @@ namespace Keccak
       [52, 53, 54, 55],
       [56, 57, 58, 59],
       [60, 61, 62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_10_true : new 4 10 true = [
       [0, 1],
@@ -244,7 +244,7 @@ namespace Keccak
       [54, 55, 56, 57],
       [58, 59, 60, 61],
       [62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_14_true : new 4 14 true = [
       [0, 1],
@@ -264,7 +264,7 @@ namespace Keccak
       [54, 55, 56, 57],
       [58, 59, 60, 61],
       [62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_15_true : new 4 15 true = [
       [0],
@@ -284,7 +284,7 @@ namespace Keccak
       [53, 54, 55, 56],
       [57, 58, 59, 60],
       [61, 62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_18_true : new 4 18 true = [
       [0, 1],
@@ -304,7 +304,7 @@ namespace Keccak
       [54, 55, 56, 57],
       [58, 59, 60, 61],
       [62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_20_true : new 4 20 true = [
       [0, 1, 2, 3],
@@ -323,7 +323,7 @@ namespace Keccak
       [52, 53, 54, 55],
       [56, 57, 58, 59],
       [60, 61, 62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_21_true : new 4 21 true = [
       [0, 1, 2],
@@ -343,7 +343,7 @@ namespace Keccak
       [55, 56, 57, 58],
       [59, 60, 61, 62],
       [63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_25_true : new 4 25 true = [
       [0, 1, 2],
@@ -363,7 +363,7 @@ namespace Keccak
       [55, 56, 57, 58],
       [59, 60, 61, 62],
       [63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_27_true : new 4 27 true = [
       [0],
@@ -383,7 +383,7 @@ namespace Keccak
       [53, 54, 55, 56],
       [57, 58, 59, 60],
       [61, 62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_28_true : new 4 28 true = [
       [0, 1, 2, 3],
@@ -402,7 +402,7 @@ namespace Keccak
       [52, 53, 54, 55],
       [56, 57, 58, 59],
       [60, 61, 62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_36_true : new 4 36 true = [
       [0, 1, 2, 3],
@@ -421,7 +421,7 @@ namespace Keccak
       [52, 53, 54, 55],
       [56, 57, 58, 59],
       [60, 61, 62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_39_true : new 4 39 true = [
       [0],
@@ -441,7 +441,7 @@ namespace Keccak
       [53, 54, 55, 56],
       [57, 58, 59, 60],
       [61, 62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_41_true : new 4 41 true = [
       [0, 1, 2],
@@ -461,7 +461,7 @@ namespace Keccak
       [55, 56, 57, 58],
       [59, 60, 61, 62],
       [63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_43_true : new 4 43 true = [
       [0],
@@ -481,7 +481,7 @@ namespace Keccak
       [53, 54, 55, 56],
       [57, 58, 59, 60],
       [61, 62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_44_true : new 4 44 true = [
       [0, 1, 2, 3],
@@ -500,7 +500,7 @@ namespace Keccak
       [52, 53, 54, 55],
       [56, 57, 58, 59],
       [60, 61, 62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_45_true : new 4 45 true = [
       [0, 1, 2],
@@ -520,7 +520,7 @@ namespace Keccak
       [55, 56, 57, 58],
       [59, 60, 61, 62],
       [63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_55_true : new 4 55 true = [
       [0],
@@ -540,7 +540,7 @@ namespace Keccak
       [53, 54, 55, 56],
       [57, 58, 59, 60],
       [61, 62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_56_true : new 4 56 true = [
       [0, 1, 2, 3],
@@ -559,7 +559,7 @@ namespace Keccak
       [52, 53, 54, 55],
       [56, 57, 58, 59],
       [60, 61, 62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_61_true : new 4 61 true = [
       [0, 1, 2],
@@ -579,7 +579,7 @@ namespace Keccak
       [55, 56, 57, 58],
       [59, 60, 61, 62],
       [63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_4_62_true : new 4 62 true = [
       [0, 1],
@@ -599,7 +599,7 @@ namespace Keccak
       [54, 55, 56, 57],
       [58, 59, 60, 61],
       [62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_6_0_false : new 6 0 false = [
       [0, 1, 2, 3, 4, 5],
@@ -613,7 +613,7 @@ namespace Keccak
       [48, 49, 50, 51, 52, 53],
       [54, 55, 56, 57, 58, 59],
       [60, 61, 62, 63]
-    ] := by decide
+    ] := rfl
 
     @[word_parts_known] lemma new_8_0_false : new 8 0 false = [
       [0, 1, 2, 3, 4, 5, 6, 7],
@@ -624,7 +624,7 @@ namespace Keccak
       [40, 41, 42, 43, 44, 45, 46, 47],
       [48, 49, 50, 51, 52, 53, 54, 55],
       [56, 57, 58, 59, 60, 61, 62, 63]
-    ] := by decide
+    ] := rfl
   end WordParts
 
 end Keccak

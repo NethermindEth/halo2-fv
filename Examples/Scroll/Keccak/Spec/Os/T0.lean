@@ -26,7 +26,7 @@ namespace Keccak
     simp only [t]
     congr
     . simp [bc, Transform.split_expr, h]
-      simp [Split.expr, part_size_c, keccak_constants, word_parts_known, List.enum]
-    . simp [bc, part_size_c, keccak_constants, get_rotate_count, Transform.split_expr, Split.expr, word_parts_known, List.enum, List.rotateRight]
+      simp [Split.expr_res, part_size_c, keccak_constants, word_parts_known, List.enum]
+    . simp [bc, part_size_c, keccak_constants, get_rotate_count, Transform.split_expr, Split.expr_res, word_parts_known, List.enum, List.rotateRight]
 
 end Keccak

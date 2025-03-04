@@ -23,6 +23,6 @@ namespace Keccak
         (3, cell_manager c round 324)] = t c round 3
   := by
     have h: (↑(4: Fin 5)) = (4: ℕ) := rfl
-    simp [t, bc, c_parts, Transform.split_expr, Split.expr, part_size_c, get_num_bits_per_theta_c_lookup_val, word_parts_known, List.enum, h, get_rotate_count, List.rotateRight, s]
+    simp [t, bc, c_parts, Transform.split_expr, Split.expr_res, part_size_c, get_num_bits_per_theta_c_lookup_val, word_parts_known, List.enum, h, get_rotate_count, List.rotateRight, s]
 
 end Keccak

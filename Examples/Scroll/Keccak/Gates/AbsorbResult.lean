@@ -24,7 +24,7 @@ namespace Keccak
           rewrite [neg_involutive] at hgate_1
           have h_row_range : (12*(round+1)+11) < c.n := by linarith
           simp [to_cell_manager, h_row_range] at hgate_1
-          simp [Split.constraint, get_num_bits_per_absorb_lookup_val, Split.expr, WordParts.new_6_0_false, List.enum, Decode.expr, BIT_COUNT, zmod_pow_simps]
+          simp [Split.constraint, get_num_bits_per_absorb_lookup_val, Split.expr_res, WordParts.new_6_0_false, List.enum, Decode.expr, BIT_COUNT, zmod_pow_simps]
           rewrite [hgate_1]
           rfl
 

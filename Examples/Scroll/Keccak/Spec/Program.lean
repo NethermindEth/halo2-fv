@@ -1,4 +1,8 @@
 import Examples.Scroll.Keccak.Extraction
+import Examples.Scroll.Keccak.Lookups.Normalize_3.Lookups
+import Examples.Scroll.Keccak.Lookups.Normalize_4.Lookups
+import Examples.Scroll.Keccak.Lookups.Normalize_6.Lookups
+import Examples.Scroll.Keccak.Lookups.PackTable.Lookups
 import Examples.Scroll.Keccak.Constants
 import Examples.Scroll.Keccak.Util
 import Examples.Scroll.Keccak.CellManager
@@ -9,34 +13,21 @@ import Examples.Util
 
 namespace Keccak
 
-  def keccak_unusable_rows: ℕ := 59 -- TODO implement using list, this is specific to DEFAULT_KECCAK_ROWS and NUM_BYTES_PER_WORD
+  def get_num_rows_per_round: ℕ :=
+    Env.KECCAK_ROWS.getD DEFAULT_KECCAK_ROWS
+
+  def keccak_unusable_rows: ℕ :=
+    let UNUSABLE_ROWS_BY_KECCAK_ROWS := [
+      53, 67, 63, 59, 45, 79, 77, 75, 73, 71, 69, 67, 65, 63, 61, 59, 57, 71, 89, 107, 107, 107,
+      107, 107,
+    ]
+    UNUSABLE_ROWS_BY_KECCAK_ROWS[get_num_rows_per_round - NUM_BYTES_PER_WORD -1]?.getD 107
+
+  def get_degree: ℕ :=
+    Env.KECCAK_DEGREE.getD 19
 
   def get_num_bits_per_lookup (range: ℕ): ℕ :=
-    Nat.log range (2^KECCAK_DEGREE - keccak_unusable_rows)
-
-  lemma get_num_bits_per_lookup_correct (range: ℕ) (h_range: range ≥ 2):
-    range^(get_num_bits_per_lookup range + 1) + keccak_unusable_rows > 2^KECCAK_DEGREE ∧
-    range^(get_num_bits_per_lookup range) + keccak_unusable_rows ≤ 2^KECCAK_DEGREE := by
-      rewrite [get_num_bits_per_lookup, KECCAK_DEGREE, keccak_unusable_rows]
-      simp only [Nat.reducePow, Nat.reduceSub]
-      apply And.intro
-      . have h: 965 < range ^ (Nat.log range 965 + 1) := by
-          rewrite [←Nat.log_mul_base]
-          unfold Nat.log
-          dsimp only
-          rewrite [dite_cond_eq_true]
-          rewrite [Nat.mul_div_cancel]
-          exact Nat.lt_pow_succ_log_self h_range 965
-          linarith
-          apply eq_true
-          apply And.intro
-          linarith
-          linarith
-          linarith
-          decide
-        linarith
-      . simp only [add_tsub_cancel_right, Nat.reduceLeDiff]
-        simp [Nat.pow_log_le_self]
+    Nat.log range (2^get_degree - keccak_unusable_rows)
 
   def get_num_bits_per_absorb_lookup: ℕ := get_num_bits_per_lookup ABSORB_LOOKUP_RANGE
   def get_num_bits_per_base_chi_lookup: ℕ := get_num_bits_per_lookup (max CHI_BASE_LOOKUP_RANGE RHO_PI_LOOKUP_RANGE)
@@ -51,14 +42,20 @@ namespace Keccak
   end Decode
 
   namespace Split
-    def expr (c: ValidCircuit P P_Prime) (cell_offset round rot target_part_size: ℕ): List (ℕ × ZMod P) :=
+    def expr_res (c: ValidCircuit P P_Prime) (cell_offset round rot target_part_size: ℕ): List (ℕ × ZMod P) :=
       (WordParts.new target_part_size rot false
       ).enum.map (
         λ (offset, bits) => (bits.length, cell_manager c round (cell_offset + offset))
       )
 
     def constraint (c: ValidCircuit P P_Prime) (cell_offset round rot target_part_size: ℕ) (input: ZMod P): Prop :=
-      Decode.expr (Split.expr c cell_offset round rot target_part_size) = input
+      Decode.expr (expr_res c cell_offset round rot target_part_size) = input
+
+    def expr (c: ValidCircuit P P_Prime) (cell_offset round rot target_part_size: ℕ) (input: ZMod P): List (ℕ × ZMod P) × Prop :=
+      (
+        Split.expr_res c cell_offset round rot target_part_size,
+        Split.constraint c cell_offset round rot target_part_size input
+      )
   end Split
 
   namespace SplitUniform
@@ -98,16 +95,51 @@ namespace Keccak
         (word := (WordParts.new target_part_size rot true).rotateRight (get_rotate_count rot target_part_size))
         (target_sizes := target_part_sizes target_part_size))
 
-    def expr [NeZero K] (output_cells: Fin K → ZMod P) (target_part_size: ℕ):=
+    def expr_res [NeZero K] (output_cells: Fin K → ZMod P) (target_part_size: ℕ):=
       output_parts
         (output_cells := (List.range K).map (λ x: ℕ => output_cells (Fin.ofNat' K x)))
         (target_sizes := target_part_sizes target_part_size)
 
+    def expr [NeZero K] (c: ValidCircuit P P_Prime) (output_cells: Fin K → ZMod P) (cell_offset round: ℕ) (input: ZMod P) (rot target_part_size: ℕ) :=
+      (
+        expr_res output_cells target_part_size,
+        constraint c output_cells cell_offset round input rot target_part_size
+      )
   end SplitUniform
 
+  namespace TransformTo
+    def expr
+      (cells: List (ZMod P))
+      (input: List (ℕ × ZMod P))
+      (transform_table: ℕ → (ZMod P × ZMod P))
+    : List (ℕ × ZMod P) × Prop :=
+      (
+        (input.zip cells).map (λ ⟨⟨n, _⟩, x⟩ => (n, x)),
+        cells.length ≥ input.length ∧
+        ∀ pair ∈ input.zip cells, ∃ lookup_row, transform_table lookup_row = (pair.1.2, pair.2)
+      )
+
+  end TransformTo
+
   namespace Transform
-    def split_expr (c: ValidCircuit P P_Prime) (cell_offset round rot target_part_size: ℕ) (transform_offset: ℕ): List (ℕ × ZMod P) :=
-      Split.expr c (cell_offset + transform_offset) round rot target_part_size
+    def split_expr
+      (c: ValidCircuit P P_Prime)
+      (cell_offset round rot target_part_size transform_offset: ℕ)
+      (input: List (ℕ × ZMod P))
+      (split_input: ZMod P)
+      (transform_table: ℕ → (ZMod P × ZMod P))
+      (uniform_lookup: Bool)
+    : List (ℕ × ZMod P) × Prop :=
+      let res := Split.expr_res c (cell_offset + transform_offset) round rot target_part_size
+      (
+        res,
+        (input, True) = Split.expr c cell_offset round rot target_part_size split_input ∧
+        (uniform_lookup = true → get_num_rows_per_round ∣ transform_offset) ∧
+        (∀ cell ∈ input.zip res, ∃ lookup_row, transform_table lookup_row = (cell.1.2, cell.2.2))
+      )
+
+    def split_expr_old (c: ValidCircuit P P_Prime) (cell_offset round rot target_part_size: ℕ) (transform_offset: ℕ): List (ℕ × ZMod P) :=
+      Split.expr_res c (cell_offset + transform_offset) round rot target_part_size
   end Transform
 
   namespace ComposeRlc
@@ -127,8 +159,7 @@ namespace Keccak
     cell_manager c round ((5*↑x) + ↑y)
   -- def s_next
 
-  -- TODO: name of round?
-  -- TODO row range 12-288
+  -- Absorb data (line 148)
   def absorb_from (c: ValidCircuit P P_Prime) (round: ℕ): ZMod P := cell_manager c round 25
   def absorb_data (c: ValidCircuit P P_Prime) (round: ℕ): ZMod P := cell_manager c round 26
   def absorb_result (c: ValidCircuit P P_Prime) (round: ℕ): ZMod P := cell_manager c round 27 -- bound by gate 1
@@ -137,17 +168,47 @@ namespace Keccak
   -- def absorb_data_next
   -- def absorb_result_next
 
+  -- Absorb (line 165)
   def input (c: ValidCircuit P P_Prime) (round: ℕ): ZMod P := absorb_from c round + absorb_data c round -- bound by gate 0
-  -- absorb_res: lookup_0
+  def absorb_fat (c: ValidCircuit P P_Prime) (round: ℕ): List (ℕ × ZMod P) × Prop :=
+    Split.expr c round
+      (cell_offset := 36)
+      (rot := 0)
+      (target_part_size := get_num_bits_per_absorb_lookup)
+      (input := input c round)
 
-  --Process inputs
-  -- packed_parts: gate_2
-  def input_bytes (c: ValidCircuit P P_Prime) (round: ℕ) :=
+  def absorb_res (c: ValidCircuit P P_Prime) (round: ℕ): List (ℕ × ZMod P) × Prop :=
     Transform.split_expr c round
-      (cell_offset := 64) -- TODO check
+      (cell_offset := 36)
+      (rot := 0)
+      (target_part_size := get_num_bits_per_absorb_lookup)
+      (transform_offset := 12)
+      (input := (absorb_fat c round).1)
+      (split_input := input c round)
+      (transform_table := Lookups.Normalize_3.transform_table P)
+      (uniform_lookup := true)
+
+  def require_equal_absorb_result (c: ValidCircuit P P_Prime) (round: ℕ) : Prop :=
+    Decode.expr (absorb_res c round).1 = absorb_result c round
+
+  --Process inputs (line 198)
+  def packed_parts (c: ValidCircuit P P_Prime) (round: ℕ): List (ℕ × ZMod P) × Prop :=
+    Split.expr c round
+      (cell_offset := 60)
       (rot := 0)
       (target_part_size := NUM_BYTES_PER_WORD)
-      (transform_offset := 8) -- TODO check
+      (input := absorb_data c round)
+
+  def input_bytes (c: ValidCircuit P P_Prime) (round: ℕ): List (ℕ × ZMod P) × Prop :=
+    Transform.split_expr c round
+      (cell_offset := 60)
+      (rot := 0)
+      (target_part_size := NUM_BYTES_PER_WORD)
+      (transform_offset := 12)
+      (input := (packed_parts c round).1)
+      (split_input := absorb_data c round)
+      (transform_table := Lookups.PackTable.transform_table P)
+      (uniform_lookup := true)
 
   -- Padding data (line 230)
   def is_paddings (c: ValidCircuit P P_Prime) (round: ℕ): (Fin 8) → ZMod P
@@ -161,107 +222,131 @@ namespace Keccak
     | 7 => cell_manager c round 91
 
   --Theta (line 241)
-  -- Gates 3,4,5,6,7 handle the constraints for these splits
   def part_size_c := get_num_bits_per_theta_c_lookup
-  def c_parts (c: ValidCircuit P P_Prime) (round: ℕ) (idx: Fin 5) : List (ℕ × ZMod P) :=
+  def c_parts (c: ValidCircuit P P_Prime) (round: ℕ) (idx: Fin 5) : List (ℕ × ZMod P) × Prop :=
     Split.expr c round
       (cell_offset := 96 + 22*↑idx)
       (rot := 1)
       (target_part_size := part_size_c)
+      (input := s c round idx 0 + s c round idx 1 + s c round idx 2 + s c round idx 3 + s c round idx 4)
 
-  def bc (c: ValidCircuit P P_Prime) (round: ℕ) (idx: Fin 5): List (ℕ × ZMod P) :=
+  def bc (c: ValidCircuit P P_Prime) (round: ℕ) (idx: Fin 5): List (ℕ × ZMod P) × Prop :=
     Transform.split_expr c round
       (cell_offset := 96 + 22*↑idx)
       (rot := 1)
       (target_part_size := part_size_c)
       (transform_offset := 120)
+      (input := (c_parts c round idx).1)
+      (split_input := s c round idx 0 + s c round idx 1 + s c round idx 2 + s c round idx 3 + s c round idx 4)
+      (transform_table := Lookups.Normalize_6.transform_table P)
+      (uniform_lookup := true)
 
   def t (c: ValidCircuit P P_Prime) (round: ℕ) (x: Fin 5) :=
-    (Decode.expr (bc c round (x + 4)) + Decode.expr ((bc c round (x+1)).rotateRight (get_rotate_count 1 part_size_c)))
+    (Decode.expr (bc c round (x + 4)).1 + Decode.expr ((bc c round (x+1)).1.rotateRight (get_rotate_count 1 part_size_c)))
 
   def os (c: ValidCircuit P P_Prime) (round: ℕ) (x y: Fin 5) :=
     s c round x y + t c round x
 
-  -- Rho/Pi
-  def rho_by_pi_num_word_parts := (target_part_sizes_rot get_num_bits_per_base_chi_lookup 0).length
+  -- Rho/Pi (line 299)
+  def rho_by_pi_part_size := get_num_bits_per_base_chi_lookup
+  def rho_by_pi_target_word_sizes := target_part_sizes rho_by_pi_part_size
+  def rho_by_pi_num_word_parts := rho_by_pi_target_word_sizes.length
   instance : NeZero rho_by_pi_num_word_parts where
     out := by
-      unfold rho_by_pi_num_word_parts target_part_sizes_rot get_num_bits_per_base_chi_lookup CHI_BASE_LOOKUP_RANGE RHO_PI_LOOKUP_RANGE
+      unfold rho_by_pi_num_word_parts rho_by_pi_target_word_sizes target_part_sizes rho_by_pi_part_size get_num_bits_per_base_chi_lookup CHI_BASE_LOOKUP_RANGE RHO_PI_LOOKUP_RANGE
       simp only [Nat.reduceLeDiff, max_eq_left, tsub_zero, List.length_join, List.map_map, Nat.sum_eq_listSum, ne_eq]
       unfold get_num_bits_per_lookup
-      have h: Nat.log 5 (2^KECCAK_DEGREE - keccak_unusable_rows) = 4 := by
+      have h: Nat.log 5 (2^get_degree - keccak_unusable_rows) = 4 := by
         rewrite [Nat.log_eq_iff] <;> decide
       rewrite [h]
       decide
   def rho_pi_chi_cells (c: ValidCircuit P P_Prime) (round: ℕ) (p: Fin 3) (i j: Fin 5) (idx: Fin rho_by_pi_num_word_parts): ZMod P :=
-    -- let row_idx: ℕ := ↑idx + ↑j * rho_by_pi_num_word_parts + ↑p * 5 * rho_by_pi_num_word_parts
-    -- cell_manager c round (
-    --   336 + --start
-    --   DEFAULT_KECCAK_ROWS*↑i +
-    --   row_idx % DEFAULT_KECCAK_ROWS +
-    --   5 * (row_idx / DEFAULT_KECCAK_ROWS) * DEFAULT_KECCAK_ROWS
-    -- )
-    let row_idx: ℕ := (↑idx + ↑j * rho_by_pi_num_word_parts) % DEFAULT_KECCAK_ROWS
-    let col_idx: ℕ := (↑idx + ↑j * rho_by_pi_num_word_parts) / DEFAULT_KECCAK_ROWS
-    let cols_per_p: ℕ := 5 * ((rho_by_pi_num_word_parts * 5 + DEFAULT_KECCAK_ROWS - 1) / DEFAULT_KECCAK_ROWS)
+    let row_idx: ℕ := (↑idx + ↑j * rho_by_pi_num_word_parts) % get_num_rows_per_round
+    let col_idx: ℕ := (↑idx + ↑j * rho_by_pi_num_word_parts) / get_num_rows_per_round
+    let cols_per_p: ℕ := 5 * ((rho_by_pi_num_word_parts * 5 + get_num_rows_per_round - 1) / get_num_rows_per_round)
     cell_manager c round (
       336 -- start
-      + p * cols_per_p * DEFAULT_KECCAK_ROWS
+      + p * cols_per_p * get_num_rows_per_round
       + row_idx
-      + i * DEFAULT_KECCAK_ROWS
-      + col_idx * DEFAULT_KECCAK_ROWS * 5
+      + i * get_num_rows_per_round
+      + col_idx * get_num_rows_per_round * 5
     )
 
+  def s_parts_cell_offsets (i j: Fin 5): ℕ :=
+    match i, j with
+      | 0, 0 => 1596
+      | 1, 0 => 1596
+      | 2, 0 => 1598
+      | 3, 0 => 1600
+      | 4, 0 => 1600
+      | 0, 1 => 1600
+      | 1, 1 => 1600
+      | 2, 1 => 1602
+      | 3, 1 => 1604
+      | 4, 1 => 1606
+      | 0, 2 => 1606
+      | 1, 2 => 1608
+      | 2, 2 => 1610
+      | 3, 2 => 1612
+      | 4, 2 => 1614
+      | 0, 3 => 1616
+      | 1, 3 => 1618
+      | 2, 3 => 1620
+      | 3, 3 => 1622
+      | 4, 3 => 1624
+      | 0, 4 => 1624
+      | 1, 4 => 1626
+      | 2, 4 => 1628
+      | 3, 4 => 1630
+      | 4, 4 => 1630
 
+  def s_parts (c: ValidCircuit P P_Prime) (round: ℕ) (i j: Fin 5): List (ℕ × ZMod P) × Prop :=
+    SplitUniform.expr c round
+      (output_cells := rho_pi_chi_cells c round 0 j (2*i + 3*j))
+      (cell_offset := s_parts_cell_offsets i j)
+      (input := os c round i j)
+      (rot := RHO_MATRIX i j)
+      (target_part_size := rho_by_pi_part_size)
 
-  -- 1240 =
-  -- 336 + 904 =
-  -- 336 + 75*12 + 4
-  -- row_idx%12 = 4
-  -- 12i + 5*(row_idx-4) = 75
-  -- i = 0
-  -- row+idx = 18
-  -- idx + j * 16 + p * 5 * 16 = 18
-  -- p = 0
-  -- idx = 2
-  -- j = 1
-  -- rho_pi_chi_cells
-  -- Chi
+  def s_parts' (c: ValidCircuit P P_Prime) (round: ℕ) (i j: Fin 5): List (ℕ × ZMod P) × Prop :=
+    TransformTo.expr
+      (cells := (List.range rho_by_pi_num_word_parts).map (λ x => rho_pi_chi_cells c round 1 j (2*i + 3*j) x))
+      (input := (s_parts c round j i).1)
+      (transform_table := Lookups.Normalize_4.transform_table P)
 
+  def os_parts (c: ValidCircuit P P_Prime) (round: ℕ): Fin 5 → Fin 5 → List (ℕ × ZMod P)
+    | 0, 0 => (s_parts' c round (i := 0) (j := 0)).1
+    | 0, 1 => (s_parts' c round (i := 3) (j := 0)).1
+    | 0, 2 => (s_parts' c round (i := 1) (j := 0)).1
+    | 0, 3 => (s_parts' c round (i := 4) (j := 0)).1
+    | 0, 4 => (s_parts' c round (i := 2) (j := 0)).1
+    | 1, 0 => (s_parts' c round (i := 1) (j := 1)).1
+    | 1, 1 => (s_parts' c round (i := 4) (j := 1)).1
+    | 1, 2 => (s_parts' c round (i := 2) (j := 1)).1
+    | 1, 3 => (s_parts' c round (i := 0) (j := 1)).1
+    | 1, 4 => (s_parts' c round (i := 3) (j := 1)).1
+    | 2, 0 => (s_parts' c round (i := 2) (j := 2)).1
+    | 2, 1 => (s_parts' c round (i := 0) (j := 2)).1
+    | 2, 2 => (s_parts' c round (i := 3) (j := 2)).1
+    | 2, 3 => (s_parts' c round (i := 1) (j := 2)).1
+    | 2, 4 => (s_parts' c round (i := 4) (j := 2)).1
+    | 3, 0 => (s_parts' c round (i := 3) (j := 3)).1
+    | 3, 1 => (s_parts' c round (i := 1) (j := 3)).1
+    | 3, 2 => (s_parts' c round (i := 4) (j := 3)).1
+    | 3, 3 => (s_parts' c round (i := 2) (j := 3)).1
+    | 3, 4 => (s_parts' c round (i := 0) (j := 3)).1
+    | 4, 0 => (s_parts' c round (i := 4) (j := 4)).1
+    | 4, 1 => (s_parts' c round (i := 2) (j := 4)).1
+    | 4, 2 => (s_parts' c round (i := 0) (j := 4)).1
+    | 4, 3 => (s_parts' c round (i := 3) (j := 4)).1
+    | 4, 4 => (s_parts' c round (i := 1) (j := 4)).1
 
+  def os_parts_shuffle (c: ValidCircuit P P_Prime): Prop :=
+    ∀ round, ∀ j i, os_parts c round j (2*i + 3*j) = (s_parts' c round (i := i) (j := j)).1
 
+  -- os_parts j (2 * i) = s_parts' j (i - (3*j))
 
-
-
-
-  -- 336 - start
-  -- p = 0
-  --   start_region - at multiple of 12
-  --   row_idx = 0
-  --   j = 0
-  --     _ = 0
-  --       for i = 0..5 rho_pi_chi_cells[0][i][0][0] = cell manager start + DEFAULT_KECCAK_ROWS*i
-  --       row_idx += 1
-  --
-
-
-
-
-
-
-  --    | 28                                      | 29                     | 30                     | 31                     | 32                      |
-  -- 0  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 0] |[p=0][i=1][j=0][idx= 0] |[p=0][i=2][j=0][idx= 0] |[p=0][i=3][j=0][idx= 0] | [p=0][i=4][j=0][idx= 0] |
-  -- 1  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 1] |[p=0][i=1][j=0][idx= 1] |[p=0][i=2][j=0][idx= 1] |[p=0][i=3][j=0][idx= 1] | [p=0][i=4][j=0][idx= 1] |
-  -- 2  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 2] |[p=0][i=1][j=0][idx= 2] |[p=0][i=2][j=0][idx= 2] |[p=0][i=3][j=0][idx= 2] | [p=0][i=4][j=0][idx= 2] |
-  -- 3  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 3] |[p=0][i=1][j=0][idx= 3] |[p=0][i=2][j=0][idx= 3] |[p=0][i=3][j=0][idx= 3] | [p=0][i=4][j=0][idx= 3] |
-  -- 4  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 4] |[p=0][i=1][j=0][idx= 4] |[p=0][i=2][j=0][idx= 4] |[p=0][i=3][j=0][idx= 4] | [p=0][i=4][j=0][idx= 4] |
-  -- 5  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 5] |[p=0][i=1][j=0][idx= 5] |[p=0][i=2][j=0][idx= 5] |[p=0][i=3][j=0][idx= 5] | [p=0][i=4][j=0][idx= 5] |
-  -- 6  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 6] |[p=0][i=1][j=0][idx= 6] |[p=0][i=2][j=0][idx= 6] |[p=0][i=3][j=0][idx= 6] | [p=0][i=4][j=0][idx= 6] |
-  -- 7  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 7] |[p=0][i=1][j=0][idx= 7] |[p=0][i=2][j=0][idx= 7] |[p=0][i=3][j=0][idx= 7] | [p=0][i=4][j=0][idx= 7] |
-  -- 8  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 8] |[p=0][i=1][j=0][idx= 8] |[p=0][i=2][j=0][idx= 8] |[p=0][i=3][j=0][idx= 8] | [p=0][i=4][j=0][idx= 8] |
-  -- 9  | rho_pi_chi_cells[p=0][i=0][j=0][idx= 9] |[p=0][i=1][j=0][idx= 9] |[p=0][i=2][j=0][idx= 9] |[p=0][i=3][j=0][idx= 9] | [p=0][i=4][j=0][idx= 9] |
-  -- 10 | rho_pi_chi_cells[p=0][i=0][j=0][idx=10] |[p=0][i=1][j=0][idx=10] |[p=0][i=2][j=0][idx=10] |[p=0][i=3][j=0][idx=10] | [p=0][i=4][j=0][idx=10] |
-  -- 11 | rho_pi_chi_cells[p=0][i=0][j=0][idx=11] |[p=0][i=1][j=0][idx=11] |[p=0][i=2][j=0][idx=11] |[p=0][i=3][j=0][idx=11] | [p=0][i=4][j=0][idx=11] |
+  -- Chi (line 387)
 
   def os' (c: ValidCircuit P P_Prime) (round: ℕ) (x y: Fin 5) :=
     Decode.expr (
@@ -274,7 +359,7 @@ namespace Keccak
   def iota_s (c: ValidCircuit P P_Prime) (round: ℕ) (x y: Fin 5) :=
     match x, y with
       | 0, 0 => Decode.expr (
-        Transform.split_expr c round
+        Transform.split_expr_old c round
           (cell_offset := 1632)
           (rot := 0)
           (target_part_size := get_num_bits_per_absorb_lookup)
@@ -287,7 +372,7 @@ namespace Keccak
   def squeeze_from (c: ValidCircuit P P_Prime) (round: ℕ):= cell_manager c round 1656
 
   -- Squeeze (line 477)
-  def squeeze_bytes (c: ValidCircuit P P_Prime) (round: ℕ): List (ℕ × ZMod P) := Transform.split_expr c round
+  def squeeze_bytes (c: ValidCircuit P P_Prime) (round: ℕ): List (ℕ × ZMod P) := Transform.split_expr_old c round
     (cell_offset := 1657) -- TODO
     (rot := 0)
     (target_part_size := 8)

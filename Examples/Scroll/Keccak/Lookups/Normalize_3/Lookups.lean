@@ -3,6 +3,12 @@ import Examples.Scroll.Keccak.Lookups.Normalize_3.Output
 
 namespace Keccak.Lookups.Normalize_3
 
+  def transform_table (P: ℕ) (row: ℕ) :=
+    if row < 729 then
+      (input_by_row P row, output_by_row P row)
+    else
+      (input_by_row P 0, output_by_row P 0)
+
   lemma lookup_normalize_3 (col1 col2: ℕ)
     (c: ValidCircuit P P_Prime) (hlookup: ∀ row < c.usable_rows,
       ∃ lookup_row < c.usable_rows,

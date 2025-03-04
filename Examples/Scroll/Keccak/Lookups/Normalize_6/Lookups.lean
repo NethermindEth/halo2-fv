@@ -3,6 +3,12 @@ import Examples.Scroll.Keccak.Lookups.Normalize_6.Output
 
 namespace Keccak.Lookups.Normalize_6
 
+  def transform_table (P: ℕ) (row: ℕ) :=
+    if row < 216 then
+      (input_by_row P row, output_by_row P row)
+    else
+      (input_by_row P 0, output_by_row P 0)
+
   lemma lookup_normalize_6 (col1 col2: ℕ)
     (c: ValidCircuit P P_Prime) (hlookup: ∀ row < c.usable_rows,
       ∃ lookup_row < c.usable_rows,
@@ -121,5 +127,30 @@ namespace Keccak.Lookups.Normalize_6
       c.get_advice 24 row = input P x0 x1 x2 ∧
       c.get_advice 34 row = output P x0 x1 x2
     := lookup_normalize_6 24 34 c hlookup h_fixed
+
+  lemma lookup_2_to_11_normalize_6 (c: ValidCircuit P P_Prime)
+    (h_lookup_2: lookup_2 c) (h_lookup_3: lookup_3 c) (h_lookup_4: lookup_4 c)
+    (h_lookup_5: lookup_5 c) (h_lookup_6: lookup_6 c) (h_lookup_7: lookup_7 c)
+    (h_lookup_8: lookup_8 c) (h_lookup_9: lookup_9 c) (h_lookup_10: lookup_10 c)
+    (h_lookup_11: lookup_11 c) (h_fixed: c.1.Fixed = fixed_func c):
+    ∀ col ∈ Finset.Icc 15 24, ∀ row < c.usable_rows, ∃ x0 x1 x2: ℕ,
+      x0 < 6 ∧
+      x1 < 6 ∧
+      x2 < 6 ∧
+      c.get_advice col row = input P x0 x1 x2 ∧
+      c.get_advice (col+10) row = output P x0 x1 x2
+    := by
+      intro col h_col
+      fin_cases h_col
+      . exact lookup_2_normalize_6 c h_lookup_2 h_fixed
+      . exact lookup_3_normalize_6 c h_lookup_3 h_fixed
+      . exact lookup_4_normalize_6 c h_lookup_4 h_fixed
+      . exact lookup_5_normalize_6 c h_lookup_5 h_fixed
+      . exact lookup_6_normalize_6 c h_lookup_6 h_fixed
+      . exact lookup_7_normalize_6 c h_lookup_7 h_fixed
+      . exact lookup_8_normalize_6 c h_lookup_8 h_fixed
+      . exact lookup_9_normalize_6 c h_lookup_9 h_fixed
+      . exact lookup_10_normalize_6 c h_lookup_10 h_fixed
+      . exact lookup_11_normalize_6 c h_lookup_11 h_fixed
 
 end Keccak.Lookups.Normalize_6

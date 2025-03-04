@@ -2,6 +2,11 @@ import Examples.Scroll.Keccak.Attributes
 import Examples.Scroll.Keccak.Extraction
 
 namespace Keccak
+  namespace Env
+    @[keccak_constants] def KECCAK_DEGREE: Option ℕ := .some 10
+    @[keccak_constants] def KECCAK_ROWS: Option ℕ := .none
+  end Env
+
   @[keccak_constants] def ABSORB_LOOKUP_RANGE: ℕ := 3
   @[keccak_constants] def BIT_COUNT: ℕ := 3
   def BIT_SIZE: ℕ := 2^BIT_COUNT
@@ -10,7 +15,6 @@ namespace Keccak
   @[keccak_constants] def CHI_BASE_LOOKUP_TABLE: (Fin 5) → ℕ
     | 0 => 0 | 1 => 1 | 2 => 1 | 3 => 0 | 4 => 0
   @[keccak_constants] def DEFAULT_KECCAK_ROWS: ℕ := 12
-  @[keccak_constants] def KECCAK_DEGREE: ℕ := 10 -- environment variable during run
   @[keccak_constants] def MAX_DEGREE: ℕ := 9
   @[keccak_constants] def NUM_BITS_PER_WORD: ℕ := 64
   @[keccak_constants] def NUM_BYTES_PER_WORD: ℕ := 8

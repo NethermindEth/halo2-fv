@@ -63,9 +63,9 @@ namespace Keccak
     dsimp only
     congr
     simp only [keccak_constants]
-    unfold Transform.split_expr
+    unfold Transform.split_expr_old
     norm_num
-    unfold Split.expr
+    unfold Split.expr_res
     simp only [word_parts_known]
     rfl
   @[to_iota_s] lemma to_iota_s_0_1: Decode.expr

@@ -3,6 +3,12 @@ import Examples.Scroll.Keccak.Lookups.PackTable.Unpacked
 
 namespace Keccak.Lookups.PackTable
 
+  def transform_table (P: ℕ) (row: ℕ) :=
+    if row < 256 then
+      (pack P (into_bits [row]), (row: ZMod P))
+    else
+      (pack P (into_bits [0]), (0: ZMod P))
+
   lemma lookup_pack_table (col1 col2: ℕ)
     (c: ValidCircuit P P_Prime) (hlookup: ∀ row < c.usable_rows,
       ∃ lookup_row < c.usable_rows,
