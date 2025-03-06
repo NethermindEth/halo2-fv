@@ -62,8 +62,8 @@ namespace Keccak
     unfold iota_s
     dsimp only
     congr
-    simp only [keccak_constants]
-    unfold Transform.split_expr_old
+    simp only [keccak_constants, iota_s_0_0_transform]
+    unfold Transform.split_expr
     norm_num
     unfold Split.expr_res
     simp only [word_parts_known]

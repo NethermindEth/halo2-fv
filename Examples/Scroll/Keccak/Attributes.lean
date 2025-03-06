@@ -2,6 +2,7 @@ import Mathlib.Tactic.Basic
 
 register_simp_attr keccak_constants
 
+register_simp_attr fin_vals
 register_simp_attr target_part_sizes_known
 register_simp_attr word_parts_known
 register_simp_attr to_absorb

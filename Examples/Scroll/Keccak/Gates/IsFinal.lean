@@ -5,7 +5,7 @@ import Examples.Scroll.Keccak.Spec.Program
 
 namespace Keccak.Gates.IsFinal
   lemma gate_127_is_final_eq_last_is_padding (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hgate: gate_127 c) (h_n: 211 < c.n):
-    is_final c 300 = last_is_padding_in_block c 25 7
+    is_final c 300 = last_is_padding_in_block c 25
   := by
     unfold gate_127 at hgate
     replace hgate := hgate 300

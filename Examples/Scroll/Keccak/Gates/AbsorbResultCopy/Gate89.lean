@@ -9,7 +9,7 @@ namespace Keccak
 
   namespace Gates
 
-    namespace AbsorbVerifyInput
+    namespace AbsorbResultCopy
       lemma gate_89_absorb_result_copy (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hgate: gate_89 c) (h_is_final_bool: boolean_is_final c) (h_is_final_first: is_final_disabled_on_first_row c) (h_n: 383 < c.n):
         ∀ round, (round = 0 ∨ round = 25) →
           ((continue_hash c (12*round) ∧ absorb_result c (round+6) = s c (round+1) 0 1) ∨
@@ -46,7 +46,7 @@ namespace Keccak
               | inl h_is_final => simp_all [zmod_not_zero_eq_one]
               | inr h_is_final => simp_all
 
-    end AbsorbVerifyInput
+    end AbsorbResultCopy
 
   end Gates
 

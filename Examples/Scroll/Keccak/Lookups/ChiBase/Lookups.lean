@@ -3,6 +3,12 @@ import Examples.Scroll.Keccak.Lookups.ChiBase.Output
 
 namespace Keccak.Lookups.ChiBase
 
+  def transform_table (P: ℕ) (row: ℕ) :=
+    if row < 625 then
+      (input_by_row P row, output_by_row P row)
+    else
+      (input_by_row P 0, output_by_row P 0)
+
   lemma lookup_chi_base (x y: ℕ → ZMod P)
     (c: ValidCircuit P P_Prime) (hlookup: ∀ row < c.usable_rows,
       ∃ lookup_row < c.usable_rows,

@@ -7,7 +7,7 @@ namespace Keccak
 
     namespace SqueezeVerifyPacked
 
-      -- TODO prove in reverse direction
+      -- TODO structure proof in reverse direction
       lemma gate_120_squeeze_verify_packed (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hgate: gate_120 c) (h_n: 300 < c.n):
         start_new_hash c 300 → hash_words c 25 0 = squeeze_from c 24
       := by

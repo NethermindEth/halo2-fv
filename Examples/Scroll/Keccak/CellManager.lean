@@ -4,7 +4,12 @@ import Examples.Scroll.Keccak.Util
 
 namespace Keccak
   def cell_manager (c: ValidCircuit P P_Prime) (round idx: ℕ) :=
-    c.get_advice_wrapped (7 + idx/12) (12*round) (idx % 12)
+    c.get_advice_wrapped (7 + idx/12) (12*round) (idx % 12) -- TODO use get_num_rows_per_round
+
+  def cell_manager_column (idx: ℕ) := 7 + idx / 12
+  def cell_manager_row (c: ValidCircuit P P_Prime) (round idx: ℕ) := (12*round + (idx%12)) % c.n
+
+  lemma cell_manager_to_col_row: cell_manager c round idx = c.get_advice (cell_manager_column idx) (cell_manager_row c round idx) := rfl
 
   lemma cell_manager_to_raw: cell_manager c round idx = c.get_advice (7 + idx/12) (((12*round) + (idx % 12)) % c.n) := by
     rfl

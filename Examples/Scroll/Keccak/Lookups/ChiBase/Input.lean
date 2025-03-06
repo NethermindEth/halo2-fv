@@ -1,5 +1,4 @@
 import Examples.Scroll.Keccak.Constants
-import Examples.Scroll.Keccak.Spec.KeccakConstants
 
 namespace Keccak.Lookups.ChiBase
   -- columns 14 and 15

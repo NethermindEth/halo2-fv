@@ -1,8 +1,10 @@
 import Examples.Scroll.Keccak.Extraction
+import Examples.Scroll.Keccak.Lookups.ChiBase.Lookups
 import Examples.Scroll.Keccak.Lookups.Normalize_3.Lookups
 import Examples.Scroll.Keccak.Lookups.Normalize_4.Lookups
 import Examples.Scroll.Keccak.Lookups.Normalize_6.Lookups
 import Examples.Scroll.Keccak.Lookups.PackTable.Lookups
+import Examples.Scroll.Keccak.Lookups.PackTable.Packed
 import Examples.Scroll.Keccak.Constants
 import Examples.Scroll.Keccak.Util
 import Examples.Scroll.Keccak.CellManager
@@ -147,6 +149,11 @@ namespace Keccak
       (expressions.foldl (λ (rlc, mult) (expr) => (rlc + expr * mult, mult*r)) (0, 1)).1
   end ComposeRlc
 
+  namespace Scatter
+    def expr (value count: ℕ): ZMod P :=
+      Lookups.PackTable.pack P (List.replicate count value)
+  end Scatter
+
   def is_final (c: ValidCircuit P P_Prime) (row: ℕ): ZMod P := c.get_advice 0 row
   def length (c: ValidCircuit P P_Prime) (row: ℕ): ZMod P := c.get_advice 2 row
   def data_rlc (c: ValidCircuit P P_Prime) (row: ℕ): ZMod P := c.get_advice 1 row
@@ -271,34 +278,53 @@ namespace Keccak
       + i * get_num_rows_per_round
       + col_idx * get_num_rows_per_round * 5
     )
+  def rho_pi_chi_column (p: Fin 3) (i j: Fin 5) (idx: Fin rho_by_pi_num_word_parts) :=
+    (
+      35 +
+      ↑p * (5 * ((rho_by_pi_num_word_parts * 5 + get_num_rows_per_round - 1) / get_num_rows_per_round)) +
+      ↑i +
+      (↑idx + ↑j * rho_by_pi_num_word_parts) / get_num_rows_per_round * 5
+    )
+
+  def rho_pi_chi_row (c: ValidCircuit P P_Prime) (round: ℕ) (j: Fin 5) (idx: Fin rho_by_pi_num_word_parts) :=
+    ((12 * round + ((↑idx + ↑j * rho_by_pi_num_word_parts) % get_num_rows_per_round)) % c.n)
+
+  def num_rho_pi_chi_columns := 6
+
+  def rho_pi_chi_column_starts (p: Fin 3) := rho_pi_chi_column p 0 0 0
+
+  -- Do the transformation, resulting in the word parts also being normalized (line 342)
+  def pi_region_start := 1596
 
   def s_parts_cell_offsets (i j: Fin 5): ℕ :=
     match i, j with
-      | 0, 0 => 1596
-      | 1, 0 => 1596
-      | 2, 0 => 1598
-      | 3, 0 => 1600
-      | 4, 0 => 1600
-      | 0, 1 => 1600
-      | 1, 1 => 1600
-      | 2, 1 => 1602
-      | 3, 1 => 1604
-      | 4, 1 => 1606
-      | 0, 2 => 1606
-      | 1, 2 => 1608
-      | 2, 2 => 1610
-      | 3, 2 => 1612
-      | 4, 2 => 1614
-      | 0, 3 => 1616
-      | 1, 3 => 1618
-      | 2, 3 => 1620
-      | 3, 3 => 1622
-      | 4, 3 => 1624
-      | 0, 4 => 1624
-      | 1, 4 => 1626
-      | 2, 4 => 1628
-      | 3, 4 => 1630
-      | 4, 4 => 1630
+      | 0, 0 => pi_region_start
+      | 1, 0 => pi_region_start
+      | 2, 0 => pi_region_start + 2
+      | 3, 0 => pi_region_start + 4
+      | 4, 0 => pi_region_start + 4
+      | 0, 1 => pi_region_start + 4
+      | 1, 1 => pi_region_start + 4
+      | 2, 1 => pi_region_start + 6
+      | 3, 1 => pi_region_start + 8
+      | 4, 1 => pi_region_start + 10
+      | 0, 2 => pi_region_start + 10
+      | 1, 2 => pi_region_start + 12
+      | 2, 2 => pi_region_start + 14
+      | 3, 2 => pi_region_start + 16
+      | 4, 2 => pi_region_start + 18
+      | 0, 3 => pi_region_start + 20
+      | 1, 3 => pi_region_start + 22
+      | 2, 3 => pi_region_start + 24
+      | 3, 3 => pi_region_start + 26
+      | 4, 3 => pi_region_start + 28
+      | 0, 4 => pi_region_start + 28
+      | 1, 4 => pi_region_start + 30
+      | 2, 4 => pi_region_start + 32
+      | 3, 4 => pi_region_start + 34
+      | 4, 4 => pi_region_start + 34
+
+  def pi_region_end := 1632
 
   def s_parts (c: ValidCircuit P P_Prime) (round: ℕ) (i j: Fin 5): List (ℕ × ZMod P) × Prop :=
     SplitUniform.expr c round
@@ -311,7 +337,7 @@ namespace Keccak
   def s_parts' (c: ValidCircuit P P_Prime) (round: ℕ) (i j: Fin 5): List (ℕ × ZMod P) × Prop :=
     TransformTo.expr
       (cells := (List.range rho_by_pi_num_word_parts).map (λ x => rho_pi_chi_cells c round 1 j (2*i + 3*j) x))
-      (input := (s_parts c round j i).1)
+      (input := (s_parts c round i j).1)
       (transform_table := Lookups.Normalize_4.transform_table P)
 
   def os_parts (c: ValidCircuit P P_Prime) (round: ℕ): Fin 5 → Fin 5 → List (ℕ × ZMod P)
@@ -344,9 +370,31 @@ namespace Keccak
   def os_parts_shuffle (c: ValidCircuit P P_Prime): Prop :=
     ∀ round, ∀ j i, os_parts c round j (2*i + 3*j) = (s_parts' c round (i := i) (j := j)).1
 
-  -- os_parts j (2 * i) = s_parts' j (i - (3*j))
+  -- Pi parts range check (line 371)
+  def pi_parts_range_check (c: ValidCircuit P P_Prime)
+    (idx: Finset.Ico pi_region_start pi_region_end) (row: ℕ) : Prop :=
+      row < c.usable_rows → ∃ lookup_row,
+        c.get_advice (cell_manager_column idx) row =
+        (Lookups.Normalize_4.transform_table P lookup_row).1
 
   -- Chi (line 387)
+
+  def chi_part_size_base := get_num_bits_per_base_chi_lookup
+
+  def chi_base_input (c: ValidCircuit P P_Prime) (idx: Finset.Icc 0 num_rho_pi_chi_column) (i: Fin 5) :=
+    c.get_advice (rho_pi_chi_column_starts 1 + idx * 5 + i)
+  def chi_base_output (c: ValidCircuit P P_Prime) (idx: Finset.Icc 0 num_rho_pi_chi_column) (i: Fin 5) :=
+    c.get_advice (rho_pi_chi_column_starts 2 + idx * 5 + i)
+  def chi_base_input' (c: ValidCircuit P P_Prime) (idx: Finset.Icc 0 num_rho_pi_chi_column) (i: Fin 5) (row: ℕ) :=
+    (@Scatter.expr P 3 chi_part_size_base)
+      - 2 * chi_base_input c idx i row
+      + chi_base_input c idx (i+1) row
+      - chi_base_input c idx (i+2) row
+
+  def chi_base  (c: ValidCircuit P P_Prime) (idx: Finset.Icc 0 num_rho_pi_chi_column) (i: Fin 5) : Prop :=
+    ∀ row < c.usable_rows, ∃ lookup_row,
+      (chi_base_input' c idx i row, chi_base_output c idx i row) =
+      Lookups.ChiBase.transform_table P lookup_row
 
   def os' (c: ValidCircuit P P_Prime) (round: ℕ) (x y: Fin 5) :=
     Decode.expr (
@@ -356,47 +404,129 @@ namespace Keccak
 
   -- iota (line 438)
 
-  def iota_s (c: ValidCircuit P P_Prime) (round: ℕ) (x y: Fin 5) :=
+  def iota_part_size: ℕ := get_num_bits_per_absorb_lookup
+  def iota_input (c: ValidCircuit P P_Prime) (round: ℕ): ZMod P :=
+    os' c round 0 0 + round_cst c (get_num_rows_per_round * round)
+
+  def iota_parts (c: ValidCircuit P P_Prime) (round: ℕ): List (ℕ × ZMod P) × Prop :=
+    Split.expr c round
+      (cell_offset := 1632)
+      (rot := 0)
+      (target_part_size := iota_part_size)
+      (input := iota_input c round)
+
+  def iota_s_0_0_transform (c: ValidCircuit P P_Prime) (round: ℕ): List (ℕ × ZMod P) × Prop :=
+    Transform.split_expr c round
+      (cell_offset := 1632)
+      (rot := 0)
+      (target_part_size := iota_part_size)
+      (transform_offset := 12) -- TODO
+      (input := (iota_parts c round).1)
+      (split_input := iota_input c round)
+      (transform_table := Lookups.Normalize_3.transform_table P)
+      (uniform_lookup := true)
+
+  def iota_s (c: ValidCircuit P P_Prime) (round: ℕ) (x y: Fin 5): ZMod P :=
     match x, y with
-      | 0, 0 => Decode.expr (
-        Transform.split_expr_old c round
-          (cell_offset := 1632)
-          (rot := 0)
-          (target_part_size := get_num_bits_per_absorb_lookup)
-          (transform_offset := 12) -- TODO
-      )
+      | 0, 0 => Decode.expr (iota_s_0_0_transform c round).1
       | _, _ => os' c round x y
 
+  def next_row_check (c: ValidCircuit P P_Prime) (round: ℕ) (i j: Fin 5): Prop :=
+    iota_s c round i j = s c (round + 1) i j
 
   -- Squeeze data (line 470)
   def squeeze_from (c: ValidCircuit P P_Prime) (round: ℕ):= cell_manager c round 1656
 
   -- Squeeze (line 477)
-  def squeeze_bytes (c: ValidCircuit P P_Prime) (round: ℕ): List (ℕ × ZMod P) := Transform.split_expr_old c round
-    (cell_offset := 1657) -- TODO
-    (rot := 0)
-    (target_part_size := 8)
-    (transform_offset := 23)
+  def squeeze_from_parts (c: ValidCircuit P P_Prime) (round: ℕ): List (ℕ × ZMod P) × Prop :=
+    Split.expr c round
+      (cell_offset := 1668)
+      (rot := 0)
+      (target_part_size := 8)
+      (input := squeeze_from c round)
+
+  def squeeze_bytes (c: ValidCircuit P P_Prime) (round: ℕ): List (ℕ × ZMod P) × Prop :=
+    Transform.split_expr c round
+      (cell_offset := 1668)
+      (rot := 0)
+      (target_part_size := 8)
+      (transform_offset := 12)
+      (input := (squeeze_from_parts c round).1)
+      (split_input := squeeze_from c round)
+      (transform_table := Lookups.PackTable.transform_table P)
+      (uniform_lookup := true)
 
   -- Absorb (line 512)
   def continue_hash (c: ValidCircuit P P_Prime) (row: ℕ) : Prop := ¬start_new_hash c row
 
+  def absorb_positions: List (Fin 5 × Fin 5) := [
+    (0,0),
+    (1,0),
+    (2,0),
+    (3,0),
+    (4,0),
+    (0,1),
+    (1,1),
+    (2,1),
+    (3,1),
+    (4,1),
+    (0,2),
+    (1,2),
+    (2,2),
+    (3,2),
+    (4,2),
+    (0,3),
+    (1,3),
+  ]
+
+  def a_slice (i j: Fin 5) : ℕ := (i: ℕ) + 5*(j: ℕ)
+
+  def absorb_gate (c: ValidCircuit P P_Prime) (round: ℕ) (i j: Fin 5): Prop :=
+    ((i,j) ∈ absorb_positions → (
+      (continue_hash c (get_num_rows_per_round * round) → (
+        absorb_from c (round + a_slice i j + 1) = s c round i j ∧
+        absorb_result c (round + a_slice i j + 1) = s c (round+1) i j
+      )) ∧
+      (¬continue_hash c (get_num_rows_per_round * round) → (
+        absorb_data c (round + a_slice i j + 1) = s c (round+1) i j
+      ))
+    ))  ∧
+    ((i,j) ∉ absorb_positions → (
+      (continue_hash c (get_num_rows_per_round * round) → (
+        s c round i j = s c (round+1) i j
+      )) ∧
+      (¬continue_hash c (get_num_rows_per_round * round) → (
+        s c (round+1) i j = 0
+      ))
+    ))
+
   -- Collect the bytes that are spread out over previous rows (line 550)
-  def hash_bytes (c: ValidCircuit P P_Prime) (round: ℕ) :=
+  def hash_bytes (c: ValidCircuit P P_Prime) (round: ℕ): List (ZMod P) :=
     (
-      squeeze_bytes c (round-1) ++
-      squeeze_bytes c (round-2) ++
-      squeeze_bytes c (round-3) ++
-      squeeze_bytes c (round-4)
+      (squeeze_bytes c (round-1)).1 ++
+      (squeeze_bytes c (round-2)).1 ++
+      (squeeze_bytes c (round-3)).1 ++
+      (squeeze_bytes c (round-4)).1
     ).map (λ (_, val) => val)
 
-  def hash_bytes_le (c: ValidCircuit P P_Prime) (round: ℕ) := (hash_bytes c round).reverse
-
+  -- Squeeze (line 559)
   def hash_words (c: ValidCircuit P P_Prime) (round: ℕ): (Fin 4) → ZMod P
     | 0 => s c round 0 0
     | 1 => s c round 1 0
     | 2 => s c round 2 0
     | 3 => s c round 3 0
+
+  -- Verify if we converted the correct words to bytes on previous rows
+  def squeeze_verify_packed (c: ValidCircuit P P_Prime) (round: ℕ) (idx: Fin 4): Prop :=
+    start_new_hash c (get_num_rows_per_round * round) → hash_words c round idx = squeeze_from c (round-1-↑idx)
+
+  def hash_bytes_le (c: ValidCircuit P P_Prime) (round: ℕ) := (hash_bytes c round).reverse
+
+  def squeeze_rlc (c: ValidCircuit P P_Prime) (round: ℕ) := ComposeRlc.expr (hash_bytes_le c round) (c.get_challenge 0 0)
+
+  def hash_rlc_check (c: ValidCircuit P P_Prime) (round: ℕ): Prop :=
+    start_new_hash c (get_num_rows_per_round * round) →
+      squeeze_rlc c round = hash_rlc c (get_num_rows_per_round * round)
 
   -- Some general input checks (line 592)
   def boolean_is_final (c: ValidCircuit P P_Prime): Prop :=
@@ -407,13 +537,91 @@ namespace Keccak
     is_final c 0 = 0
 
   -- Enforce logic for when this block is the last block for a hash (line 612)
-  def last_is_padding_in_block (c: ValidCircuit P P_Prime) (round: ℕ) :=
-    is_paddings c (round - (NUM_ROUNDS + 1 - NUM_WORDS_TO_ABSORB))
+  def last_is_padding_in_block (c: ValidCircuit P P_Prime) (round: ℕ): ZMod P :=
+    is_paddings c (round - (NUM_ROUNDS + 1 - NUM_WORDS_TO_ABSORB)) (-1)
+
+  def is_final_eq_last_is_padding (c: ValidCircuit P P_Prime): Prop :=
+    is_final c (get_num_rows_per_round * 25) = last_is_padding_in_block c 25
+
+  def is_final_only_when_q_enable (c: ValidCircuit P P_Prime) (row: ℕ): Prop :=
+    is_final c row = 1 → Selectors.q_enable c row = 1
+
+  -- Padding (line 646)
+
+  def is_padding_boolean (c: ValidCircuit P P_Prime) (round: ℕ) (idx: Fin 8): Prop :=
+    is_paddings c round idx = 0 ∨ is_paddings c round idx = 1
+
+  def last_is_padding_zero_on_absorb_rows (c: ValidCircuit P P_Prime) (round: ℕ): Prop :=
+    (round = 0 ∨ round = 25) → is_paddings c round (-1) = 0
 
   def is_padding_prev (c: ValidCircuit P P_Prime) (round: ℕ): (Fin 8) → ZMod P
-    | 0 => is_paddings c (round-1) 7
+    | 0 => is_paddings c (round-1) (-1)
     | x => is_paddings c round (x-1)
 
   def is_first_padding (c: ValidCircuit P P_Prime) (round: ℕ) (idx: Fin 8): ZMod P :=
     is_paddings c round idx - is_padding_prev c round idx
+
+  def padding_step_boolean (c: ValidCircuit P P_Prime) (round: Finset.Icc 1 17): Prop :=
+    ∀ idx,
+      is_first_padding c round idx = 0 ∨
+      is_first_padding c round idx = 1
+
+  def padding_start_intermediate_byte (c: ValidCircuit P P_Prime) (round: Finset.Icc 1 17): Prop :=
+    ∀ idx, idx ≠ -1 → is_paddings c round idx = 1 →
+      (input_bytes c round).1[idx]? = .some (8, is_first_padding c round idx)
+
+  def padding_start_intermediate_byte_last_byte (c: ValidCircuit P P_Prime) (round: Finset.Icc 1 16): Prop :=
+    let idx := -1
+    is_paddings c round idx = 1 →
+      (input_bytes c round).1[idx]? = .some (8, is_first_padding c round idx)
+
+  def padding_start_end_byte (c: ValidCircuit P P_Prime): Prop :=
+    let idx := -1
+    is_paddings c 17 idx = 1 →
+      (input_bytes c 17).1[idx]? = .some (8, is_first_padding c 17 idx + 128)
+
+  -- Length and data rlc (line 737)
+  def update_length (c: ValidCircuit P P_Prime) (round: Finset.Icc 1 17): Prop :=
+    (start_new_hash c (get_num_rows_per_round * (round-1)) → (
+      length c (get_num_rows_per_round * round) =
+        (1 - is_paddings c round 0) +
+        (1 - is_paddings c round 1) +
+        (1 - is_paddings c round 2) +
+        (1 - is_paddings c round 3) +
+        (1 - is_paddings c round 4) +
+        (1 - is_paddings c round 5) +
+        (1 - is_paddings c round 6) +
+        (1 - is_paddings c round 7)
+    )) ∧
+    (¬start_new_hash c (get_num_rows_per_round * (round-1)) → (
+      length c (get_num_rows_per_round * round) =
+         length c (get_num_rows_per_round*(round-1)) +
+            (1 - is_paddings c round 0) +
+            (1 - is_paddings c round 1) +
+            (1 - is_paddings c round 2) +
+            (1 - is_paddings c round 3) +
+            (1 - is_paddings c round 4) +
+            (1 - is_paddings c round 5) +
+            (1 - is_paddings c round 6) +
+            (1 - is_paddings c round 7)
+    ))
+
+  def initial_data_rlc (c: ValidCircuit P P_Prime) (round: Finset.Icc 1 17): Prop :=
+    (start_new_hash c (get_num_rows_per_round * (round-1)) → (
+      data_rlc c (get_num_rows_per_round*round + NUM_BYTES_PER_WORD) = 0
+    )) ∧
+    (¬start_new_hash c (get_num_rows_per_round * (round-1)) → (
+      data_rlc c (get_num_rows_per_round*round + NUM_BYTES_PER_WORD) = data_rlc c (get_num_rows_per_round*(round-1))
+    ))
+
+  def intermediate_data_rlc (c: ValidCircuit P P_Prime) (round: Finset.Icc 1 17): Prop :=
+    ∀ idx,
+      (is_paddings c round idx = 0 ∧ data_rlc c (12*↑round + 8 - ↑idx - 1) = data_rlc c (12*round + 8 - ↑idx) * c.get_challenge 1 0 + (input_bytes c round).1[idx].2) ∨
+      (is_paddings c round idx = 1 ∧ data_rlc c (12*↑round + 8 - ↑idx - 1) = data_rlc c (12*round + 8 - ↑idx))
+
+  def length_equality_check (c: ValidCircuit P P_Prime) (round: Finset.Icc 18 25): Prop :=
+    length c (get_num_rows_per_round * round) = length c (get_num_rows_per_round * (round-1))
+
+  def data_rlc_equality_check (c: ValidCircuit P P_Prime) (round: Finset.Icc 18 25): Prop :=
+    data_rlc c (get_num_rows_per_round * round) = data_rlc c (get_num_rows_per_round * (round-1))
 end Keccak

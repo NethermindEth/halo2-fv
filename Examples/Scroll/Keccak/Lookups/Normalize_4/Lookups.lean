@@ -449,4 +449,127 @@ namespace Keccak.Lookups.Normalize_4
       c.get_advice 142 row = input P x0 x1 x2 x3
     := lookup_normalize_4_input 142 c hlookup h_fixed
 
+  def normalize_4_column_pairs := [
+    (35, 70),
+    (40, 75),
+    (50, 85),
+    (65, 100),
+    (45, 80),
+    (55, 90),
+    (60, 95),
+    (56, 91),
+    (61, 96),
+    (36, 71),
+    (41, 76),
+    (51, 86),
+    (66, 101),
+    (46, 81),
+    (47, 82),
+    (57, 92),
+    (62, 97),
+    (37, 72),
+    (42, 77),
+    (52, 87),
+    (67, 102),
+    (68, 103),
+    (48, 83),
+    (58, 93),
+    (63, 98),
+    (38, 73),
+    (43, 78),
+    (53, 88),
+    (54, 89),
+    (69, 104),
+    (49, 84),
+    (59, 94),
+    (64, 99),
+    (39, 74),
+    (44, 79)
+  ]
+
+  lemma lookup_12_to_46_normalize_4 (c: ValidCircuit P P_Prime)
+    (h_lookup_12: lookup_12 c)
+    (h_lookup_13: lookup_13 c)
+    (h_lookup_14: lookup_14 c)
+    (h_lookup_15: lookup_15 c)
+    (h_lookup_16: lookup_16 c)
+    (h_lookup_17: lookup_17 c)
+    (h_lookup_18: lookup_18 c)
+    (h_lookup_19: lookup_19 c)
+    (h_lookup_20: lookup_20 c)
+    (h_lookup_21: lookup_21 c)
+    (h_lookup_22: lookup_22 c)
+    (h_lookup_23: lookup_23 c)
+    (h_lookup_24: lookup_24 c)
+    (h_lookup_25: lookup_25 c)
+    (h_lookup_26: lookup_26 c)
+    (h_lookup_27: lookup_27 c)
+    (h_lookup_28: lookup_28 c)
+    (h_lookup_29: lookup_29 c)
+    (h_lookup_30: lookup_30 c)
+    (h_lookup_31: lookup_31 c)
+    (h_lookup_32: lookup_32 c)
+    (h_lookup_33: lookup_33 c)
+    (h_lookup_34: lookup_34 c)
+    (h_lookup_35: lookup_35 c)
+    (h_lookup_36: lookup_36 c)
+    (h_lookup_37: lookup_37 c)
+    (h_lookup_38: lookup_38 c)
+    (h_lookup_39: lookup_39 c)
+    (h_lookup_40: lookup_40 c)
+    (h_lookup_41: lookup_41 c)
+    (h_lookup_42: lookup_42 c)
+    (h_lookup_43: lookup_43 c)
+    (h_lookup_44: lookup_44 c)
+    (h_lookup_45: lookup_45 c)
+    (h_lookup_46: lookup_46 c)
+    (h_fixed: c.1.Fixed = fixed_func c):
+      ∀ pair ∈ normalize_4_column_pairs,
+      ∀ row < c.usable_rows, ∃ x0 x1 x2 x3: ℕ,
+        x0 < 4 ∧
+        x1 < 4 ∧
+        x2 < 4 ∧
+        x3 < 4 ∧
+        c.get_advice pair.1 row = input P x0 x1 x2 x3 ∧
+        c.get_advice pair.2 row = output P x0 x1 x2 x3
+    := by
+      intro pair h_pair
+      fin_cases h_pair
+      . exact lookup_12_normalize_4 c h_lookup_12 h_fixed
+      . exact lookup_13_normalize_4 c h_lookup_13 h_fixed
+      . exact lookup_14_normalize_4 c h_lookup_14 h_fixed
+      . exact lookup_15_normalize_4 c h_lookup_15 h_fixed
+      . exact lookup_16_normalize_4 c h_lookup_16 h_fixed
+      . exact lookup_17_normalize_4 c h_lookup_17 h_fixed
+      . exact lookup_18_normalize_4 c h_lookup_18 h_fixed
+      . exact lookup_19_normalize_4 c h_lookup_19 h_fixed
+      . exact lookup_20_normalize_4 c h_lookup_20 h_fixed
+      . exact lookup_21_normalize_4 c h_lookup_21 h_fixed
+      . exact lookup_22_normalize_4 c h_lookup_22 h_fixed
+      . exact lookup_23_normalize_4 c h_lookup_23 h_fixed
+      . exact lookup_24_normalize_4 c h_lookup_24 h_fixed
+      . exact lookup_25_normalize_4 c h_lookup_25 h_fixed
+      . exact lookup_26_normalize_4 c h_lookup_26 h_fixed
+      . exact lookup_27_normalize_4 c h_lookup_27 h_fixed
+      . exact lookup_28_normalize_4 c h_lookup_28 h_fixed
+      . exact lookup_29_normalize_4 c h_lookup_29 h_fixed
+      . exact lookup_30_normalize_4 c h_lookup_30 h_fixed
+      . exact lookup_31_normalize_4 c h_lookup_31 h_fixed
+      . exact lookup_32_normalize_4 c h_lookup_32 h_fixed
+      . exact lookup_33_normalize_4 c h_lookup_33 h_fixed
+      . exact lookup_34_normalize_4 c h_lookup_34 h_fixed
+      . exact lookup_35_normalize_4 c h_lookup_35 h_fixed
+      . exact lookup_36_normalize_4 c h_lookup_36 h_fixed
+      . exact lookup_37_normalize_4 c h_lookup_37 h_fixed
+      . exact lookup_38_normalize_4 c h_lookup_38 h_fixed
+      . exact lookup_39_normalize_4 c h_lookup_39 h_fixed
+      . exact lookup_40_normalize_4 c h_lookup_40 h_fixed
+      . exact lookup_41_normalize_4 c h_lookup_41 h_fixed
+      . exact lookup_42_normalize_4 c h_lookup_42 h_fixed
+      . exact lookup_43_normalize_4 c h_lookup_43 h_fixed
+      . exact lookup_44_normalize_4 c h_lookup_44 h_fixed
+      . exact lookup_45_normalize_4 c h_lookup_45 h_fixed
+      . exact lookup_46_normalize_4 c h_lookup_46 h_fixed
+
+
 end Keccak.Lookups.Normalize_4

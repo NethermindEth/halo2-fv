@@ -9,11 +9,11 @@ namespace Keccak
 
     namespace NextRowCheck
 
-      lemma gate_54_next_row_check (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hgate: gate_54 c) (h_n: 311 < c.n):
+      lemma gate_59_next_row_check (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hgate: gate_59 c) (h_n: 311 < c.n):
         ∀ round ≤ 23,
-        iota_s c (round+1) 0 2 = s c (round+2) 0 2
+        iota_s c (round+1) 1 2 = s c (round+2) 1 2
       := by
-        unfold gate_54 at hgate
+        unfold gate_59 at hgate
         intro round h_round_range
         simp only [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_2_q_round] at hgate
         replace hgate := hgate (12*(round+1))
@@ -24,7 +24,7 @@ namespace Keccak
         have h_row_range_next: (12*((round+1)+1)) + 11 < c.n := by linarith
         simp only [to_decode] at hgate
         simp [to_cell_manager, h_row_range] at hgate
-        have h_next_round: (12 * (round + 1) + 14) % c.n = (12* ((round+1)+1) + 2) % c.n := by
+        have h_next_round: (12 * (round + 1) + 19) % c.n = (12* ((round+1)+1) + 7) % c.n := by
           rewrite [Nat.mod_eq_of_lt, Nat.mod_eq_of_lt, mul_add, mul_add, mul_add]
           . simp only [Nat.reduceMul]
           . linarith

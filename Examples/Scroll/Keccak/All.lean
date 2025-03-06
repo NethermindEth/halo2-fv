@@ -6,6 +6,6 @@ import Examples.Scroll.Keccak.Constants
 import Examples.Scroll.Keccak.Extraction
 import Examples.Scroll.Keccak.Lookups.All
 import Examples.Scroll.Keccak.MeetsConstraints
-import Examples.Scroll.Keccak.Proof
+import Examples.Scroll.Keccak.ProgramProofs.All
 import Examples.Scroll.Keccak.Selectors
 import Examples.Scroll.Keccak.Util
