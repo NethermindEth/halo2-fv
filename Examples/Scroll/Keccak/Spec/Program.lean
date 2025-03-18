@@ -616,8 +616,8 @@ namespace Keccak
 
   def intermediate_data_rlc (c: ValidCircuit P P_Prime) (round: Finset.Icc 1 17): Prop :=
     ∀ idx,
-      (is_paddings c round idx = 0 ∧ data_rlc c (12*↑round + 8 - ↑idx - 1) = data_rlc c (12*round + 8 - ↑idx) * c.get_challenge 1 0 + (input_bytes c round).1[idx].2) ∨
-      (is_paddings c round idx = 1 ∧ data_rlc c (12*↑round + 8 - ↑idx - 1) = data_rlc c (12*round + 8 - ↑idx))
+      (is_paddings c round idx = 0 ∧ data_rlc c (12*↑round + NUM_BYTES_PER_WORD - (↑idx + 1)) = data_rlc c (12*round + 8 - ↑idx) * c.get_challenge 1 0 + (input_bytes c round).1[idx].2) ∨
+      (is_paddings c round idx = 1 ∧ data_rlc c (12*↑round + NUM_BYTES_PER_WORD - (↑idx + 1)) = data_rlc c (12*round + 8 - ↑idx))
 
   def length_equality_check (c: ValidCircuit P P_Prime) (round: Finset.Icc 18 25): Prop :=
     length c (get_num_rows_per_round * round) = length c (get_num_rows_per_round * (round-1))
