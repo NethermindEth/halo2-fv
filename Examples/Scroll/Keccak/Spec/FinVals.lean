@@ -1,6 +1,10 @@
 import Examples.Scroll.Keccak.Spec.KeccakConstants
 
 namespace Keccak.FinVals
+  @[fin_vals] lemma fin_5_val_0: @Fin.val 5 0 = 0 := rfl
+  @[fin_vals] lemma fin_5_val_1: @Fin.val 5 1 = 1 := rfl
+  @[fin_vals] lemma fin_5_val_2: @Fin.val 5 2 = 2 := rfl
+  @[fin_vals] lemma fin_5_val_3: @Fin.val 5 3 = 3 := rfl
   @[fin_vals] lemma fin_5_val_4: @Fin.val 5 4 = 4 := rfl
 
   @[fin_vals] lemma fin_rho_by_pi_word_parts_val_0: @Fin.val rho_by_pi_num_word_parts 0 = 0 := rfl

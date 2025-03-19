@@ -420,7 +420,7 @@ namespace Keccak
       (cell_offset := 1632)
       (rot := 0)
       (target_part_size := iota_part_size)
-      (transform_offset := 12) -- TODO
+      (transform_offset := 12)
       (input := (iota_parts c round).1)
       (split_input := iota_input c round)
       (transform_table := Lookups.Normalize_3.transform_table P)
