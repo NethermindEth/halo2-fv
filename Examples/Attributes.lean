@@ -1,3 +1,4 @@
 import Mathlib.Tactic.Basic
 
+register_simp_attr list_ops
 register_simp_attr zmod_pow_simps

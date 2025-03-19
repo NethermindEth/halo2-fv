@@ -29,7 +29,7 @@ namespace Keccak.Proofs
         unfold packed_parts Split.expr at this
         simp_all
       . rfl
-      . simp [keccak_constants, Split.expr, Split.expr_res, word_parts_known, List.enum]
+      . simp [keccak_constants, Split.expr, Split.expr_res, word_parts_known]
         intro num_bits_in cell_in num_bits_out cell_out h_mem
         have h_lookup_1 := lookup_1_of_meets_constraints h
         have h_fixed := fixed_of_meets_constraints h

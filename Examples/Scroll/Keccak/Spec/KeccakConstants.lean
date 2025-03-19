@@ -26,8 +26,7 @@ namespace Keccak
   @[keccak_constants] lemma part_size_c_val: part_size_c = 3 := by simp [part_size_c, get_num_bits_per_theta_c_lookup_val]
 
   @[keccak_constants] lemma rho_by_pi_num_word_parts_val: rho_by_pi_num_word_parts = 16 := by
-    simp [rho_by_pi_num_word_parts, rho_by_pi_target_word_sizes, rho_by_pi_part_size, get_num_bits_per_base_chi_lookup_val, target_part_sizes, NUM_BITS_PER_WORD]
-    rfl
+    simp [rho_by_pi_num_word_parts, rho_by_pi_target_word_sizes, rho_by_pi_part_size, get_num_bits_per_base_chi_lookup_val, target_part_sizes_known]
 
   @[keccak_constants] lemma rho_by_pi_part_size_val: rho_by_pi_part_size = 4 := by
     simp [rho_by_pi_part_size, get_num_bits_per_base_chi_lookup_val]

@@ -44,7 +44,7 @@ namespace Keccak.Gates.LengthAndDataRlc
           have h_q_first: Selectors.q_first c (12*round - 12) = 0 := by
             unfold Selectors.q_first
             rw [ite_cond_eq_false, ite_cond_eq_true]
-            . simp; linarith
+            . simp; omega
             . simp; match round with | 0 | 1 => contradiction | x+2 => simp [mul_add]
           if h_is_final: is_final c (12*round - 12) = 0 then {
             right
@@ -59,7 +59,7 @@ namespace Keccak.Gates.LengthAndDataRlc
           }
         }
       . rewrite [Nat.mod_eq_of_lt h_n']
-        linarith
+        omega
 
   lemma gate_157_intermediate_data_rlc (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hgate: gate_157 c) (h_is_padding_bool: gate_129 c) (h_n: 311 < c.n):
     ∀ round ≤ 17, round > 0 → (
@@ -71,9 +71,9 @@ namespace Keccak.Gates.LengthAndDataRlc
       replace hgate := hgate (12*round)
       replace h_is_padding_bool := Padding.gate_129_is_padding_boolean c h_fixed h_is_padding_bool h_n round (le_trans hround (by trivial))
       simp only [is_paddings] at h_is_padding_bool
-      have h_n': 12*round + 7 < c.n := by linarith
-      have h_n'': 12*round + 8 < c.n := by linarith
-      have h_n''': 12*round + 11 < c.n := by linarith
+      have h_n': 12*round + 7 < c.n := by omega
+      have h_n'': 12*round + 8 < c.n := by omega
+      have h_n''': 12*round + 11 < c.n := by omega
       simp [to_named_advice, ValidCircuit.get_fixed, h_fixed, Selectors.fixed_5_q_padding, to_cell_manager, Nat.mod_eq_of_lt, h_n', h_n'', h_n'''] at hgate
       rewrite [Selectors.q_padding_at_round_start c hround hround_lower, one_mul] at hgate
       replace hgate := eq_neg_of_add_eq_zero_left hgate
@@ -96,9 +96,9 @@ namespace Keccak.Gates.LengthAndDataRlc
       replace hgate := hgate (12*round)
       replace h_is_padding_bool := Padding.gate_130_is_padding_boolean c h_fixed h_is_padding_bool h_n round (le_trans hround (by trivial))
       simp only [is_paddings] at h_is_padding_bool
-      have h_n': 12*round + 6 < c.n := by linarith
-      have h_n'': 12*round + 7 < c.n := by linarith
-      have h_n''': 12*round + 11 < c.n := by linarith
+      have h_n': 12*round + 6 < c.n := by omega
+      have h_n'': 12*round + 7 < c.n := by omega
+      have h_n''': 12*round + 11 < c.n := by omega
       simp [to_named_advice, ValidCircuit.get_fixed, h_fixed, Selectors.fixed_5_q_padding, to_cell_manager, Nat.mod_eq_of_lt, h_n', h_n'', h_n'''] at hgate
       rewrite [Selectors.q_padding_at_round_start c hround hround_lower, one_mul] at hgate
       replace hgate := eq_neg_of_add_eq_zero_left hgate
@@ -121,9 +121,9 @@ namespace Keccak.Gates.LengthAndDataRlc
       replace hgate := hgate (12*round)
       replace h_is_padding_bool := Padding.gate_131_is_padding_boolean c h_fixed h_is_padding_bool h_n round (le_trans hround (by trivial))
       simp only [is_paddings] at h_is_padding_bool
-      have h_n': 12*round + 5 < c.n := by linarith
-      have h_n'': 12*round + 6 < c.n := by linarith
-      have h_n''': 12*round + 11 < c.n := by linarith
+      have h_n': 12*round + 5 < c.n := by omega
+      have h_n'': 12*round + 6 < c.n := by omega
+      have h_n''': 12*round + 11 < c.n := by omega
       simp [to_named_advice, ValidCircuit.get_fixed, h_fixed, Selectors.fixed_5_q_padding, to_cell_manager, Nat.mod_eq_of_lt, h_n', h_n'', h_n'''] at hgate
       rewrite [Selectors.q_padding_at_round_start c hround hround_lower, one_mul] at hgate
       replace hgate := eq_neg_of_add_eq_zero_left hgate
@@ -146,9 +146,9 @@ namespace Keccak.Gates.LengthAndDataRlc
       replace hgate := hgate (12*round)
       replace h_is_padding_bool := Padding.gate_132_is_padding_boolean c h_fixed h_is_padding_bool h_n round (le_trans hround (by trivial))
       simp only [is_paddings] at h_is_padding_bool
-      have h_n': 12*round + 4 < c.n := by linarith
-      have h_n'': 12*round + 5 < c.n := by linarith
-      have h_n''': 12*round + 11 < c.n := by linarith
+      have h_n': 12*round + 4 < c.n := by omega
+      have h_n'': 12*round + 5 < c.n := by omega
+      have h_n''': 12*round + 11 < c.n := by omega
       simp [to_named_advice, ValidCircuit.get_fixed, h_fixed, Selectors.fixed_5_q_padding, to_cell_manager, Nat.mod_eq_of_lt, h_n', h_n'', h_n'''] at hgate
       rewrite [Selectors.q_padding_at_round_start c hround hround_lower, one_mul] at hgate
       replace hgate := eq_neg_of_add_eq_zero_left hgate
@@ -171,9 +171,9 @@ namespace Keccak.Gates.LengthAndDataRlc
       replace hgate := hgate (12*round)
       replace h_is_padding_bool := Padding.gate_133_is_padding_boolean c h_fixed h_is_padding_bool h_n round (le_trans hround (by trivial))
       simp only [is_paddings] at h_is_padding_bool
-      have h_n': 12*round + 3 < c.n := by linarith
-      have h_n'': 12*round + 4 < c.n := by linarith
-      have h_n''': 12*round + 11 < c.n := by linarith
+      have h_n': 12*round + 3 < c.n := by omega
+      have h_n'': 12*round + 4 < c.n := by omega
+      have h_n''': 12*round + 11 < c.n := by omega
       simp [to_named_advice] at hgate
       simp [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_5_q_padding] at hgate
       simp [to_cell_manager, h_n'''] at hgate
@@ -199,9 +199,9 @@ namespace Keccak.Gates.LengthAndDataRlc
       replace hgate := hgate (12*round)
       replace h_is_padding_bool := Padding.gate_134_is_padding_boolean c h_fixed h_is_padding_bool h_n round (le_trans hround (by trivial))
       simp only [is_paddings] at h_is_padding_bool
-      have h_n': 12*round + 2 < c.n := by linarith
-      have h_n'': 12*round + 3 < c.n := by linarith
-      have h_n''': 12*round + 11 < c.n := by linarith
+      have h_n': 12*round + 2 < c.n := by omega
+      have h_n'': 12*round + 3 < c.n := by omega
+      have h_n''': 12*round + 11 < c.n := by omega
       simp [to_named_advice] at hgate
       simp [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_5_q_padding] at hgate
       simp [to_cell_manager, h_n'''] at hgate
@@ -227,9 +227,9 @@ namespace Keccak.Gates.LengthAndDataRlc
       replace hgate := hgate (12*round)
       replace h_is_padding_bool := Padding.gate_135_is_padding_boolean c h_fixed h_is_padding_bool h_n round (le_trans hround (by trivial))
       simp only [is_paddings] at h_is_padding_bool
-      have h_n': 12*round + 1 < c.n := by linarith
-      have h_n'': 12*round + 2 < c.n := by linarith
-      have h_n''': 12*round + 11 < c.n := by linarith
+      have h_n': 12*round + 1 < c.n := by omega
+      have h_n'': 12*round + 2 < c.n := by omega
+      have h_n''': 12*round + 11 < c.n := by omega
       simp [to_named_advice] at hgate
       simp [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_5_q_padding] at hgate
       simp [to_cell_manager, h_n'''] at hgate
@@ -255,9 +255,9 @@ namespace Keccak.Gates.LengthAndDataRlc
       replace hgate := hgate (12*round)
       replace h_is_padding_bool := Padding.gate_136_is_padding_boolean c h_fixed h_is_padding_bool h_n round (le_trans hround (by trivial))
       simp only [is_paddings] at h_is_padding_bool
-      have h_n': 12*round < c.n := by linarith
-      have h_n'': 12*round + 1 < c.n := by linarith
-      have h_n''': 12*round + 11 < c.n := by linarith
+      have h_n': 12*round < c.n := by omega
+      have h_n'': 12*round + 1 < c.n := by omega
+      have h_n''': 12*round + 11 < c.n := by omega
       simp [to_named_advice] at hgate
       simp [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_5_q_padding] at hgate
       simp [to_cell_manager, h_n'''] at hgate

@@ -8,9 +8,7 @@ namespace Keccak
       have hidx': idx < rho_by_pi_num_word_parts := by simp only [rho_by_pi_num_word_parts_val, hidx]
       unfold rho_pi_chi_cells
       dsimp only
-      simp only [keccak_constants]
-      norm_num
-      simp only [OfNat.ofNat, Nat.mod_eq_of_lt, hp, hi, hj, hidx']
+      simp_all [keccak_constants, OfNat.ofNat, Nat.mod_eq_of_lt]
       simp only [mul_assoc, Nat.reduceMul]
 
   @[to_iota_s] lemma to_os'_0_0: Decode.expr [

@@ -1,4 +1,6 @@
+import Mathlib.Algebra.Field.ZMod
 import Mathlib.Data.ZMod.Basic
+import Mathlib.Tactic.NormNum.Basic
 import Examples.Attributes
 
 lemma ge_of_ne_of_gt {a b: ℕ}: b < a → a ≠ b+1 → b+2 ≤ a := by
@@ -16,29 +18,23 @@ lemma le_of_le_of_ne {a b: ℕ}: a ≠ b + 1 → a ≤ b + 1 → a ≤ b := by
   intro h_ne h_le
   exact Nat.le_of_lt_succ (lt_of_le_of_ne h_le h_ne)
 
-lemma list_rotateLeft_mod{l: List T}: l.rotateLeft (k % l.length) = l.rotateLeft k := by
+lemma list_rotateLeft_mod {l: List T}: l.rotateLeft (k % l.length) = l.rotateLeft k := by
   unfold List.rotateLeft
   aesop
 
-lemma list_rotateRight_mod{l: List T}: l.rotateRight (k % l.length) = l.rotateRight k := by
+lemma list_rotateRight_mod {l: List T}: l.rotateRight (k % l.length) = l.rotateRight k := by
   unfold List.rotateRight
   aesop
 
-lemma list_rotateLeft_length{l: List T}: (l.rotateLeft k).length = l.length := by
+lemma list_rotateLeft_length {l: List T}: (l.rotateLeft k).length = l.length := by
   simp [List.rotateLeft]
   split
   next h => simp_all only
   next h =>
     simp_all only [not_le, List.length_append, List.length_drop, List.length_take]
-    rw [min_eq_left, Nat.sub_add_cancel]
-    . apply le_of_lt
-      apply Nat.mod_lt
-      linarith
-    . apply le_of_lt
-      apply Nat.mod_lt
-      linarith
+    rw [min_eq_left, Nat.sub_add_cancel] <;> apply le_of_lt <;> apply Nat.mod_lt _ <;> omega
 
-lemma list_rotateRight_length{l: List T}: (l.rotateRight k).length = l.length := by
+lemma list_rotateRight_length {l: List T}: (l.rotateRight k).length = l.length := by
   simp [List.rotateRight]
   aesop
 
@@ -53,32 +49,22 @@ lemma list_rotateLeft_eq_of_eq_rotateRight {l l': List T} (h: l = l'.rotateRight
     simp [List.drop_append_eq_append_drop]
     generalize h_a: k % l'.length = a
     generalize h_b: l'.length - a = b
-    have h_a_range: a < l'.length := by rewrite [←h_a]; apply Nat.mod_lt; linarith
+    have h_a_range: a < l'.length := by rewrite [←h_a]; apply Nat.mod_lt; omega
     have h_len_sub_b : l'.length - b = a := by rw [←h_b, Nat.sub_sub_eq_min, min_eq_right]; exact le_of_lt h_a_range
     rewrite [h_len_sub_b]
     have h_a_plus_b : a + b = l'.length := by simp [←h_b, Nat.add_sub_cancel' (le_of_lt h_a_range)]
     simp [h_a_plus_b]
-    apply List.ext_get?
+    apply List.ext_getElem?
     intro n
     simp [List.getElem?_append]
     have h_b_range: b ≤ l'.length := by simp [←h_b]
-    if h_n_length : n < l'.length
-    then {
-      simp [h_n_length]
-      aesop
-    }
-    else {
-      simp [h_n_length, min_eq_left h_b_range, List.getElem?_take]
-      have h_oob: n - b ≥ a := by
-        simp only [ge_iff_le]
-        rewrite [Nat.le_sub_iff_add_le, h_a_plus_b]
-        . exact Nat.le_of_not_gt h_n_length
-        . linarith
-      rewrite [ite_cond_eq_false]
-      simp [*]
-      linarith
-      aesop
-    }
+    have h_b_plus_a : b + a = l'.length := by simp [add_comm, h_a_plus_b]
+    simp_all [List.getElem?_take]
+    split_ifs
+    . rfl
+    . omega
+    . congr
+      omega
   }
 
 lemma list_eq_rotateRight_of_rotateLeft_eq {l l': List T} (h: l.rotateLeft k = l'): l = l'.rotateRight k := by
@@ -89,13 +75,87 @@ lemma list_eq_rotateRight_of_rotateLeft_eq {l l': List T} (h: l.rotateLeft k = l
   then simp [h_l]
   else simp [h_l]
 
+-- def range (n : Nat) : List Nat :=
+--   loop n []
+-- where
+--   loop : Nat → List Nat → List Nat
+--   | 0,   acc => acc
+--   | n+1, acc => loop n (n::acc)
+
+@[list_ops] lemma list_ops_range_eq_loop: List.range n = List.range.loop n [] := rfl
+@[list_ops] lemma list_ops_range_loop_zero: List.range.loop 0 acc = acc := rfl
+@[list_ops] lemma list_ops_range_loop_succ: List.range.loop (n+1) acc = List.range.loop n (n::acc) := rfl
+@[list_ops] lemma list_ops_rotateRight_nil: List.rotateRight (α := α) [] n = [] := rfl
+@[list_ops] lemma list_ops_rotateRight_singleton: List.rotateRight [a] n = [a] := rfl
+@[list_ops] lemma list_ops_rotateRight_cons_cons : (a::b::c).rotateRight n = List.drop (c.length+2 - n % (c.length+2)) (a::b::c) ++ List.take (c.length+2 - n % (c.length+2)) (a::b::c) := by simp [List.rotateRight]
+-- @[list_ops] lemma list_ops_rotateRight_cons_one: (l::ls).rotateRight = List.drop ls.length (l::ls) ++ List.take ls.length (l::ls) := by
+--   simp [List.rotateRight]
+--   split_ifs
+--   . have : ls.length = 0 := by omega
+--     simp_all
+--   . rewrite [Nat.mod_eq_of_lt (by omega)]
+--     norm_num
+
+-- @[list_ops] lemma list_ops_rotateRight_succ {l: List T} : l.rotateRight n.succ = (l.rotateRight).rotateRight n := by
+--   cases l with
+--     | nil => simp [list_ops]
+--     | cons head tail => cases tail with
+--       | nil => simp [list_ops]
+--       | cons neck tail =>
+--         simp [List.rotateRight, add_comm]
+--         have : 1+ (tail.length + 1) = tail.length + 2 := by omega
+--         simp [this]
+--         by_cases h_rot: (n+1) % (tail.length + 2) = 0
+--         . have h_n: n % (tail.length + 2) = tail.length + 1 := by
+--             have := Nat.mod_eq_iff.mp h_rot
+--             cases this with
+--               | inl h => omega
+--               | inr h =>
+--                 obtain ⟨_, ⟨k, h_k⟩⟩ := h
+--                 rewrite [Nat.eq_sub_of_add_eq h_k]
+--                 apply Nat.mod_eq_iff.mpr
+--                 simp
+--                 cases k with
+--                   | zero => simp_all
+--                   | succ k =>
+--                     use k
+--                     simp [mul_add]
+--           simp_all
+--         . have h_n: n % (tail.length + 2) = (n+1) % (tail.length + 2) - 1 := by
+--             simp [Nat.mod_eq_iff] at h_rot
+--             rewrite [Nat.mod_eq_iff]
+--             right
+--             split_ands
+--             . have := Nat.mod_lt (n+1) (y := tail.length+2) (by omega)
+--               omega
+--             . use (n+1)/(tail.length + 2)
+--               have ⟨h, h'⟩ := (Nat.div_mod_unique (a := n+1) (b := tail.length+2) (d := (n+1)/(tail.length+2)) (c := (n+1) % (tail.length+2)) (by omega)).mp ⟨rfl, rfl⟩
+--               have := Nat.sub_eq_of_eq_add h
+--               rewrite (occs := .pos [1]) [←this]
+--               rewrite [add_comm]
+--               apply Nat.add_sub_assoc
+--               by_cases h_zero: (n+1) % (tail.length+2) = 0
+--               . exfalso
+--                 rewrite [Nat.mod_eq_iff] at h_zero
+--                 cases h_zero with
+--                   | inl => omega
+--                   | inr h_zero =>
+--                     obtain ⟨_, ⟨k, h_zero⟩⟩ := h_zero
+--                     simp_all
+--               . omega
+--           simp [h_n, List.drop_append_eq_append_drop]
+
+
+
+
+
 lemma split_add [Add G] (a b c d: G) (h1: a = c) (h2: b = d): a + b = c + d := by
   rewrite [h1, h2]
   rfl
 
 lemma no_zero_divisors_zmod_p {P: ℕ} (P_Prime: Nat.Prime P): NoZeroDivisors (ZMod P) := by
   have fact_prime : Fact P.Prime := by simp [fact_iff, P_Prime]
-  refine IsDomain.to_noZeroDivisors (ZMod P)
+  exact IsDomain.to_noZeroDivisors (ZMod P)
 
 lemma zmod_p_one_neq_zero {P: ℕ} (P_Prime: Nat.Prime P) : (1: ZMod P) ≠ (0: ZMod P) := by
   simp_all only [ne_eq]

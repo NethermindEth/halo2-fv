@@ -11,15 +11,15 @@ namespace Keccak.Gates.Padding
     intro round hround hround_lower
     replace hgate := hgate (12*round)
     simp only [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_5_q_padding, Selectors.q_padding_at_round_start, one_mul, hround, hround_lower] at hgate
-    have h_5: 5 % c.n = 5 := Nat.mod_eq_of_lt (by linarith)
+    have h_5: 5 % c.n = 5 := Nat.mod_eq_of_lt (by omega)
     simp only [h_5] at hgate
-    rewrite [Nat.sub_add_comm (by linarith)] at hgate
+    rewrite [Nat.sub_add_comm (by omega)] at hgate
     rewrite [Nat.add_mod_right] at hgate
     have h_12: 12*round - 5 = 12*(round-1) + 7 := by
       simp [Nat.mul_sub]
       rewrite [←Nat.sub_add_comm]
       simp
-      linarith
+      omega
     have no_zero_div := no_zero_divisors_zmod_p P_Prime
     rewrite [h_12, mul_eq_zero] at hgate
     cases hgate with
@@ -29,7 +29,7 @@ namespace Keccak.Gates.Padding
         rewrite [neg_involutive] at hgate
         simp [is_first_padding, is_padding_prev, is_paddings, cell_manager_to_raw, Nat.reduceDiv, Nat.reduceMod, Nat.reduceAdd]
         rw [Nat.mod_eq_of_lt, hgate, sub_self]
-        linarith
+        omega
       | inr hgate =>
         right
         replace hgate := eq_neg_of_add_eq_zero_left hgate
@@ -37,7 +37,7 @@ namespace Keccak.Gates.Padding
         rewrite [hgate]
         simp [is_first_padding, is_padding_prev, is_paddings, cell_manager_to_raw, sub_eq_add_neg]
         rw [Nat.mod_eq_of_lt]
-        linarith
+        omega
 
   lemma gate_140_padding_step_boolean (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hgate: gate_140 c) (h_n: 204 < c.n):
     ∀ round ≤ 17, round > 0 →
@@ -57,14 +57,14 @@ namespace Keccak.Gates.Padding
         rewrite [neg_involutive] at hgate
         simp [is_first_padding, is_padding_prev, is_paddings, cell_manager_to_raw, hgate]
         rw [Nat.mod_eq_of_lt, sub_self]
-        linarith
+        omega
       | inr hgate =>
         right
         replace hgate := eq_neg_of_add_eq_zero_left hgate
         rewrite [neg_involutive] at hgate
         simp [hgate, is_first_padding, is_padding_prev, is_paddings, cell_manager_to_raw, sub_eq_add_neg]
         rw [Nat.mod_eq_of_lt]
-        linarith
+        omega
 
   lemma gate_142_padding_step_boolean (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hgate: gate_142 c):
     ∀ round ≤ 17, round > 0 →

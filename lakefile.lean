@@ -16,6 +16,9 @@ package «examples» where
 require mathlib from git
   "https://github.com/leanprover-community/mathlib4.git"
 
+require LeanCrypto from git
+  "https://github.com/NethermindEth/LeanCrypto.git"
+
 @[default_target]
 lean_lib «Examples» where
   -- add any library configuration options here

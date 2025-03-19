@@ -20,15 +20,12 @@ namespace Keccak
         rewrite [Selectors.q_round_at_round_start c h_round_range, one_mul] at hgate
         replace hgate := eq_neg_of_add_eq_zero_left hgate
         rewrite [neg_involutive] at hgate
-        have h_row_range : (12 * (round+1)) + 11 < c.n := by linarith
-        have h_row_range_next: (12*((round+1)+1)) + 11 < c.n := by linarith
+        have h_row_range : (12 * (round+1)) + 11 < c.n := by omega
+        have h_row_range_next: (12*((round+1)+1)) + 11 < c.n := by omega
         simp only [to_decode] at hgate
         simp [to_cell_manager, h_row_range] at hgate
         have h_next_round: (12 * (round + 1) + 12) % c.n = (12* ((round+1)+1) + 0) % c.n := by
-          rewrite [Nat.mod_eq_of_lt, Nat.mod_eq_of_lt, add_zero, mul_add, mul_add, mul_add]
-          . simp only [Nat.reduceMul]
-          . linarith
-          . linarith
+          rewrite [Nat.mod_eq_of_lt, Nat.mod_eq_of_lt, add_zero, mul_add, mul_add, mul_add] <;> omega
         simp [h_next_round, to_cell_manager, h_row_range_next] at hgate
         simp only [to_s, to_iota_s] at hgate
         exact hgate

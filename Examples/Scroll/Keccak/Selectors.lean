@@ -274,15 +274,15 @@ namespace Keccak
         rw [ite_cond_eq_false, ite_cond_eq_true]
         . simp [le_trans h_row]
         . simp
-          linarith
+          omega
       } else if h_row': row = 204 then {
         simp [h_row']
         rfl
       } else {
         have h_row'': 205 ≤ row := by
-          have h: 204 ≤ row := by linarith
+          have h: 204 ≤ row := by omega
           have h: 204 < row := lt_of_le_of_ne h (by aesop)
-          linarith
+          omega
         if h_row''': row ≤ 311 then {
           simp [fixed_func, fixed_func_col_6, h_row, h_row', h_row'']
           rewrite [ite_cond_eq_true]

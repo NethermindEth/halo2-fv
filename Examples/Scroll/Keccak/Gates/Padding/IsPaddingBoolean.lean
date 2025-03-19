@@ -11,7 +11,7 @@ namespace Keccak.Gates.Padding
     intro round hround
     replace hgate := hgate (12*round)
     simp only [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_0_q_enable, one_mul, Selectors.q_enable_at_round_start, hround] at hgate
-    have h_n': (12*round)+11 < c.n := by linarith
+    have h_n': (12*round)+11 < c.n := by omega
     have no_zero_div := no_zero_divisors_zmod_p P_Prime
     simp [to_cell_manager, h_n', zero_mul] at hgate
     cases hgate with
@@ -31,7 +31,7 @@ namespace Keccak.Gates.Padding
     intro round hround
     replace hgate := hgate (12*round)
     simp only [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_0_q_enable, one_mul, Selectors.q_enable_at_round_start, hround] at hgate
-    have h_n': (12*round)+11 < c.n := by linarith
+    have h_n': (12*round)+11 < c.n := by omega
     have no_zero_div := no_zero_divisors_zmod_p P_Prime
     simp [to_cell_manager, h_n', zero_mul] at hgate
     cases hgate with
@@ -51,7 +51,7 @@ namespace Keccak.Gates.Padding
     intro round hround
     replace hgate := hgate (12*round)
     simp only [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_0_q_enable, one_mul, Selectors.q_enable_at_round_start, hround] at hgate
-    have h_n': (12*round)+11 < c.n := by linarith
+    have h_n': (12*round)+11 < c.n := by omega
     have no_zero_div := no_zero_divisors_zmod_p P_Prime
     simp [to_cell_manager, h_n', zero_mul] at hgate
     cases hgate with
@@ -71,7 +71,7 @@ namespace Keccak.Gates.Padding
     intro round hround
     replace hgate := hgate (12*round)
     simp only [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_0_q_enable, one_mul, Selectors.q_enable_at_round_start, hround] at hgate
-    have h_n': (12*round)+11 < c.n := by linarith
+    have h_n': (12*round)+11 < c.n := by omega
     have no_zero_div := no_zero_divisors_zmod_p P_Prime
     simp [to_cell_manager, h_n', zero_mul] at hgate
     cases hgate with
@@ -91,7 +91,7 @@ namespace Keccak.Gates.Padding
     intro round hround
     replace hgate := hgate (12*round)
     simp only [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_0_q_enable, one_mul, Selectors.q_enable_at_round_start, hround] at hgate
-    have h_n': (12*round)+11 < c.n := by linarith
+    have h_n': (12*round)+11 < c.n := by omega
     have no_zero_div := no_zero_divisors_zmod_p P_Prime
     simp [to_cell_manager, h_n', zero_mul] at hgate
     cases hgate with
@@ -111,7 +111,7 @@ namespace Keccak.Gates.Padding
     intro round hround
     replace hgate := hgate (12*round)
     simp only [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_0_q_enable, one_mul, Selectors.q_enable_at_round_start, hround] at hgate
-    have h_n': (12*round)+11 < c.n := by linarith
+    have h_n': (12*round)+11 < c.n := by omega
     have no_zero_div := no_zero_divisors_zmod_p P_Prime
     simp [to_cell_manager, h_n', zero_mul] at hgate
     cases hgate with
@@ -131,7 +131,7 @@ namespace Keccak.Gates.Padding
     intro round hround
     replace hgate := hgate (12*round)
     simp only [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_0_q_enable, one_mul, Selectors.q_enable_at_round_start, hround] at hgate
-    have h_n': (12*round)+11 < c.n := by linarith
+    have h_n': (12*round)+11 < c.n := by omega
     have no_zero_div := no_zero_divisors_zmod_p P_Prime
     simp [to_cell_manager, h_n', zero_mul] at hgate
     cases hgate with
@@ -151,7 +151,7 @@ namespace Keccak.Gates.Padding
     intro round hround
     replace hgate := hgate (12*round)
     simp only [ValidCircuit.get_fixed, h_fixed, Selectors.fixed_0_q_enable, one_mul, Selectors.q_enable_at_round_start, hround] at hgate
-    have h_n': (12*round)+11 < c.n := by linarith
+    have h_n': (12*round)+11 < c.n := by omega
     have no_zero_div := no_zero_divisors_zmod_p P_Prime
     simp [to_cell_manager, h_n', zero_mul] at hgate
     cases hgate with

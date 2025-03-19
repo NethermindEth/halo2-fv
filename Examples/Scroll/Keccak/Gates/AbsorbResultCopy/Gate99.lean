@@ -24,11 +24,11 @@ namespace Keccak
         have h_factor'': 12*round+135 = 12*(round+11)+3 := by trivial
         have h_n': 12*(round+1)+11 < c.n := by
           cases hround with
-            | inl hround => simp [hround]; linarith
-            | inr hround => simp [hround]; linarith
+            | inl hround => simp [hround]; omega
+            | inr hround => simp [hround]; omega
         have h_n'': 12*(round+11)+11 < c.n := by
           cases hround with
-            | inl hround => simp [hround]; linarith
+            | inl hround => simp [hround]; omega
             | inr hround => simp [hround]; assumption
         simp [h_factor, h_factor', h_factor'', to_cell_manager, h_n', h_n'', to_s, to_absorb, to_named_advice] at hgate
         replace hgate := eq_neg_of_add_eq_zero_left hgate

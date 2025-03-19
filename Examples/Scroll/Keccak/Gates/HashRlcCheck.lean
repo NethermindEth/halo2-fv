@@ -1,23 +1,7 @@
 import Examples.Scroll.Keccak.CellManager
+import Examples.Scroll.Keccak.Spec.Advice
 import Examples.Scroll.Keccak.Spec.ComposeRlc
-import Examples.Scroll.Keccak.Spec.HashRlc
 import Examples.Scroll.Keccak.Spec.Program
-
--- def expr (l: List (ZMod P)) (r k: ZMod P) (hk: k = r ^ (l.length)) :=
---   (l.enum.map (λ (idx, val) => val * (r ^ idx))).sum
--- lemma base (val val' r: ZMod P): val + val' * r = expr [val, val'] r (r*r) (by simp [List.length, pow_two]) := by
---   simp [expr, List.map]
--- lemma cons: expr l r (k*r) hk + val * (k * r) = expr (l ++ [val]) r (k*r*r) (by simp [hk, pow_add]) := by
---   simp [expr]
---   rewrite [List.enum_append, List.map_append, List.sum_append]
---   congr
---   simp [hk]
-
--- lemma to_rlc: expr l r k hk = Keccak.ComposeRlc.expr l r := by
---   unfold Keccak.ComposeRlc.expr expr
---   simp [List.sum_eq_foldr, ←List.foldl_eq_foldr]
-
-
 
 namespace Keccak
   namespace Gates
@@ -34,16 +18,15 @@ namespace Keccak
         simp [fixed_func, fixed_func_col_1] at hgate
         replace hgate := eq_neg_of_add_eq_zero_left hgate
         rewrite [neg_involutive] at hgate
-        rewrite [to_hash_rlc] at hgate
-        rewrite [←hgate]
+        simp [to_named_advice] at hgate
+        symm at hgate
+        rewrite [hgate]
         clear hgate
-        simp only [hash_bytes_le, hash_bytes, cell_manager, List.reverse, List.reverseAux]
-        norm_num
-        simp only [ValidCircuit.get_advice_wrapped, Nat.reduceAdd]
+        simp [hash_bytes_le, hash_bytes, squeeze_bytes, squeeze_from_parts, Transform.split_expr, Split.expr_res, word_parts_known, cell_manager_to_raw]
         have h (k: ℕ): k < 49 → k % c.n = k := by
           intro hk
           rw [Nat.mod_eq_of_lt]
-          linarith
+          omega
         simp [h]
         simp [Nat.sub_add_comm]
         unfold ComposeRlc.expr

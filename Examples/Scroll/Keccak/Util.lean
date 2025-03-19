@@ -24,7 +24,7 @@ namespace Keccak
   def target_part_sizes_rot (part_size rot: ℕ) :=
     ((List.ranges [rot, NUM_BITS_PER_WORD - rot]
     ).map (fun l => (l.toChunks part_size).map List.length)
-    ).join
+    ).flatten
 
   @[target_part_sizes_known] lemma target_part_sizes_to_rot: target_part_sizes k = target_part_sizes_rot k 0 := by
     unfold target_part_sizes target_part_sizes_rot
@@ -41,7 +41,7 @@ namespace Keccak
       let split_chunks := (chunked_bits.map (fun chunk =>
         let split := chunk.splitAt (chunk.findIdx (λ x => x = 0))
         [split.fst, split.snd]
-      )).join.filter (λ l => l ≠ [])
+      )).flatten.filter (λ l => l ≠ [])
       let rot_idx := split_chunks.findIdx (λ l => l.contains 0)
       split_chunks.rotateLeft rot_idx
 

@@ -41,7 +41,7 @@ namespace Keccak.Proofs
           use x
           simp [Lookups.PackTable.transform_table]
           rw [if_pos h_x, h_in, h_out]
-        simp [squeeze_from_parts, Split.expr, Split.expr_res, word_parts_known, List.enum, cell_manager_to_col_row, cell_manager_column] at h_mem
+        simp [squeeze_from_parts, Split.expr, Split.expr_res, word_parts_known, cell_manager_to_col_row, cell_manager_column] at h_mem
         obtain ⟨round, h_round⟩ := round
         replace h_round := Finset.mem_Icc.mp h_round
         have h_usable_rows := usable_rows_range_of_meets_constraints h

@@ -67,7 +67,7 @@ namespace Keccak.Gates.LengthAndDataRlc
                 assumption
               }
             . exact lt_trans (
-                lt_of_lt_of_le (@Nat.sub_lt (12*round) 12 (by linarith) (by trivial)) (by linarith)
+                lt_of_lt_of_le (@Nat.sub_lt (12*round) 12 (by omega) (by trivial)) (by omega)
               ) h_n
           . match round with
               | 0 => contradiction
@@ -79,11 +79,9 @@ namespace Keccak.Gates.LengthAndDataRlc
             . have h: 2 ≤ round := by match round with
                 | 0 | 1 => contradiction
                 | x+2 => exact Nat.le_add_left 2 x
-              rewrite [Nat.le_sub_iff_add_le]
-              . linarith
-              . linarith
+              rewrite [Nat.le_sub_iff_add_le] <;> omega
             . exact lt_trans (
-                lt_of_lt_of_le (@Nat.sub_lt (12*round) 12 (by linarith) (by trivial)) (by linarith)
+                lt_of_lt_of_le (@Nat.sub_lt (12*round) 12 (by omega) (by trivial)) (by omega)
               ) h_n
           . match round with
               | 0 => contradiction
@@ -92,10 +90,9 @@ namespace Keccak.Gates.LengthAndDataRlc
         have h: (12*round + c.n - 12) % c.n ≤ 311 := by
           rewrite [Nat.sub_add_comm]
           . rewrite [Nat.add_mod_right, Nat.mod_eq_of_lt]
-            . rewrite [Nat.sub_le_iff_le_add]
-              linarith
+            . rewrite [Nat.sub_le_iff_le_add] ; omega
             . exact lt_trans (
-                lt_of_lt_of_le (@Nat.sub_lt (12*round) 12 (by linarith) (by trivial)) (by linarith)
+                lt_of_lt_of_le (@Nat.sub_lt (12*round) 12 (by omega) (by trivial)) (by omega)
               ) h_n
           . match round with
             | 0 => contradiction
@@ -104,12 +101,11 @@ namespace Keccak.Gates.LengthAndDataRlc
         simp [is_final, Nat.mul_sub] at h_is_final
         rewrite [Nat.sub_add_comm, Nat.add_mod_right, Nat.mod_eq_of_lt, h_is_final]
         . simp [Nat.mul_sub, add_assoc, add_right_inj]
-          rw [Nat.mod_eq_of_lt]
-          linarith
+          rw [Nat.mod_eq_of_lt] ; omega
         . exact lt_trans (
-            lt_of_lt_of_le (@Nat.sub_lt (12*round) 12 (by linarith) (by trivial)) (by linarith)
+            lt_of_lt_of_le (@Nat.sub_lt (12*round) 12 (by omega) (by trivial)) (by omega)
           ) h_n
-        . linarith
+        . omega
       } else {
         left
         unfold boolean_is_final is_final at h_is_final_boolean
@@ -128,25 +124,25 @@ namespace Keccak.Gates.LengthAndDataRlc
             match round with
               | 0 => contradiction
               | 1 => contradiction
-              | x+2 => linarith
+              | x+2 => omega
           simp [h]
           have h: 1 ≤ 12 * round - 12 := by match round with
             | 0 | 1 => contradiction
             | x+2 => simp [mul_add]
           simp [h]
-          have h: 12 * round ≤ 323 := by linarith
+          have h: 12 * round ≤ 323 := by omega
           simp [h, is_paddings, cell_manager_to_raw]
           rw [Nat.mod_eq_of_lt]
           exact lt_of_le_of_lt (
             Nat.mul_le_mul (le_of_eq (by trivial)) hround
           ) h_n
         . exact lt_trans (
-            lt_of_lt_of_le (@Nat.sub_lt (12*round) 12 (by linarith) (by trivial)) (by linarith)
+            lt_of_lt_of_le (@Nat.sub_lt (12*round) 12 (by omega) (by trivial)) (by omega)
           ) h_n
         . rewrite [Nat.mod_eq_of_lt h_n']
           match round with
             | 0 | 1 => contradiction
-            | x+2 => linarith
+            | x+2 => omega
       }
     }
 

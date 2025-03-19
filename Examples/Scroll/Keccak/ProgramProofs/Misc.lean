@@ -1,3 +1,4 @@
+import Mathlib.Tactic.Linarith.Frontend
 import Examples.Scroll.Keccak.Spec.KeccakConstants
 import Examples.Scroll.Keccak.Spec.Program
 
@@ -11,7 +12,7 @@ namespace Keccak.Proofs
       norm_num
       apply And.intro
       . have h: 965 < range ^ (Nat.log range 965 + 1) := Nat.lt_pow_succ_log_self h_range 965
-        omega
+        linarith
       . simp only [add_tsub_cancel_right, Nat.reduceLeDiff]
         simp [Nat.pow_log_le_self]
 

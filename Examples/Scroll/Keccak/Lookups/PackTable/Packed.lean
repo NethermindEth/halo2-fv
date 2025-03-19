@@ -1,3 +1,4 @@
+import Mathlib.Tactic.NormNum.Basic
 import Examples.Scroll.Keccak.Constants
 
 namespace Keccak.Lookups.PackTable
@@ -8,7 +9,7 @@ namespace Keccak.Lookups.PackTable
       (List.range 8).map (λ idx => (
         (byte / (2^idx)) % 2
       ))
-    ))).join
+    ))).flatten
 
   def pack_with_base (P: ℕ) (bits: List ℕ) (base: ℕ): ZMod P :=
     bits.foldr (λ bit acc => acc * base + bit) 0

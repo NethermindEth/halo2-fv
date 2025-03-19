@@ -1,4 +1,6 @@
+import Mathlib.Tactic.NormNum.Basic
 import Examples.Scroll.Keccak.Constants
+import Examples.Util
 
 namespace Keccak.Lookups.ChiBase
   -- columns 14 and 15
@@ -23,7 +25,10 @@ namespace Keccak.Lookups.ChiBase
     x3*BIT_SIZE^3
     := by
       simp [input, ←pow_two, ←Nat.pow_add_one, keccak_constants]
-      norm_num
+      congr
+      . rw [←zmod_2pow3, ←zmod_2pow6, ←pow_mul]
+      . rw [←zmod_2pow3, ←zmod_2pow9, ←pow_mul]
+
 
   lemma fixed_func_col_14_0_to_9_input (c: ValidCircuit P P_Prime) (n: Finset.Ico 0 10): fixed_func_col_14 c n = input_by_row P n := by
     fin_cases n <;> simp [fixed_func_col_14, fixed_func_col_14_0_to_621, fixed_func_col_14_0_to_99, fixed_func_col_14_0_to_9, input_by_row, input, keccak_constants]

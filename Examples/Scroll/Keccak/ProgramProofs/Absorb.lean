@@ -35,7 +35,7 @@ namespace Keccak.Proofs
         unfold absorb_fat Split.expr at this
         simp_all
       . rfl
-      . simp [keccak_constants, Split.expr, Split.expr_res, word_parts_known, List.enum]
+      . simp [keccak_constants, Split.expr, Split.expr_res, word_parts_known]
         intro num_bits_in cell_in num_bits_out cell_out h_mem
         have h_lookup_0 :=lookup_0_of_meets_constraints h
         have h_fixed := fixed_of_meets_constraints h
@@ -103,7 +103,7 @@ namespace Keccak.Proofs
     match i with | 0 | 1 | 2 | 3 | 4 => match j with | 0 | 1 | 2 | 3 | 4 => simp
 
   lemma a_slice_correct (i j: Fin 5):
-    (i, j) ∈ absorb_positions → absorb_positions.get? (a_slice i j) = .some (i, j)
+    (i, j) ∈ absorb_positions → absorb_positions[(a_slice i j)]? = .some (i, j)
   := by
     unfold absorb_positions a_slice
     obtain ⟨i, h_i⟩ := i
@@ -126,10 +126,10 @@ namespace Keccak.Proofs
     . have h_gate_78 := Gates.AbsorbVerifyInput.gate_78_absorb_verify_input c h_fixed (gate_78_of_meets_constraints h) (by omega) round h_round
       have h_gate_79 := Gates.AbsorbResultCopy.gate_79_absorb_result_copy c h_fixed (gate_79_of_meets_constraints h) h_boolean_is_final h_is_final_disabled_on_first_row (by omega) round h_round
       by_cases continue_hash c (12*round) <;> simp_all
-    . have h_gate_80 := Gates.AbsorbVerifyInput.gate_80_absorb_verify_input c h_fixed (gate_80_of_meets_constraints h) (by omega) round h_round
+    . have h_gate_80 := Gates.AbsorbVerifyInput.gate_80_absorb_verify_input c h_fixed (gate_80_of_meets_constraints h) round h_round
       have h_gate_81 := Gates.AbsorbResultCopy.gate_81_absorb_result_copy c h_fixed (gate_81_of_meets_constraints h) h_boolean_is_final h_is_final_disabled_on_first_row (by omega) round h_round
       by_cases continue_hash c (12*round) <;> simp_all
-    . have h_gate_82 := Gates.AbsorbVerifyInput.gate_82_absorb_verify_input c h_fixed (gate_82_of_meets_constraints h) (by omega) round h_round
+    . have h_gate_82 := Gates.AbsorbVerifyInput.gate_82_absorb_verify_input c h_fixed (gate_82_of_meets_constraints h) round h_round
       have h_gate_83 := Gates.AbsorbResultCopy.gate_83_absorb_result_copy c h_fixed (gate_83_of_meets_constraints h) h_boolean_is_final h_is_final_disabled_on_first_row (by omega) round h_round
       by_cases continue_hash c (12*round) <;> simp_all
     . have h_gate_84 := Gates.AbsorbVerifyInput.gate_84_absorb_verify_input c h_fixed (gate_84_of_meets_constraints h) round h_round
@@ -138,10 +138,10 @@ namespace Keccak.Proofs
     . have h_gate_86 := Gates.AbsorbVerifyInput.gate_86_absorb_verify_input c h_fixed (gate_86_of_meets_constraints h) round h_round
       have h_gate_87 := Gates.AbsorbResultCopy.gate_87_absorb_result_copy c h_fixed (gate_87_of_meets_constraints h) h_boolean_is_final h_is_final_disabled_on_first_row (by omega) round h_round
       by_cases continue_hash c (12*round) <;> simp_all
-    . have h_gate_88 := Gates.AbsorbVerifyInput.gate_88_absorb_verify_input c h_fixed (gate_88_of_meets_constraints h) (by omega) round h_round
+    . have h_gate_88 := Gates.AbsorbVerifyInput.gate_88_absorb_verify_input c h_fixed (gate_88_of_meets_constraints h) round h_round
       have h_gate_89 := Gates.AbsorbResultCopy.gate_89_absorb_result_copy c h_fixed (gate_89_of_meets_constraints h) h_boolean_is_final h_is_final_disabled_on_first_row (by omega) round h_round
       by_cases continue_hash c (12*round) <;> simp_all
-    . have h_gate_90 := Gates.AbsorbVerifyInput.gate_90_absorb_verify_input c h_fixed (gate_90_of_meets_constraints h) (by omega) round h_round
+    . have h_gate_90 := Gates.AbsorbVerifyInput.gate_90_absorb_verify_input c h_fixed (gate_90_of_meets_constraints h) round h_round
       have h_gate_91 := Gates.AbsorbResultCopy.gate_91_absorb_result_copy c h_fixed (gate_91_of_meets_constraints h) h_boolean_is_final h_is_final_disabled_on_first_row (by omega) round h_round
       by_cases continue_hash c (12*round) <;> simp_all
     . have h_gate_92 := Gates.AbsorbVerifyInput.gate_92_absorb_verify_input c h_fixed (gate_92_of_meets_constraints h) round h_round
@@ -153,10 +153,10 @@ namespace Keccak.Proofs
     . have h_gate_96 := Gates.AbsorbVerifyInput.gate_96_absorb_verify_input c h_fixed (gate_96_of_meets_constraints h) round h_round
       have h_gate_97 := Gates.AbsorbResultCopy.gate_97_absorb_result_copy c h_fixed (gate_97_of_meets_constraints h) h_boolean_is_final h_is_final_disabled_on_first_row (by omega) round h_round
       by_cases continue_hash c (12*round) <;> simp_all
-    . have h_gate_98 := Gates.AbsorbVerifyInput.gate_98_absorb_verify_input c h_fixed (gate_98_of_meets_constraints h) (by omega) round h_round
+    . have h_gate_98 := Gates.AbsorbVerifyInput.gate_98_absorb_verify_input c h_fixed (gate_98_of_meets_constraints h) round h_round
       have h_gate_99 := Gates.AbsorbResultCopy.gate_99_absorb_result_copy c h_fixed (gate_99_of_meets_constraints h) h_boolean_is_final h_is_final_disabled_on_first_row (by omega) round h_round
       by_cases continue_hash c (12*round) <;> simp_all
-    . have h_gate_100 := Gates.AbsorbVerifyInput.gate_100_absorb_verify_input c h_fixed (gate_100_of_meets_constraints h) (by omega) round h_round
+    . have h_gate_100 := Gates.AbsorbVerifyInput.gate_100_absorb_verify_input c h_fixed (gate_100_of_meets_constraints h) round h_round
       have h_gate_101 := Gates.AbsorbResultCopy.gate_101_absorb_result_copy c h_fixed (gate_101_of_meets_constraints h) h_boolean_is_final h_is_final_disabled_on_first_row (by omega) round h_round
       by_cases continue_hash c (12*round) <;> simp_all
     . have h_gate_102 := Gates.AbsorbVerifyInput.gate_102_absorb_verify_input c h_fixed (gate_102_of_meets_constraints h) (by omega) round h_round

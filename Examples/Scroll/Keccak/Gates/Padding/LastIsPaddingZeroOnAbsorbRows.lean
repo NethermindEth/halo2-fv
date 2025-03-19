@@ -10,7 +10,7 @@ namespace Keccak.Gates.Padding
     intro round hround
     replace hgate := hgate (12*round)
     simp only [ValidCircuit.get_fixed, h_fixed, Selectors.q_absorb_at_start_or_end, one_mul, hround] at hgate
-    have h_n': (12*round)+11 < c.n := by cases hround <;> linarith
+    have h_n': (12*round)+11 < c.n := by cases hround <;> omega
     simp [to_cell_manager, h_n', zero_mul] at hgate
     rewrite [←hgate]
     rfl

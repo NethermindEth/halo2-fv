@@ -1,6 +1,8 @@
 import Examples.Scroll.Keccak.Spec.KeccakConstants
 
 namespace Keccak.FinVals
+  @[fin_vals] lemma fin_5_val_4: @Fin.val 5 4 = 4 := rfl
+
   @[fin_vals] lemma fin_rho_by_pi_word_parts_val_0: @Fin.val rho_by_pi_num_word_parts 0 = 0 := rfl
   @[fin_vals] lemma fin_rho_by_pi_word_parts_val_1: @Fin.val rho_by_pi_num_word_parts 1 = 1 := by rewrite [Fin.coe_ofNat_eq_mod]; simp [keccak_constants]
   @[fin_vals] lemma fin_rho_by_pi_word_parts_val_2: @Fin.val rho_by_pi_num_word_parts 2 = 2 := by rewrite [Fin.coe_ofNat_eq_mod]; simp [keccak_constants]

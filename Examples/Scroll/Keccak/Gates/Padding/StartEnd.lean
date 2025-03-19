@@ -14,7 +14,7 @@ namespace Keccak.Gates.Padding
     simp [is_paddings, cell_manager_to_raw] at h_is_padding
     rewrite [h_is_padding, one_mul] at hgate
     simp only [input_bytes, Transform.split_expr, keccak_constants, Split.expr_res]
-    simp [word_parts_known, List.getElem?_map, List.getElem?_enum]
+    simp [word_parts_known, List.getElem?_map, List.getElem?_zipIdx]
     simp [is_first_padding, is_paddings, is_padding_prev, h_is_padding, cell_manager_to_raw]
     simp [add_eq_zero_iff_eq_neg] at hgate
     rw [sub_eq_add_neg, hgate]

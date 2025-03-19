@@ -17,8 +17,8 @@ namespace Keccak
           replace hgate := eq_neg_of_add_eq_zero_left hgate
           rewrite [neg_involutive] at hgate
           have h_factor: 12*round+14 = 12*(round+1)+2 := by trivial
-          have h_n': 12*round+11<c.n := by cases hround <;> linarith
-          have h_n'': 12*(round+1)+11<c.n := by cases hround <;> linarith
+          have h_n': 12*round+11<c.n := by cases hround <;> omega
+          have h_n'': 12*(round+1)+11<c.n := by cases hround <;> omega
           simp [h_factor, to_named_advice, to_cell_manager, h_n', h_n'', to_s] at hgate
           unfold continue_hash start_new_hash
           unfold is_final_disabled_on_first_row at h_is_final_first

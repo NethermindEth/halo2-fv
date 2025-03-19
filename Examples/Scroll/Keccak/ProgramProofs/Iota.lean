@@ -32,7 +32,7 @@ namespace Keccak.Proofs
         simp_all [iota_parts, Split.expr]
       . simp [keccak_constants]
       . intro num_bits_in cell_in num_bits_out cell_out h_mem
-        simp [iota_parts, Split.expr, Split.expr_res, word_parts_known, keccak_constants, List.enum] at h_mem
+        simp [iota_parts, Split.expr, Split.expr_res, word_parts_known, keccak_constants] at h_mem
         simp [cell_manager_to_col_row, cell_manager_column] at h_mem
         have h_fixed := fixed_of_meets_constraints h
         have h_lookup := Lookups.Normalize_3.lookup_85_normalize_3 c (lookup_85_of_meets_constraints h) h_fixed

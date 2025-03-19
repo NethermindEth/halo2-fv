@@ -25,11 +25,11 @@ namespace Keccak
         rewrite [neg_involutive] at hgate
         unfold squeeze_from cell_manager ValidCircuit.get_advice_wrapped
         norm_num
-        have h_n': 288 < c.n := by linarith
+        have h_n': 288 < c.n := by omega
         simp [Nat.mod_eq_of_lt, h_n, h_n']
         rewrite [hgate]
         congr
-        have h_n'': 12 < c.n := by linarith
+        have h_n'': 12 < c.n := by omega
         simp [Nat.mod_eq_of_lt, h_n', h_n'', Nat.sub_add_comm]
 
     end SqueezeVerifyPacked

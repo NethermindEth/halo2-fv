@@ -24,9 +24,9 @@ namespace Keccak
           rewrite [Selectors.q_round_at_round_start c h_round_range, one_mul] at hgate
           replace hgate := eq_neg_of_add_eq_zero_left hgate
           rewrite [neg_involutive] at hgate
-          have h_row_range : (12 * (round+1)) + 11 < c.n := by linarith
+          have h_row_range : (12 * (round+1)) + 11 < c.n := by omega
           simp [to_cell_manager, h_row_range] at hgate
-          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, List.enum, Decode.expr, zmod_pow_simps]
+          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, Decode.expr, zmod_pow_simps]
           rewrite [hgate]
           rfl
 
@@ -45,9 +45,9 @@ namespace Keccak
           rewrite [Selectors.q_round_at_round_start c h_round_range, one_mul] at hgate
           replace hgate := eq_neg_of_add_eq_zero_left hgate
           rewrite [neg_involutive] at hgate
-          have h_row_range : (12 * (round+1)) + 11 < c.n := by linarith
+          have h_row_range : (12 * (round+1)) + 11 < c.n := by omega
           simp [to_cell_manager, h_row_range] at hgate
-          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, List.enum, Decode.expr, zmod_pow_simps]
+          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, Decode.expr, zmod_pow_simps]
           rewrite [hgate]
           rfl
 
@@ -66,9 +66,9 @@ namespace Keccak
           rewrite [Selectors.q_round_at_round_start c h_round_range, one_mul] at hgate
           replace hgate := eq_neg_of_add_eq_zero_left hgate
           rewrite [neg_involutive] at hgate
-          have h_row_range : (12 * (round+1)) + 11 < c.n := by linarith
+          have h_row_range : (12 * (round+1)) + 11 < c.n := by omega
           simp [to_cell_manager, h_row_range] at hgate
-          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, List.enum, Decode.expr, zmod_pow_simps]
+          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, Decode.expr, zmod_pow_simps]
           rewrite [hgate]
           rfl
 
@@ -87,9 +87,9 @@ namespace Keccak
           rewrite [Selectors.q_round_at_round_start c h_round_range, one_mul] at hgate
           replace hgate := eq_neg_of_add_eq_zero_left hgate
           rewrite [neg_involutive] at hgate
-          have h_row_range : (12 * (round+1)) + 11 < c.n := by linarith
+          have h_row_range : (12 * (round+1)) + 11 < c.n := by omega
           simp [to_cell_manager, h_row_range] at hgate
-          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, List.enum, Decode.expr, zmod_pow_simps]
+          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, Decode.expr, zmod_pow_simps]
           rewrite [hgate]
           rfl
 
@@ -108,9 +108,9 @@ namespace Keccak
           rewrite [Selectors.q_round_at_round_start c h_round_range, one_mul] at hgate
           replace hgate := eq_neg_of_add_eq_zero_left hgate
           rewrite [neg_involutive] at hgate
-          have h_row_range : (12 * (round+1)) + 11 < c.n := by linarith
+          have h_row_range : (12 * (round+1)) + 11 < c.n := by omega
           simp [to_cell_manager, h_row_range] at hgate
-          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, List.enum, Decode.expr, zmod_pow_simps]
+          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, Decode.expr, zmod_pow_simps]
           rewrite [hgate]
           rfl
 
@@ -129,9 +129,9 @@ namespace Keccak
           rewrite [Selectors.q_round_at_round_start c h_round_range, one_mul] at hgate
           replace hgate := eq_neg_of_add_eq_zero_left hgate
           rewrite [neg_involutive] at hgate
-          have h_row_range : (12 * (round+1)) + 11 < c.n := by linarith
+          have h_row_range : (12 * (round+1)) + 11 < c.n := by omega
           simp [to_cell_manager, h_row_range] at hgate
-          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, List.enum, Decode.expr, zmod_pow_simps]
+          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, Decode.expr, zmod_pow_simps]
           rewrite [hgate]
           rfl
 
@@ -150,9 +150,9 @@ namespace Keccak
           rewrite [Selectors.q_round_at_round_start c h_round_range, one_mul] at hgate
           replace hgate := eq_neg_of_add_eq_zero_left hgate
           rewrite [neg_involutive] at hgate
-          have h_row_range : (12 * (round+1)) + 11 < c.n := by linarith
+          have h_row_range : (12 * (round+1)) + 11 < c.n := by omega
           simp [to_cell_manager, h_row_range] at hgate
-          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, List.enum, Decode.expr, zmod_pow_simps]
+          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, Decode.expr, zmod_pow_simps]
           rewrite [hgate]
           rfl
 
@@ -171,7 +171,7 @@ namespace Keccak
           rewrite [Selectors.q_round_at_round_start c h_round_range, one_mul] at hgate
           replace hgate := eq_neg_of_add_eq_zero_left hgate
           rewrite [neg_involutive] at hgate
-          have h_row_range : (12 * (round+1)) + 11 < c.n := by linarith
+          have h_row_range : (12 * (round+1)) + 11 < c.n := by omega
           simp only [to_decode] at hgate
           simp [to_cell_manager, h_row_range] at hgate
           simp only [to_iota_s] at hgate
@@ -199,9 +199,9 @@ namespace Keccak
           rewrite [Selectors.q_round_at_round_start c h_round_range, one_mul] at hgate
           replace hgate := eq_neg_of_add_eq_zero_left hgate
           rewrite [neg_involutive] at hgate
-          have h_row_range : (12 * (round+1)) + 11 < c.n := by linarith
+          have h_row_range : (12 * (round+1)) + 11 < c.n := by omega
           simp [to_cell_manager, h_row_range] at hgate
-          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, List.enum, Decode.expr, zmod_pow_simps]
+          simp [Split.constraint, keccak_constants, Split.expr_res, word_parts_known, Decode.expr, zmod_pow_simps]
           rewrite [hgate]
           rfl
 

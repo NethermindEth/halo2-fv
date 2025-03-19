@@ -22,9 +22,9 @@ namespace Keccak
           rewrite [Selectors.q_round_at_round_start c h_round_range, one_mul] at hgate_1
           replace hgate_1 := eq_neg_of_add_eq_zero_left hgate_1
           rewrite [neg_involutive] at hgate_1
-          have h_row_range : (12*(round+1)+11) < c.n := by linarith
+          have h_row_range : (12*(round+1)+11) < c.n := by omega
           simp [to_cell_manager, h_row_range] at hgate_1
-          simp [Split.constraint, get_num_bits_per_absorb_lookup_val, Split.expr_res, WordParts.new_6_0_false, List.enum, Decode.expr, BIT_COUNT, zmod_pow_simps]
+          simp [Split.constraint, get_num_bits_per_absorb_lookup_val, Split.expr_res, WordParts.new_6_0_false, Decode.expr, BIT_COUNT, zmod_pow_simps]
           rewrite [hgate_1]
           rfl
 

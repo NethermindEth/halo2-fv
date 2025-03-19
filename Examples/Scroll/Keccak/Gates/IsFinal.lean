@@ -9,7 +9,7 @@ namespace Keccak.Gates.IsFinal
   := by
     unfold gate_127 at hgate
     replace hgate := hgate 300
-    have h_n': 89 < c.n := by linarith
+    have h_n': 89 < c.n := by omega
     simp [ValidCircuit.get_fixed, h_fixed, fixed_func, fixed_func_col_1, fixed_func_col_3, h_n'] at hgate
     rewrite [Nat.sub_add_comm, Nat.mod_eq_of_lt h_n'] at hgate
     . simp [Nat.mod_eq_of_lt h_n, to_named_advice, to_cell_manager] at hgate
@@ -25,7 +25,7 @@ namespace Keccak.Gates.IsFinal
     exact hrow
     rewrite [Nat.dvd_iff_mod_eq_zero] at hdvd ⊢
     rewrite [Nat.add_mod, hdvd, zero_add, Nat.mod_mod, Nat.mod_eq_of_lt]
-    linarith
+    omega
     exact lt_trans hx (by trivial)
 
 
@@ -62,11 +62,11 @@ namespace Keccak.Gates.IsFinal
       Nat.sub_add_comm (le_trans (by trivial) h_row_lower)
     ] at hgate
     simp only [Nat.add_mod_right] at hgate
-    have h_mod {a: ℕ}: a ≤ 299 → a % c.n = a := by intro h; apply Nat.mod_eq_of_lt; linarith
+    have h_mod {a: ℕ}: a ≤ 299 → a % c.n = a := by intro h; apply Nat.mod_eq_of_lt; omega
     have h_sub {x: ℕ}: (row - x) % c.n ≤ 311 := by
       rewrite [Nat.mod_eq_of_lt]
       apply Nat.sub_le_of_le_add
-      linarith
+      omega
       exact lt_of_le_of_lt (le_trans (Nat.sub_le row x) hrow) h_n
     have h_sub' {x: ℕ}: (row - x) % c.n = row -x := by
       rw [Nat.mod_eq_of_lt]
@@ -249,7 +249,7 @@ namespace Keccak.Gates.IsFinal
                               | x+12 =>
                                 exfalso
                                 have _ := @Nat.mod_lt row' 12 (by trivial)
-                                linarith
+                                omega
                         }
                       }
                     }

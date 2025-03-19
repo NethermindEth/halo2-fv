@@ -1,5 +1,6 @@
 import Examples.Scroll.Keccak.Spec.Program
 import Examples.Scroll.Keccak.Spec.Decode
+import Examples.Scroll.Keccak.Spec.FinVals
 import Examples.Scroll.Keccak.Spec.KeccakConstants
 import Examples.Scroll.Keccak.Spec.Os.All
 
@@ -9,7 +10,7 @@ namespace Keccak
 
     namespace SplitUniform
 
-      lemma row_range (h: 299 < n) (h': round ≤ 23): 12*(round+1) + 11 < n := by linarith
+      lemma row_range (h: 299 < n) (h': round ≤ 23): 12*(round+1) + 11 < n := by omega
 
       lemma gate_16_split_uniform (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hsplit_gate: gate_16 c) (h_n: 299 < c.n):
         ∀ round ≤ 23,
@@ -36,9 +37,9 @@ namespace Keccak
             congr
             simp [get_rotate_count, word_parts_known, target_part_sizes_known, rho_by_pi_num_word_parts_val]
             apply list_rotateLeft_eq_of_eq_rotateRight
-            simp [SplitUniform.input_parts, rho_pi_chi_cells, keccak_constants, List.rotateRight]
+            simp [SplitUniform.input_parts, rho_pi_chi_cells, keccak_constants, list_ops]
             aesop
-          . simp [keccak_constants, word_parts_known, get_rotate_count, target_part_sizes_known, SplitUniform.rot_parts]
+          . simp [keccak_constants, word_parts_known, get_rotate_count, target_part_sizes_known, SplitUniform.rot_parts, list_ops]
 
       lemma gate_17_split_uniform (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hsplit_gate: gate_17 c) (h_n: 299 < c.n):
         ∀ round ≤ 23,
@@ -65,8 +66,8 @@ namespace Keccak
             congr
             simp [get_rotate_count, word_parts_known, target_part_sizes_known, rho_by_pi_num_word_parts_val]
             apply list_rotateLeft_eq_of_eq_rotateRight
-            simp [SplitUniform.input_parts, rho_pi_chi_cells, keccak_constants, List.rotateRight]
-          . simp [keccak_constants, word_parts_known, get_rotate_count, target_part_sizes_known, SplitUniform.rot_parts]
+            simp [SplitUniform.input_parts, rho_pi_chi_cells, keccak_constants, list_ops]
+          . simp [keccak_constants, word_parts_known, get_rotate_count, target_part_sizes_known, SplitUniform.rot_parts, list_ops]
 
       lemma gate_18_19_split_uniform (c: ValidCircuit P P_Prime) (h_fixed: c.1.Fixed = fixed_func c) (hrot_gate: gate_18 c) (hsplit_gate: gate_19 c) (h_n: 299 < c.n):
         ∀ round ≤ 23,
@@ -94,11 +95,11 @@ namespace Keccak
           apply And.intro
           . rewrite [←hsplit_gate]
             congr
-            simp [get_rotate_count, word_parts_known, target_part_sizes_known, rho_by_pi_num_word_parts_val, List.rotateRight]
+            simp [get_rotate_count, word_parts_known, target_part_sizes_known, rho_by_pi_num_word_parts_val, list_ops]
             simp [SplitUniform.input_parts, rho_pi_chi_cells, keccak_constants]
             apply list_rotateLeft_eq_of_eq_rotateRight
-            simp [List.rotateRight]
-          . simp [keccak_constants, word_parts_known, get_rotate_count, target_part_sizes_known, SplitUniform.rot_parts, rho_pi_chi_cells, zmod_pow_simps]
+            simp [list_ops, fin_vals]
+          . simp [keccak_constants, word_parts_known, get_rotate_count, target_part_sizes_known, SplitUniform.rot_parts, rho_pi_chi_cells, zmod_pow_simps, list_ops]
             rewrite [←hrot_gate]
             rw [mul_comm]
 
@@ -128,12 +129,11 @@ namespace Keccak
           apply And.intro
           . rewrite [←hsplit_gate]
             congr
-            simp [get_rotate_count, word_parts_known, target_part_sizes_known, rho_by_pi_num_word_parts_val, List.rotateRight]
-            simp [SplitUniform.input_parts, rho_pi_chi_cells, keccak_constants]
+            simp [get_rotate_count, word_parts_known, target_part_sizes_known, rho_by_pi_num_word_parts_val, list_ops]
+            simp [SplitUniform.input_parts, rho_pi_chi_cells, keccak_constants, fin_vals]
             apply list_rotateLeft_eq_of_eq_rotateRight
-            simp [List.rotateRight]
-            aesop
-          . simp [keccak_constants, word_parts_known, get_rotate_count, target_part_sizes_known, SplitUniform.rot_parts, rho_pi_chi_cells, zmod_pow_simps]
+            simp [list_ops]
+          . simp [keccak_constants, word_parts_known, get_rotate_count, target_part_sizes_known, SplitUniform.rot_parts, rho_pi_chi_cells, zmod_pow_simps, list_ops]
             rewrite [Fin.coe_ofNat_eq_mod]
             simp
             rewrite [←hrot_gate]
@@ -162,10 +162,10 @@ namespace Keccak
           apply And.intro
           . rewrite [←hsplit_gate]
             congr
-            simp [get_rotate_count, word_parts_known, target_part_sizes_known, rho_by_pi_num_word_parts_val]
+            simp [get_rotate_count, word_parts_known, target_part_sizes_known, rho_by_pi_num_word_parts_val, list_ops]
             apply list_rotateLeft_eq_of_eq_rotateRight
-            simp [SplitUniform.input_parts, rho_pi_chi_cells, keccak_constants, List.rotateRight]
-          . simp [keccak_constants, word_parts_known, get_rotate_count, target_part_sizes_known, SplitUniform.rot_parts]
+            simp [SplitUniform.input_parts, rho_pi_chi_cells, keccak_constants, list_ops, fin_vals]
+          . simp [keccak_constants, word_parts_known, get_rotate_count, target_part_sizes_known, SplitUniform.rot_parts, list_ops]
     end SplitUniform
   end Gates
 end Keccak

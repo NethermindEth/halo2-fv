@@ -46,8 +46,8 @@ namespace Keccak
   namespace Split
     def expr_res (c: ValidCircuit P P_Prime) (cell_offset round rot target_part_size: ℕ): List (ℕ × ZMod P) :=
       (WordParts.new target_part_size rot false
-      ).enum.map (
-        λ (offset, bits) => (bits.length, cell_manager c round (cell_offset + offset))
+      ).zipIdx.map (
+        λ (bits, offset) => (bits.length, cell_manager c round (cell_offset + offset))
       )
 
     def constraint (c: ValidCircuit P P_Prime) (cell_offset round rot target_part_size: ℕ) (input: ZMod P): Prop :=
@@ -261,7 +261,7 @@ namespace Keccak
   instance : NeZero rho_by_pi_num_word_parts where
     out := by
       unfold rho_by_pi_num_word_parts rho_by_pi_target_word_sizes target_part_sizes rho_by_pi_part_size get_num_bits_per_base_chi_lookup CHI_BASE_LOOKUP_RANGE RHO_PI_LOOKUP_RANGE
-      simp only [Nat.reduceLeDiff, max_eq_left, tsub_zero, List.length_join, List.map_map, Nat.sum_eq_listSum, ne_eq]
+      simp [keccak_constants]
       unfold get_num_bits_per_lookup
       have h: Nat.log 5 (2^get_degree - keccak_unusable_rows) = 4 := by
         rewrite [Nat.log_eq_iff] <;> decide

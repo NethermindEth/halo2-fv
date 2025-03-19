@@ -38,7 +38,7 @@ namespace Keccak.Proofs
         unfold c_parts Split.expr at this
         simp_all
       . decide
-      . simp [c_parts, keccak_constants, Split.expr, Split.expr_res, word_parts_known, List.enum]
+      . simp [c_parts, keccak_constants, Split.expr, Split.expr_res, word_parts_known]
         intro num_bits_in cell_in num_bits_out cell_out h_mem
         have h_usable_rows := usable_rows_range_of_meets_constraints h
         have h_n := n_range_of_meets_constraints h

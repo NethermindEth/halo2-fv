@@ -60,12 +60,10 @@ namespace Keccak.Proofs
       replace h_round := Finset.mem_Icc.mp h_round
       simp [s_parts', TransformTo.expr]
       split_ands
-      . simp [s_parts, SplitUniform.expr, SplitUniform.expr_res, keccak_constants]
-        simp [List.range, List.range.loop]
+      . simp [s_parts, SplitUniform.expr, SplitUniform.expr_res, keccak_constants, target_part_sizes_known, list_ops]
         simp [SplitUniform.output_parts]
       . intro num_bits cell_in cell_out h_mem
-        simp [s_parts, keccak_constants, SplitUniform.expr, SplitUniform.expr_res] at h_mem
-        simp [List.range, List.range.loop] at h_mem
+        simp [s_parts, keccak_constants, SplitUniform.expr, SplitUniform.expr_res, target_part_sizes_known, list_ops] at h_mem
         simp [SplitUniform.output_parts] at h_mem
         have h_lookups := Lookups.Normalize_4.lookup_12_to_46_normalize_4 c
           (lookup_12_of_meets_constraints h)
