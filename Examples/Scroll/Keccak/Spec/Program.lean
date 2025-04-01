@@ -381,17 +381,17 @@ namespace Keccak
 
   def chi_part_size_base := get_num_bits_per_base_chi_lookup
 
-  def chi_base_input (c: ValidCircuit P P_Prime) (idx: Finset.Icc 0 num_rho_pi_chi_column) (i: Fin 5) :=
+  def chi_base_input (c: ValidCircuit P P_Prime) (idx: Finset.Icc 0 num_rho_pi_chi_columns) (i: Fin 5) :=
     c.get_advice (rho_pi_chi_column_starts 1 + idx * 5 + i)
-  def chi_base_output (c: ValidCircuit P P_Prime) (idx: Finset.Icc 0 num_rho_pi_chi_column) (i: Fin 5) :=
+  def chi_base_output (c: ValidCircuit P P_Prime) (idx: Finset.Icc 0 num_rho_pi_chi_columns) (i: Fin 5) :=
     c.get_advice (rho_pi_chi_column_starts 2 + idx * 5 + i)
-  def chi_base_input' (c: ValidCircuit P P_Prime) (idx: Finset.Icc 0 num_rho_pi_chi_column) (i: Fin 5) (row: ℕ) :=
+  def chi_base_input' (c: ValidCircuit P P_Prime) (idx: Finset.Icc 0 num_rho_pi_chi_columns) (i: Fin 5) (row: ℕ) :=
     (@Scatter.expr P 3 chi_part_size_base)
       - 2 * chi_base_input c idx i row
       + chi_base_input c idx (i+1) row
       - chi_base_input c idx (i+2) row
 
-  def chi_base  (c: ValidCircuit P P_Prime) (idx: Finset.Icc 0 num_rho_pi_chi_column) (i: Fin 5) : Prop :=
+  def chi_base {P P_Prime} (c: ValidCircuit P P_Prime) (idx: Finset.Icc 0 num_rho_pi_chi_columns) (i: Fin 5) : Prop :=
     ∀ row < c.usable_rows, ∃ lookup_row,
       (chi_base_input' c idx i row, chi_base_output c idx i row) =
       Lookups.ChiBase.transform_table P lookup_row

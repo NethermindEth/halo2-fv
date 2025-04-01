@@ -1,0 +1,6 @@
+import Mathlib.Tactic.Basic
+
+register_simp_attr normalize_bc
+register_simp_attr normalize_iota
+register_simp_attr normalize_rho
+register_simp_attr zmod_pow_shift_simps

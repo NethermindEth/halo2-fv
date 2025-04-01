@@ -9,6 +9,15 @@ namespace Keccak.Lookups.ChiBase
     else
       (input_by_row P 0, output_by_row P 0)
 
+  lemma apply_transform_table (h: transform_table P row = (x,y)) :
+    x = input_by_row P (if row < 625 then row else 0) ∧
+    y = output_by_row P (if row < 625 then row else 0)
+  := by
+    unfold transform_table at h
+    by_cases row < 625 <;> simp_all
+    rewrite [if_neg (by omega)]
+    simp_all
+
   lemma lookup_chi_base (x y: ℕ → ZMod P)
     (c: ValidCircuit P P_Prime) (hlookup: ∀ row < c.usable_rows,
       ∃ lookup_row < c.usable_rows,

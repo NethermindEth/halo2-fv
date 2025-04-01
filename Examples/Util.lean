@@ -171,6 +171,8 @@ lemma zmod_not_zero_eq_one {P: ℕ} {P_Prime: Nat.Prime P}: ((@OfNat.ofNat (ZMod
   have h := zmod_p_one_neq_zero P_Prime
   aesop
 
+lemma ofNat_zmod_val [NeZero P] (a: ZMod P): a = a.val := by simp
+
 lemma zmod_pow {P: ℕ} (a b c:ℕ) (h: a^b=c): ((a: ZMod P)^b) = (c: ZMod P) := by
   aesop
 
@@ -202,6 +204,78 @@ lemma zmod_pow {P: ℕ} (a b c:ℕ) (h: a^b=c): ((a: ZMod P)^b) = (c: ZMod P) :=
   have h := @zmod_pow P 2 24 16777216 (by trivial)
   aesop
 
+@[zmod_pow_simps] lemma zmod_2pow32 : 2^32 = (4294967296: ZMod P) := by
+  have h := @zmod_pow P 2 32 4294967296 (by trivial)
+  aesop
+
 @[zmod_pow_simps] lemma zmod_2pow33 : 2^33 = (8589934592: ZMod P) := by
   have h := @zmod_pow P 2 33 8589934592 (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow36 : 2^36 = (68719476736 : ZMod P) := by
+  have h := @zmod_pow P 2 36 68719476736  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow48 : 2^48 = (281474976710656 : ZMod P) := by
+  have h := @zmod_pow P 2 48 281474976710656  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow54 : 2^54 = (18014398509481984 : ZMod P) := by
+  have h := @zmod_pow P 2 54 18014398509481984  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow60 : 2^60 = (1152921504606846976 : ZMod P) := by
+  have h := @zmod_pow P 2 60 1152921504606846976  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow72 : 2^72 = (4722366482869645213696 : ZMod P) := by
+  have h := @zmod_pow P 2 72 4722366482869645213696  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow84 : 2^84 = (19342813113834066795298816 : ZMod P) := by
+  have h := @zmod_pow P 2 84 19342813113834066795298816  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow90 : 2^90 = (1237940039285380274899124224 : ZMod P) := by
+  have h := @zmod_pow P 2 90 1237940039285380274899124224  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow96 : 2^96 = (79228162514264337593543950336 : ZMod P) := by
+  have h := @zmod_pow P 2 96 79228162514264337593543950336  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow108 : 2^108 = (324518553658426726783156020576256 : ZMod P) := by
+  have h := @zmod_pow P 2 108 324518553658426726783156020576256  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow120 : 2^120 = (1329227995784915872903807060280344576 : ZMod P) := by
+  have h := @zmod_pow P 2 120 1329227995784915872903807060280344576  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow126 : 2^126 = (85070591730234615865843651857942052864 : ZMod P) := by
+  have h := @zmod_pow P 2 126 85070591730234615865843651857942052864  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow132 : 2^132 = (5444517870735015415413993718908291383296 : ZMod P) := by
+  have h := @zmod_pow P 2 132 5444517870735015415413993718908291383296  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow144 : 2^144 = (22300745198530623141535718272648361505980416 : ZMod P) := by
+  have h := @zmod_pow P 2 144 22300745198530623141535718272648361505980416  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow156 : 2^156 = (91343852333181432387730302044767688728495783936 : ZMod P) := by
+  have h := @zmod_pow P 2 156 91343852333181432387730302044767688728495783936  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow162 : 2^162 = (5846006549323611672814739330865132078623730171904 : ZMod P) := by
+  have h := @zmod_pow P 2 162 5846006549323611672814739330865132078623730171904  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow168 : 2^168 = (374144419156711147060143317175368453031918731001856 : ZMod P) := by
+  have h := @zmod_pow P 2 168 374144419156711147060143317175368453031918731001856  (by trivial)
+  aesop
+
+@[zmod_pow_simps] lemma zmod_2pow180 : 2^180 = (1532495540865888858358347027150309183618739122183602176 : ZMod P) := by
+  have h := @zmod_pow P 2 180 1532495540865888858358347027150309183618739122183602176  (by trivial)
   aesop
