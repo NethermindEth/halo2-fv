@@ -7,7 +7,7 @@ import Examples.Scroll.Keccak.Soundness.IotaParts
 import Examples.Scroll.Keccak.Soundness.Lookups
 import Examples.Scroll.Keccak.Soundness.Normalize
 import Examples.Scroll.Keccak.Soundness.Pi
+import Examples.Scroll.Keccak.Soundness.PiPartsRange
 import Examples.Scroll.Keccak.Soundness.Rho
-import Examples.Scroll.Keccak.Soundness.RhoParts
 import Examples.Scroll.Keccak.Soundness.Theta
 import Examples.Scroll.Keccak.Soundness.Util
