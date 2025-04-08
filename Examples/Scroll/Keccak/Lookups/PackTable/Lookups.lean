@@ -1,5 +1,6 @@
 import Examples.Scroll.Keccak.Lookups.PackTable.Packed
 import Examples.Scroll.Keccak.Lookups.PackTable.Unpacked
+import Examples.Util
 
 namespace Keccak.Lookups.PackTable
 
@@ -8,6 +9,51 @@ namespace Keccak.Lookups.PackTable
       (pack P (into_bits [row]), (row: ZMod P))
     else
       (pack P (into_bits [0]), (0: ZMod P))
+
+  lemma apply_transform_table_range [NeZero P]
+    (h: ∃ lookup_row, Lookups.PackTable.transform_table P lookup_row = (x, y))
+  :
+    x.val ≤ 0b001001001001001001001001
+  := by
+    obtain ⟨lookup_row, h_lookup_row⟩ := h
+    by_cases h_range: lookup_row < 256
+    . simp [
+        transform_table, h_range
+      ] at h_lookup_row
+      rewrite [←h_lookup_row.1]
+      simp [
+        into_bits, list_ops,
+        pack, keccak_constants,
+        pack_with_base, ZMod.val_add,
+        ZMod.val_mul
+      ]
+      rewrite [zmod_val_ofNat]
+      apply le_trans (Nat.mod_le _ _)
+      have h_le (x: ℕ): x % 2 ≤ 1 := by omega
+      apply add_le_add _ (h_le _)
+      apply Nat.mul_le_mul (n₂ := 0b001001001001001001001) _ (Nat.mod_le 8 P)
+      apply add_le_add _ (h_le _)
+      apply Nat.mul_le_mul (n₂ := 0b001001001001001001) _ (Nat.mod_le 8 P)
+      apply add_le_add _ (h_le _)
+      apply Nat.mul_le_mul (n₂ := 0b001001001001001) _ (Nat.mod_le 8 P)
+      apply add_le_add _ (h_le _)
+      apply Nat.mul_le_mul (n₂ := 0b001001001001) _ (Nat.mod_le 8 P)
+      apply add_le_add _ (h_le _)
+      apply Nat.mul_le_mul (n₂ := 0b001001001) _ (Nat.mod_le 8 P)
+      apply add_le_add _ (h_le _)
+      apply Nat.mul_le_mul (n₂ := 0b001001) _ (Nat.mod_le 8 P)
+      apply add_le_add _ (h_le _)
+      apply Nat.mul_le_mul (n₂ := 0b001) _ (Nat.mod_le 8 P)
+      exact h_le _
+    . simp [
+        transform_table, h_range, into_bits,
+        pack, keccak_constants
+      ] at h_lookup_row
+      have ⟨h_lookup_row, _⟩ := h_lookup_row
+      simp [pack_with_base] at h_lookup_row
+      rewrite [←h_lookup_row]
+      simp
+
 
   lemma lookup_pack_table (col1 col2: ℕ)
     (c: ValidCircuit P P_Prime) (hlookup: ∀ row < c.usable_rows,

@@ -8,7 +8,10 @@ import Examples.Scroll.Keccak.ProgramProofs.Theta
 import Examples.Scroll.Keccak.Spec.FinVals
 import Examples.Scroll.Keccak.Spec.KeccakConstants
 import Examples.Scroll.Keccak.Soundness.Bc
+import Examples.Scroll.Keccak.Soundness.BcRange
 import Examples.Scroll.Keccak.Soundness.Lookups
+import Examples.Scroll.Keccak.Soundness.Normalize
+import Examples.Scroll.Keccak.Soundness.SRange
 import Examples.Scroll.Keccak.Soundness.Util
 
 namespace Keccak.Soundness
@@ -73,138 +76,428 @@ namespace Keccak.Soundness
     repeat rewrite [min_eq_left (by omega)]
     simp
 
-  lemma os_eq_theta_s {c: ValidCircuit P P_Prime} (h_meets_constraints: meets_constraints c) (h_round: round ∈ Finset.Icc 1 24) (h_equiv: s_equiv (s c round) state h_state_size) (h_P: P ≥ 366):
-    s_equiv (os c round) (LeanCrypto.HashFunctions.θ state) (theta_state_size h_state_size)
+  lemma decode_bc  {c: ValidCircuit P P_Prime} (h_meets_constraints: meets_constraints c) (h_round: round ∈ Finset.Icc 1 24) (h_P: 2^198 ≤ P) (idx: Fin 5):
+    (Decode.expr (bc c round idx).1).val = Normalize.normalize_unpacked (
+      s c round idx 0 +
+      s c round idx 1 +
+      s c round idx 2 +
+      s c round idx 3 +
+      s c round idx 4
+    ).val 64
   := by
-    unfold LeanCrypto.HashFunctions.θ os s_equiv
-    have ne_zero: NeZero P := by
-      constructor
-      simp_all [Nat.Prime.ne_zero]
-    intro i j
-    simp only [θ_indexed_eval h_state_size]
-    unfold s_equiv at h_equiv
-    simp [ZMod.val_add, h_equiv i j]
-    unfold t
-    simp [bc.eq_def, Transform.split_expr.eq_def, Split.expr_res.eq_def, keccak_constants, word_parts_known]
-    simp [normalize_bc, *]
-    simp [get_rotate_count, list_ops]
-    unfold Decode.expr
-    simp
-    -- have h_output_row_1 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 1)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 121))
-    -- simp at h_output_row_1; obtain ⟨lookup_row_1, h_lookup_row_1⟩ := h_output_row_1
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_1
-    -- rewrite [h_lookup_row_1.2]
-    -- have h_output_row_2 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 2)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 122))
-    -- simp at h_output_row_2; obtain ⟨lookup_row_2, h_lookup_row_2⟩ := h_output_row_2
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_2
-    -- rewrite [h_lookup_row_2.2]
-    -- have h_output_row_3 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 3)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 123))
-    -- simp at h_output_row_3; obtain ⟨lookup_row_3, h_lookup_row_3⟩ := h_output_row_3
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_3
-    -- rewrite [h_lookup_row_3.2]
-    -- have h_output_row_4 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 4)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 124))
-    -- simp at h_output_row_4; obtain ⟨lookup_row_4, h_lookup_row_4⟩ := h_output_row_4
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_4
-    -- rewrite [h_lookup_row_4.2]
-    -- have h_output_row_5 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 5)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 125))
-    -- simp at h_output_row_5; obtain ⟨lookup_row_5, h_lookup_row_5⟩ := h_output_row_5
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_5
-    -- rewrite [h_lookup_row_5.2]
-    -- have h_output_row_6 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 6)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 126))
-    -- simp at h_output_row_6; obtain ⟨lookup_row_6, h_lookup_row_6⟩ := h_output_row_6
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_6
-    -- rewrite [h_lookup_row_6.2]
-    -- have h_output_row_7 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 7)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 127))
-    -- simp at h_output_row_7; obtain ⟨lookup_row_7, h_lookup_row_7⟩ := h_output_row_7
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_7
-    -- rewrite [h_lookup_row_7.2]
-    -- have h_output_row_8 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 8)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 128))
-    -- simp at h_output_row_8; obtain ⟨lookup_row_8, h_lookup_row_8⟩ := h_output_row_8
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_8
-    -- rewrite [h_lookup_row_8.2]
-    -- have h_output_row_9 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 9)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 129))
-    -- simp at h_output_row_9; obtain ⟨lookup_row_9, h_lookup_row_9⟩ := h_output_row_9
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_9
-    -- rewrite [h_lookup_row_9.2]
-    -- have h_output_row_10 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 10)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 130))
-    -- simp at h_output_row_10; obtain ⟨lookup_row_10, h_lookup_row_10⟩ := h_output_row_10
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_10
-    -- rewrite [h_lookup_row_10.2]
-    -- have h_output_row_11 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 11)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 131))
-    -- simp at h_output_row_11; obtain ⟨lookup_row_11, h_lookup_row_11⟩ := h_output_row_11
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_11
-    -- rewrite [h_lookup_row_11.2]
-    -- have h_output_row_12 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 12)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 132))
-    -- simp at h_output_row_12; obtain ⟨lookup_row_12, h_lookup_row_12⟩ := h_output_row_12
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_12
-    -- rewrite [h_lookup_row_12.2]
-    -- have h_output_row_13 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 13)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 133))
-    -- simp at h_output_row_13; obtain ⟨lookup_row_13, h_lookup_row_13⟩ := h_output_row_13
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_13
-    -- rewrite [h_lookup_row_13.2]
-    -- have h_output_row_14 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 14)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 134))
-    -- simp at h_output_row_14; obtain ⟨lookup_row_14, h_lookup_row_14⟩ := h_output_row_14
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_14
-    -- rewrite [h_lookup_row_14.2]
-    -- have h_output_row_15 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 15)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 135))
-    -- simp at h_output_row_15; obtain ⟨lookup_row_15, h_lookup_row_15⟩ := h_output_row_15
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_15
-    -- rewrite [h_lookup_row_15.2]
-    -- have h_output_row_16 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 16)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 136))
-    -- simp at h_output_row_16; obtain ⟨lookup_row_16, h_lookup_row_16⟩ := h_output_row_16
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_16
-    -- rewrite [h_lookup_row_16.2]
-    -- have h_output_row_17 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 17)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 137))
-    -- simp at h_output_row_17; obtain ⟨lookup_row_17, h_lookup_row_17⟩ := h_output_row_17
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_17
-    -- rewrite [h_lookup_row_17.2]
-    -- have h_output_row_18 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 18)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 138))
-    -- simp at h_output_row_18; obtain ⟨lookup_row_18, h_lookup_row_18⟩ := h_output_row_18
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_18
-    -- rewrite [h_lookup_row_18.2]
-    -- have h_output_row_19 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 19)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 139))
-    -- simp at h_output_row_19; obtain ⟨lookup_row_19, h_lookup_row_19⟩ := h_output_row_19
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_19
-    -- rewrite [h_lookup_row_19.2]
-    -- have h_output_row_20 := h_bc_4''' 3 (cell_manager c round (96 + 22 * ↑(i+4) + 20)) 3 (cell_manager c round (96 + 22 * ↑(i+4) + 140))
-    -- simp at h_output_row_20; obtain ⟨lookup_row_20, h_lookup_row_20⟩ := h_output_row_20
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_20
-    -- rewrite [h_lookup_row_20.2]
-    -- have h_output_row_21 := h_bc_4''' 1 (cell_manager c round (96 + 22 * ↑(i+4) + 21)) 1 (cell_manager c round (96 + 22 * ↑(i+4) + 141))
-    -- simp at h_output_row_21; obtain ⟨lookup_row_21, h_lookup_row_21⟩ := h_output_row_21
-    -- apply Lookups.Normalize_6.apply_transform_table at h_lookup_row_21
-    -- rewrite [h_lookup_row_21.2]
-    -- clear h_bc_4'''
+    have : NeZero P := by constructor; exact P_Prime.ne_zero
+    have h_P_nom : 366 ≤ P := by omega
+    simp [
+      bc.eq_def, keccak_constants, Transform.split_expr.eq_def,
+      Split.expr_res.eq_def, word_parts_known, normalize_bc, *
+    ]
+    rewrite [bc_top_part_normalized_range idx h_meets_constraints h_round h_P]
+    simp [Decode.expr.eq_def, keccak_constants, ZMod.val_add, ZMod.val_mul]
+    have h_2_pow_9 :((2: ZMod P)^9).val = 2^9 := by
+      convert ZMod.val_pow _
+      . rw [ZMod.val_two_eq_two_mod, Nat.mod_eq_of_lt (by omega)]
+      . constructor; omega
+      . rw [ZMod.val_two_eq_two_mod, Nat.mod_eq_of_lt (by omega)]; omega
+    rewrite [h_2_pow_9]
+    simp only [mul_add, ←mul_assoc, ←pow_add, Nat.reduceAdd]
+    simp only [←nat_shiftLeft_eq_mul_comm]
+    simp only [
+      ←Normalize.normalize_unpacked_ofNat_toNat
+        (show 3 = BIT_COUNT*1 by simp [keccak_constants])
+        (x := (cell_manager _ _ _).val),
+      ←Normalize.normalize_unpacked_ofNat_toNat
+        (show 9 = BIT_COUNT*3 by simp [keccak_constants])
+        (x := (cell_manager _ _ _).val),
+      add_assoc
+    ]
+    rewrite [
+      Normalize.normalize_3_shift_9_add, bitvec_toNat_shift_add 18 (h := by trivial),
+      Normalize.normalize_3_shift_18_add, bitvec_toNat_shift_add 27 (h := by trivial),
+      Normalize.normalize_3_shift_27_add, bitvec_toNat_shift_add 36 (h := by trivial),
+      Normalize.normalize_3_shift_36_add, bitvec_toNat_shift_add 45 (h := by trivial),
+      Normalize.normalize_3_shift_45_add, bitvec_toNat_shift_add 54 (h := by trivial),
+      Normalize.normalize_3_shift_54_add, bitvec_toNat_shift_add 63 (h := by trivial),
+      Normalize.normalize_3_shift_63_add, bitvec_toNat_shift_add 72 (h := by trivial),
+      Normalize.normalize_3_shift_72_add, bitvec_toNat_shift_add 81 (h := by trivial),
+      Normalize.normalize_3_shift_81_add, bitvec_toNat_shift_add 90 (h := by trivial),
+      Normalize.normalize_3_shift_90_add, bitvec_toNat_shift_add 99 (h := by trivial),
+      Normalize.normalize_3_shift_99_add, bitvec_toNat_shift_add 108 (h := by trivial),
+      Normalize.normalize_3_shift_108_add, bitvec_toNat_shift_add 117 (h := by trivial),
+      Normalize.normalize_3_shift_117_add, bitvec_toNat_shift_add 126 (h := by trivial),
+      Normalize.normalize_3_shift_126_add, bitvec_toNat_shift_add 135 (h := by trivial),
+      Normalize.normalize_3_shift_135_add, bitvec_toNat_shift_add 144 (h := by trivial),
+      Normalize.normalize_3_shift_144_add, bitvec_toNat_shift_add 153 (h := by trivial),
+      Normalize.normalize_3_shift_153_add, bitvec_toNat_shift_add 162 (h := by trivial),
+      Normalize.normalize_3_shift_162_add, bitvec_toNat_shift_add 171 (h := by trivial),
+      Normalize.normalize_3_shift_171_add, bitvec_toNat_shift_add 180 (h := by trivial),
+      Normalize.normalize_3_shift_180_add, bitvec_toNat_shift_add 189 (h := by trivial),
+      Normalize.normalize_1_shift_189_add, bitvec_toNat_shift_add 192 (h := by trivial),
+    ]
+    have (a b c: ℕ) (h: b ≤ c) (h_b: b > 0): a % b % c = a % b := by
+      rw [Nat.mod_eq_of_lt]
+      exact lt_of_lt_of_le (Nat.mod_lt _ h_b) h
+    simp [this]; clear this
+    rewrite [
+      Nat.mod_eq_of_lt (lt_of_le_of_lt Normalize.normalize_unpacked_64_le_mask (by unfold Normalize.mask; omega)),
+      Nat.mod_eq_of_lt (a := _ <<< 9 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 18 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 27 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 36 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 45 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 54 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 63 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 72 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 81 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 90 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 99 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 108 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 117 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 126 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 135 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 144 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 153 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 162 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 171 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 180 + _) (by omega),
+      Nat.mod_eq_of_lt (a := _ <<< 189 + _) (by omega),
+    ]
+    have h_c_parts := Proofs.c_parts_of_meets_constraints h_meets_constraints round h_round idx
+    simp [
+      c_parts.eq_def, Split.expr.eq_def, keccak_constants,
+      Split.constraint.eq_def, Split.expr_res, word_parts_known
+    ] at h_c_parts
+    have h_s_sum:
+      ((
+        (s c round idx 0).val +
+        ((s c round idx 1).val +
+        ((s c round idx 2).val +
+        ((s c round idx 3).val +
+        (s c round idx 4).val)))
+      ) % P) =
+      (s c round idx 0 + s c round idx 1 + s c round idx 2 + s c round idx 3 + s c round idx 4).val
+    := by
+      simp [ZMod.val_add, add_assoc]
+    rewrite [h_s_sum, ←h_c_parts]; clear h_s_sum h_c_parts
+    simp [Decode.expr.eq_def, keccak_constants, ZMod.val_add, ZMod.val_mul]
+    simp only [h_2_pow_9, mul_add, ←mul_assoc, ←pow_add, Nat.reduceAdd]
+    simp only [←nat_shiftLeft_eq_mul_comm, ←add_assoc]
+    have h_P_bc : 8 < P := by omega
+    have := bc_0_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_1_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_2_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_3_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_4_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_5_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_6_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_7_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_8_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_9_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_10_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_11_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_12_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_13_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_14_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_15_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_16_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_17_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_18_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_19_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_20_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+    have := bc_top_part_range idx h_meets_constraints h_round h_P
+    simp (disch := omega) [Nat.mod_eq_of_lt]
 
+  lemma decode_bc_rotated {c: ValidCircuit P P_Prime} (h_meets_constraints: meets_constraints c) (h_round: round ∈ Finset.Icc 1 24) (h_P: 2^198 ≤ P) (idx: Fin 5):
+      (Decode.expr ((bc c round idx).1.rotateRight 1)).val =
+      ((BitVec.ofNat 192
+        (Normalize.normalize_unpacked (
+          (s c round idx 0).val +
+          (s c round idx 1).val +
+          (s c round idx 2).val +
+          (s c round idx 3).val +
+          (s c round idx 4).val
+        ) 64)
+      ).rotateLeft BIT_COUNT).toNat
+    := by
+      have : NeZero P := by constructor; exact P_Prime.ne_zero
+      have h_P_nom : 366 ≤ P := by omega
+      have h_c_parts := Proofs.c_parts_of_meets_constraints h_meets_constraints round h_round idx
+      simp [
+        c_parts.eq_def, Split.expr.eq_def, keccak_constants,
+        Split.constraint.eq_def, Split.expr_res, word_parts_known,
+        -Fin.val_one, -Fin.val_one'
+      ] at h_c_parts
+      have h_s_0:= s_range h_meets_constraints h_round (by omega) (i := idx) (j := 0)
+      have h_s_1:= s_range h_meets_constraints h_round (by omega) (i := idx) (j := 1)
+      have h_s_2:= s_range h_meets_constraints h_round (by omega) (i := idx) (j := 2)
+      have h_s_3:= s_range h_meets_constraints h_round (by omega) (i := idx) (j := 3)
+      have h_s_4:= s_range h_meets_constraints h_round (by omega) (i := idx) (j := 4)
+      have h_s_sum:
+        (s c round idx 0).val +
+        (s c round idx 1).val +
+        (s c round idx 2).val +
+        (s c round idx 3).val +
+        (s c round idx 4).val =
+        (s c round idx 0 + s c round idx 1 + s c round idx 2 + s c round idx 3 + s c round idx 4).val
+      := by
+        simp_all [ZMod.val_add, Normalize.mask.eq_def]
+        rw [Nat.mod_eq_of_lt (by omega)]
+      rewrite [h_s_sum, ←h_c_parts]; clear h_s_sum h_c_parts h_s_0 h_s_1 h_s_2 h_s_3 h_s_4
+      simp [
+        bc.eq_def, keccak_constants, Transform.split_expr.eq_def,
+        Split.expr_res.eq_def, word_parts_known, normalize_bc, *,
+        List.rotateRight,
+        -Fin.val_one, -Fin.val_one', -BitVec.toNat_rotateLeft
+      ]
+      rewrite [bc_top_part_normalized_range idx h_meets_constraints h_round h_P]
+      simp [
+        Decode.expr.eq_def, keccak_constants, ZMod.val_add, ZMod.val_mul,
+        -Fin.val_one, -Fin.val_one', -BitVec.toNat_rotateLeft
+      ]
+      have h_2_pow_3 :((2: ZMod P)^3).val = 2^3 := by
+        convert ZMod.val_pow _
+        . rw [ZMod.val_two_eq_two_mod, Nat.mod_eq_of_lt (by omega)]
+        . constructor; omega
+        . rw [ZMod.val_two_eq_two_mod, Nat.mod_eq_of_lt (by omega)]; omega
+      have h_2_pow_9 :((2: ZMod P)^9).val = 2^9 := by
+        convert ZMod.val_pow _
+        . rw [ZMod.val_two_eq_two_mod, Nat.mod_eq_of_lt (by omega)]
+        . constructor; omega
+        . rw [ZMod.val_two_eq_two_mod, Nat.mod_eq_of_lt (by omega)]; omega
+      rewrite [h_2_pow_3, h_2_pow_9]
+      simp only [mul_add, ←mul_assoc, ←pow_add, Nat.reduceAdd]
+      simp only [←nat_shiftLeft_eq_mul_comm]
 
+      have h_P_bc : 8 < P := by omega
+      have h_cell_1 := bc_0_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_2 := bc_1_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_3 := bc_2_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_4 := bc_3_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_5 := bc_4_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_6 := bc_5_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_7 := bc_6_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_8 := bc_7_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_9 := bc_8_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_10 := bc_9_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_11 := bc_10_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_12 := bc_11_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_13 := bc_12_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_14 := bc_13_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_15 := bc_14_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_16 := bc_15_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_17 := bc_16_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_18 := bc_17_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_19 := bc_18_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_20 := bc_19_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_21 := bc_20_normalize_6_input_range h_meets_constraints h_round h_P_bc idx
+      have h_cell_22 := bc_top_part_range idx h_meets_constraints h_round h_P
 
+      have h_to_bitvec (x: ℕ) (h: x ≤ 365): x = (BitVec.ofNat 9 x).toNat := by
+        simp (disch := omega) [Nat.mod_eq_of_lt]
+      have h_to_bitvec_small (x: ℕ) (h: x ≤ 5): x = (BitVec.ofNat 3 x).toNat := by
+        simp (disch := omega) [Nat.mod_eq_of_lt]
 
-    -- fin_cases i <;> simp [←List.map_take, ←List.map_drop]
-    -- . rewrite [take_get_0 (by simp; omega) (by omega)]
-    --   simp
-    --   have := normalize_add_eq_xor (UInt64_to_unpacked_Nat state[↑j])
-    --   rewrite [normalize_unpacked_UInt64] at this
-    --   sorry
-    -- . rewrite [take_get_5 (by simp_all; omega) (by simp_all; omega) (by omega)]
-    --   simp
-    --   rewrite [(Array.getElem?_eq_some_getElem_iff state _ (by omega)).mpr True.intro]
-    --   simp
-    --   sorry
-    -- . rewrite [take_get_10 (by simp_all; omega) (by simp_all; omega) (by simp_all; omega) (by omega)]
-    --   simp
-    --   rewrite [(Array.getElem?_eq_some_getElem_iff state _ (by omega)).mpr True.intro]
-    --   simp
-    --   sorry
-    -- . rewrite [take_get_15 (by simp_all; omega) (by simp_all; omega) (by simp_all; omega) (by simp_all; omega) (by omega)]
-    --   simp
-    --   rewrite [(Array.getElem?_eq_some_getElem_iff state _ (by omega)).mpr True.intro]
-    --   simp
-    --   sorry
-    -- . rewrite [take_get_20 (by simp_all; omega) (by simp_all; omega) (by simp_all; omega) (by simp_all; omega) (by omega)]
-    --   simp
-    --   rewrite [(Array.getElem?_eq_some_getElem_iff state _ (by omega)).mpr True.intro]
-    --   simp
-    --   sorry
+      rewrite [
+        Nat.mod_eq_of_lt (by {
+          simp [
+            Normalize.normalize_unpacked.eq_def,
+            keccak_constants, Normalize.mask,
+            Nat.and_assoc, -Nat.and_one_is_mod,
+          ]
+          simp only [Nat.shiftLeft_eq]
+          replace h_cell_1 := Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 21)).val) (m := 1)
+          replace h_cell_2 := Nat.mul_le_mul_right (2^3) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx)).val) (m := 73))
+          replace h_cell_3 := Nat.mul_le_mul_right (2^12) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 1)).val) (m := 73))
+          replace h_cell_4 := Nat.mul_le_mul_right (2^21) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 2)).val) (m := 73))
+          replace h_cell_5 := Nat.mul_le_mul_right (2^30) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 3)).val) (m := 73))
+          replace h_cell_6 := Nat.mul_le_mul_right (2^39) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 4)).val) (m := 73))
+          replace h_cell_7 := Nat.mul_le_mul_right (2^48) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 5)).val) (m := 73))
+          replace h_cell_8 := Nat.mul_le_mul_right (2^57) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 6)).val) (m := 73))
+          replace h_cell_9 := Nat.mul_le_mul_right (2^66) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 7)).val) (m := 73))
+          replace h_cell_10 := Nat.mul_le_mul_right (2^75) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 8)).val) (m := 73))
+          replace h_cell_11 := Nat.mul_le_mul_right (2^84) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 9)).val) (m := 73))
+          replace h_cell_12 := Nat.mul_le_mul_right (2^93) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 10)).val) (m := 73))
+          replace h_cell_13 := Nat.mul_le_mul_right (2^102) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 11)).val) (m := 73))
+          replace h_cell_14 := Nat.mul_le_mul_right (2^111) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 12)).val) (m := 73))
+          replace h_cell_15 := Nat.mul_le_mul_right (2^120) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 13)).val) (m := 73))
+          replace h_cell_16 := Nat.mul_le_mul_right (2^129) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 14)).val) (m := 73))
+          replace h_cell_17 := Nat.mul_le_mul_right (2^138) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 15)).val) (m := 73))
+          replace h_cell_18 := Nat.mul_le_mul_right (2^147) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 16)).val) (m := 73))
+          replace h_cell_19 := Nat.mul_le_mul_right (2^156) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 17)).val) (m := 73))
+          replace h_cell_20 := Nat.mul_le_mul_right (2^165) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 18)).val) (m := 73))
+          replace h_cell_21 := Nat.mul_le_mul_right (2^174) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 19)).val) (m := 73))
+          replace h_cell_22 := Nat.mul_le_mul_right (2^183) (Nat.and_le_right (n := (cell_manager c round (96 + 22 * ↑idx + 20)).val) (m := 73))
+          apply lt_of_le_of_lt
+            (add_le_add
+              (add_le_add
+                (add_le_add
+                  (add_le_add
+                    (add_le_add
+                      (add_le_add
+                        (add_le_add
+                          (add_le_add
+                            (add_le_add
+                              (add_le_add
+                                (add_le_add
+                                  (add_le_add
+                                    (add_le_add
+                                      (add_le_add
+                                        (add_le_add
+                                          (add_le_add
+                                            (add_le_add
+                                              (add_le_add
+                                                (add_le_add
+                                                  (add_le_add
+                                                    (add_le_add h_cell_22 h_cell_21)
+                                                    h_cell_20)
+                                                  h_cell_19)
+                                                h_cell_18)
+                                              h_cell_17)
+                                            h_cell_16)
+                                          h_cell_15)
+                                        h_cell_14)
+                                      h_cell_13)
+                                    h_cell_12)
+                                  h_cell_11)
+                                h_cell_10)
+                              h_cell_9)
+                            h_cell_8)
+                          h_cell_7)
+                        h_cell_6)
+                      h_cell_5)
+                    h_cell_4)
+                  h_cell_3)
+                h_cell_2)
+              h_cell_1)
+          norm_num
+          omega
+        }),
+        Nat.mod_eq_of_lt (by omega)
+      ]
+
+      rewrite [
+        h_to_bitvec _ h_cell_1,
+        h_to_bitvec _ h_cell_2,
+        h_to_bitvec _ h_cell_3,
+        h_to_bitvec _ h_cell_4,
+        h_to_bitvec _ h_cell_5,
+        h_to_bitvec _ h_cell_6,
+        h_to_bitvec _ h_cell_7,
+        h_to_bitvec _ h_cell_8,
+        h_to_bitvec _ h_cell_9,
+        h_to_bitvec _ h_cell_10,
+        h_to_bitvec _ h_cell_11,
+        h_to_bitvec _ h_cell_12,
+        h_to_bitvec _ h_cell_13,
+        h_to_bitvec _ h_cell_14,
+        h_to_bitvec _ h_cell_15,
+        h_to_bitvec _ h_cell_16,
+        h_to_bitvec _ h_cell_17,
+        h_to_bitvec _ h_cell_18,
+        h_to_bitvec _ h_cell_19,
+        h_to_bitvec _ h_cell_20,
+        h_to_bitvec _ h_cell_21,
+        h_to_bitvec_small _ h_cell_22
+      ]
+
+      simp only [
+        ←Normalize.normalize_unpacked_ofNat_toNat
+          (show 3 = BIT_COUNT*1 by simp [keccak_constants])
+          (x := (cell_manager _ _ _).val),
+        ←Normalize.normalize_unpacked_ofNat_toNat
+          (show 9 = BIT_COUNT*3 by simp [keccak_constants])
+          (x := (cell_manager _ _ _).val),
+        add_assoc
+      ]
+      rewrite [
+        Normalize.normalize_3_shift_3_add, bitvec_toNat_shift_add 12 (h := by trivial),
+        Normalize.normalize_3_shift_12_add, bitvec_toNat_shift_add 21 (h := by trivial),
+        Normalize.normalize_3_shift_21_add, bitvec_toNat_shift_add 30 (h := by trivial),
+        Normalize.normalize_3_shift_30_add, bitvec_toNat_shift_add 39 (h := by trivial),
+        Normalize.normalize_3_shift_39_add, bitvec_toNat_shift_add 48 (h := by trivial),
+        Normalize.normalize_3_shift_48_add, bitvec_toNat_shift_add 57 (h := by trivial),
+        Normalize.normalize_3_shift_57_add, bitvec_toNat_shift_add 66 (h := by trivial),
+        Normalize.normalize_3_shift_66_add, bitvec_toNat_shift_add 75 (h := by trivial),
+        Normalize.normalize_3_shift_75_add, bitvec_toNat_shift_add 84 (h := by trivial),
+        Normalize.normalize_3_shift_84_add, bitvec_toNat_shift_add 93 (h := by trivial),
+        Normalize.normalize_3_shift_93_add, bitvec_toNat_shift_add 102 (h := by trivial),
+        Normalize.normalize_3_shift_102_add, bitvec_toNat_shift_add 111 (h := by trivial),
+        Normalize.normalize_3_shift_111_add, bitvec_toNat_shift_add 120 (h := by trivial),
+        Normalize.normalize_3_shift_120_add, bitvec_toNat_shift_add 129 (h := by trivial),
+        Normalize.normalize_3_shift_129_add, bitvec_toNat_shift_add 138 (h := by trivial),
+        Normalize.normalize_3_shift_138_add, bitvec_toNat_shift_add 147 (h := by trivial),
+        Normalize.normalize_3_shift_147_add, bitvec_toNat_shift_add 156 (h := by trivial),
+        Normalize.normalize_3_shift_156_add, bitvec_toNat_shift_add 165 (h := by trivial),
+        Normalize.normalize_3_shift_165_add, bitvec_toNat_shift_add 174 (h := by trivial),
+        Normalize.normalize_3_shift_174_add, bitvec_toNat_shift_add 183 (h := by trivial),
+        Normalize.normalize_3_shift_183_add, bitvec_toNat_shift_add 192 (h := by trivial),
+        Normalize.normalize_unpacked_toNat,
+        bitvec_toNat_shift_add 18 (h := by trivial),
+        bitvec_toNat_shift_add 27 (h := by trivial),
+        bitvec_toNat_shift_add 36 (h := by trivial),
+        bitvec_toNat_shift_add 45 (h := by trivial),
+        bitvec_toNat_shift_add 54 (h := by trivial),
+        bitvec_toNat_shift_add 63 (h := by trivial),
+        bitvec_toNat_shift_add 72 (h := by trivial),
+        bitvec_toNat_shift_add 81 (h := by trivial),
+        bitvec_toNat_shift_add 90 (h := by trivial),
+        bitvec_toNat_shift_add 99 (h := by trivial),
+        bitvec_toNat_shift_add 108 (h := by trivial),
+        bitvec_toNat_shift_add 117 (h := by trivial),
+        bitvec_toNat_shift_add 126 (h := by trivial),
+        bitvec_toNat_shift_add 135 (h := by trivial),
+        bitvec_toNat_shift_add 144 (h := by trivial),
+        bitvec_toNat_shift_add 153 (h := by trivial),
+        bitvec_toNat_shift_add 162 (h := by trivial),
+        bitvec_toNat_shift_add 171 (h := by trivial),
+        bitvec_toNat_shift_add 180 (h := by trivial),
+        bitvec_toNat_shift_add 189 (h := by trivial),
+        bitvec_toNat_shift_add 192 (h := by trivial),
+        Normalize.normalize_unpacked_toNat,
+        ←BitVec.toNat_eq
+      ]
+      simp only [keccak_constants, Normalize.mask_bitvec, Nat.reduceMul]
+      rewrite [BitVec.ofNat_toNat]
+      bv_decide
+
+  lemma os_theta {c: ValidCircuit P P_Prime} (h_meets_constraints: meets_constraints c) (h_round: round ∈ Finset.Icc 1 24) (h_P: 2^198 ≤ P):
+    (os c round i j).val = (s c round i j).val + (
+      Normalize.normalize_unpacked (
+        (s c round (i+4) 0).val +
+        (s c round (i+4) 1).val +
+        (s c round (i+4) 2).val +
+        (s c round (i+4) 3).val +
+        (s c round (i+4) 4).val
+      ) 64 +
+      ((BitVec.ofNat 192
+              (Normalize.normalize_unpacked
+                ((s c round (i+1) 0).val + (s c round (i+1) 1).val + (s c round (i+1) 2).val + (s c round (i+1) 3).val +
+                  (s c round (i+1) 4).val)
+                64)).rotateLeft
+          BIT_COUNT).toNat
+    )
+  := by
+    unfold os t
+    have : NeZero P := by constructor; exact P_Prime.ne_zero
+    simp [ZMod.val_add, -BitVec.toNat_rotateLeft]
+    rewrite [decode_bc h_meets_constraints h_round h_P (i+4)]
+    simp [keccak_constants, get_rotate_count, -BitVec.toNat_rotateLeft]
+    rewrite [decode_bc_rotated h_meets_constraints h_round h_P (i+1)]
+    simp [keccak_constants, ZMod.val_add, -BitVec.toNat_rotateLeft]
+    rw [Nat.mod_eq_of_lt, Nat.mod_eq_of_lt]
+    . have := s_range h_meets_constraints h_round (by omega) (i := (i+4)) (j := 0)
+      have := s_range h_meets_constraints h_round (by omega) (i := (i+4)) (j := 1)
+      have := s_range h_meets_constraints h_round (by omega) (i := (i+4)) (j := 2)
+      have := s_range h_meets_constraints h_round (by omega) (i := (i+4)) (j := 3)
+      have := s_range h_meets_constraints h_round (by omega) (i := (i+4)) (j := 4)
+      simp_all [Normalize.mask]
+      omega
+    . have h_s := s_range h_meets_constraints h_round (by omega) (i := i) (j := j)
+      have h_norm (x: ℕ) := Normalize.normalize_unpacked_64_le_mask (x := x)
+      simp_all only [Normalize.mask]
+      apply lt_of_lt_of_le _ h_P
+      have h_bv (x: BitVec 192) : x.toNat ≤ 2^192-1 := by omega
+      apply lt_of_le_of_lt (add_le_add h_s (add_le_add (h_norm _) (h_bv _)))
+      norm_num
 
 
 end Keccak.Soundness

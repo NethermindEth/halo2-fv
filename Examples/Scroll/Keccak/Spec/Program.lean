@@ -237,7 +237,7 @@ namespace Keccak
       (target_part_size := part_size_c)
       (input := s c round idx 0 + s c round idx 1 + s c round idx 2 + s c round idx 3 + s c round idx 4)
 
-  def bc (c: ValidCircuit P P_Prime) (round: ℕ) (idx: Fin 5): List (ℕ × ZMod P) × Prop :=
+  def bc {P P_Prime} (c: ValidCircuit P P_Prime) (round: ℕ) (idx: Fin 5): List (ℕ × ZMod P) × Prop :=
     Transform.split_expr c round
       (cell_offset := 96 + 22*↑idx)
       (rot := 1)
@@ -253,6 +253,7 @@ namespace Keccak
 
   def os (c: ValidCircuit P P_Prime) (round: ℕ) (x y: Fin 5) :=
     s c round x y + t c round x
+
 
   -- Rho/Pi (line 299)
   def rho_by_pi_part_size := get_num_bits_per_base_chi_lookup

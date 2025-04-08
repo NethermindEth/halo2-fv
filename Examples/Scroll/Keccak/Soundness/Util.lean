@@ -19,6 +19,21 @@ namespace Keccak.Soundness
     |>.foldr (λ ⟨_, val⟩ acc => val ||| acc) (BitVec.ofNat 192 0)
     |>.toNat
 
+  def UInt64_to_unpacked_Nat' (input: UInt64) :=
+    List.range 64
+    |>.map (λ i => (BitVec.setWidth 192 (input.toBitVec &&& (1#64<<<i))) <<< (i*3))
+    |>.foldr (λ x acc => x ||| acc) 0#192
+    |>.toNat
+
+  lemma UInt64_to_unpacked_Nat_xor:
+    UInt64_to_unpacked_Nat' (a ^^^ b) =
+    (UInt64_to_unpacked_Nat' a) ^^^ (UInt64_to_unpacked_Nat' b)
+  := by
+    unfold UInt64_to_unpacked_Nat'
+    rewrite [←BitVec.toNat_xor, ←BitVec.toNat_eq]
+    simp [list_ops]
+    bv_decide
+
   lemma list_foldr_or_and {l: List (UInt64 × BitVec 192)} {f: UInt64 × BitVec 192 → BitVec 192} (h_init: init &&& mask = init):
     (List.foldr (λ x acc => f x ||| acc) init l) &&& mask = List.foldr (λ x acc => (f x ||| acc) &&& mask) init l
   := by

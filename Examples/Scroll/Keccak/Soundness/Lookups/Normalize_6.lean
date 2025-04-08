@@ -12,6 +12,20 @@ import Examples.Scroll.Keccak.Soundness.Util
 namespace Keccak.Soundness.Lookups.Normalize_6
 
     lemma input_lt_P (h_a: a < 6) (h_b: b < 6) (h_c: c < 6) (h_P: P > 365): a + b * 8 + c * 64 < P := by omega
+    lemma input_range [NeZero P] (h_P: 8 < P) (h_row: row < 216): (Lookups.Normalize_6.input_by_row P row).val ≤ 365 := by -- 5*(3 masked unpacked bits)
+      unfold Lookups.Normalize_6.input_by_row
+      simp [Lookups.Normalize_6.input_eval, keccak_constants, ZMod.val_add, ZMod.val_mul]
+      apply le_trans (Nat.mod_le _ P)
+      have : (8: ZMod P).val = 8 := by convert ZMod.val_cast_of_lt h_P
+      have : Fact (1 < P) := by constructor; omega
+
+      apply add_le_add (d := 320)
+      . apply add_le_add (d := 40)
+        . omega
+        . simp_all; omega
+      . apply Nat.mul_le_mul (n₂ := 5) (m₂ := 64)
+        . omega
+        . convert ZMod.val_pow_le <;> simp_all
     lemma output_lt_P (h_a: a < 2) (h_b: b < 2) (h_c: c < 2) (h_P: P > 73): a + b * 8 + c * 64 < P := by omega
 
     lemma exists_3bit_of_lt_6 (h: x < 6): ∃ bv: BitVec 3, x = bv.toNat := by

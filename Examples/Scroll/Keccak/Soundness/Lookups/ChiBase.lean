@@ -402,7 +402,8 @@ namespace Keccak.Soundness.Lookups
         ]
         congr 1
         unfold chi_base_lookup
-        bv_decide
+        bv_check
+          "ChiBase.lean-Keccak.Soundness.Lookups.ChiBase.output_eq_transformed_input-405-8.lrat"
       . simp [←CHI_BASE_LOOKUP_TABLE.eq_def]
         set a' := CHI_BASE_LOOKUP_TABLE ⟨a, _⟩; have : a' ≤ 1 := chi_base_lookup_table_range _
         set b' := CHI_BASE_LOOKUP_TABLE ⟨b, _⟩; have : b' ≤ 1 := chi_base_lookup_table_range _

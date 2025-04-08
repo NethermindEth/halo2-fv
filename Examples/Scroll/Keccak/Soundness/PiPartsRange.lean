@@ -46,7 +46,7 @@ namespace Keccak.Soundness
       let tProofStx : TSyntax `term := ⟨proofStx⟩
 
       let uniqueName := mkIdent (Name.mkSimple s!"cell_{cell.getNat}_normalize_4_input_range")
-      logInfo m!"Registering: {uniqueName}"
+      -- logInfo m!"Registering: {uniqueName}"
       Lean.Elab.Command.elabCommand
         (←`(lemma $uniqueName {c: ValidCircuit P P_Prime} (h_meets_constraints: meets_constraints c) (h_round: round < 60) (h_P: 8 < P): $tRtStx := $tProofStx))
 

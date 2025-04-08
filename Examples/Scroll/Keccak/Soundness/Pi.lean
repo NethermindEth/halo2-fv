@@ -9,6 +9,7 @@ import Examples.Scroll.Keccak.Spec.FinVals
 import Examples.Scroll.Keccak.Spec.KeccakConstants
 import Examples.Scroll.Keccak.Soundness.Bc
 import Examples.Scroll.Keccak.Soundness.Lookups
+import Examples.Scroll.Keccak.Soundness.Rho
 import Examples.Scroll.Keccak.Soundness.Util
 
 namespace Keccak.Soundness
@@ -38,5 +39,40 @@ namespace Keccak.Soundness
     unfold pi_get
     fin_cases x <;> fin_cases y
     all_goals simp [fin_vals, os_parts.eq_def]
+
+  def pi_s (c: ValidCircuit P P_Prime) (round) (i j: Fin 5) :=
+    match i,j with
+      | 0, 0 => rho_s c round 0 0
+      | 0, 1 => rho_s c round 0 3
+      | 0, 2 => rho_s c round 0 1
+      | 0, 3 => rho_s c round 0 4
+      | 0, 4 => rho_s c round 0 2
+      | 1, 0 => rho_s c round 1 1
+      | 1, 1 => rho_s c round 1 4
+      | 1, 2 => rho_s c round 1 2
+      | 1, 3 => rho_s c round 1 0
+      | 1, 4 => rho_s c round 1 3
+      | 2, 0 => rho_s c round 2 2
+      | 2, 1 => rho_s c round 2 0
+      | 2, 2 => rho_s c round 2 3
+      | 2, 3 => rho_s c round 2 1
+      | 2, 4 => rho_s c round 2 4
+      | 3, 0 => rho_s c round 3 3
+      | 3, 1 => rho_s c round 3 1
+      | 3, 2 => rho_s c round 3 4
+      | 3, 3 => rho_s c round 3 2
+      | 3, 4 => rho_s c round 3 0
+      | 4, 0 => rho_s c round 4 4
+      | 4, 1 => rho_s c round 4 2
+      | 4, 2 => rho_s c round 4 0
+      | 4, 3 => rho_s c round 4 3
+      | 4, 4 => rho_s c round 4 1
+
+  -- lemma pi_get_pi_s:
+  --   pi_get (λ x y => (rho_s c round y x)) x y =
+  --   pi_s c round y x
+  -- := by
+  --   fin_cases y <;> fin_cases x
+  --   all_goals simp [pi_s.eq_def, pi_get.eq_def]
 
 end Keccak.Soundness

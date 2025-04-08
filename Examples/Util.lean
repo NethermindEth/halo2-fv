@@ -3,6 +3,11 @@ import Mathlib.Data.ZMod.Basic
 import Mathlib.Tactic.NormNum.Basic
 import Examples.Attributes
 
+lemma nat_shiftLeft_eq_mul_comm:
+  n <<< m = 2^m * n
+:= by
+  simp [Nat.shiftLeft_eq, mul_comm]
+
 lemma ge_of_ne_of_gt {a b: ℕ}: b < a → a ≠ b+1 → b+2 ≤ a := by
   intro h_gt h_ne
   have h: b+1 ≤ a := by aesop
@@ -82,6 +87,8 @@ lemma list_eq_rotateRight_of_rotateLeft_eq {l l': List T} (h: l.rotateLeft k = l
 --   | 0,   acc => acc
 --   | n+1, acc => loop n (n::acc)
 
+@[list_ops] lemma list_ops_foldr_nil : List.foldr f init [] = init := rfl
+@[list_ops] lemma list_ops_foldr_cons : List.foldr f init (a::l) = f a (List.foldr f init l) := rfl
 @[list_ops] lemma list_ops_range_eq_loop: List.range n = List.range.loop n [] := rfl
 @[list_ops] lemma list_ops_range_loop_zero: List.range.loop 0 acc = acc := rfl
 @[list_ops] lemma list_ops_range_loop_succ: List.range.loop (n+1) acc = List.range.loop n (n::acc) := rfl
@@ -172,6 +179,15 @@ lemma zmod_not_zero_eq_one {P: ℕ} {P_Prime: Nat.Prime P}: ((@OfNat.ofNat (ZMod
   aesop
 
 lemma ofNat_zmod_val [NeZero P] (a: ZMod P): a = a.val := by simp
+
+lemma zmod_val_ofNat [Nat.AtLeastTwo n]: ZMod.val (@OfNat.ofNat (ZMod P) n _) = n % P := by
+    rewrite [←Nat.cast_ofNat, ZMod.val_natCast]
+    rfl
+
+lemma zmod_val_ofNat_of_lt [Nat.AtLeastTwo n] (h: n < P): ZMod.val (@OfNat.ofNat (ZMod P) n _) = n := by
+  rewrite [←Nat.cast_ofNat, ZMod.val_natCast_of_lt]
+  . rfl
+  . exact h
 
 lemma zmod_pow {P: ℕ} (a b c:ℕ) (h: a^b=c): ((a: ZMod P)^b) = (c: ZMod P) := by
   aesop

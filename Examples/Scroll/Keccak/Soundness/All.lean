@@ -1,6 +1,12 @@
+import Examples.Scroll.Keccak.Soundness.Chi.All
 import Examples.Scroll.Keccak.Soundness.Lookups.All
+import Examples.Scroll.Keccak.Soundness.NormalizeRho.All
+import Examples.Scroll.Keccak.Soundness.RhoRange.All
+import Examples.Scroll.Keccak.Soundness.RotPartRanges.All
+import Examples.Scroll.Keccak.Soundness.Sequencing.All
 import Examples.Scroll.Keccak.Soundness.Attributes
 import Examples.Scroll.Keccak.Soundness.Bc
+import Examples.Scroll.Keccak.Soundness.BitInvert
 import Examples.Scroll.Keccak.Soundness.Constants
 import Examples.Scroll.Keccak.Soundness.Iota
 import Examples.Scroll.Keccak.Soundness.IotaParts
@@ -9,5 +15,6 @@ import Examples.Scroll.Keccak.Soundness.Normalize
 import Examples.Scroll.Keccak.Soundness.Pi
 import Examples.Scroll.Keccak.Soundness.PiPartsRange
 import Examples.Scroll.Keccak.Soundness.Rho
+import Examples.Scroll.Keccak.Soundness.RhoRotParts
 import Examples.Scroll.Keccak.Soundness.Theta
 import Examples.Scroll.Keccak.Soundness.Util
