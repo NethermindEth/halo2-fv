@@ -28,12 +28,11 @@ namespace Keccak.Soundness
     ] at h_s_rot_parts
     unfold rho_s_0_0
     rewrite [←h_s_input_parts]
-    have rotate_zero (bv: BitVec 192): bv.rotateLeft 0 = bv := by bv_decide
     simp [
       Decode.expr.eq_def, keccak_constants, mul_add,
       ←mul_assoc, ←pow_add, ZMod.val_add, ZMod.val_mul,
       zmod_pow_simps, zmod_val_ofNat_of_lt (show 4096 < P by omega),
-      nat_shiftLeft_eq_mul_comm, add_assoc, rotate_zero
+      nat_shiftLeft_eq_mul_comm, add_assoc, bitvec_rotate_zero
     ]
     have h_cell_336 := (cell_336_normalize_4_input_range h_meets_constraints h_round (by omega))
     have h_cell_337 := (cell_337_normalize_4_input_range h_meets_constraints h_round (by omega))

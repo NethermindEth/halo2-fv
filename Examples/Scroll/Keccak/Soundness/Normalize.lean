@@ -3163,61 +3163,56 @@ namespace Keccak.Soundness
   --   -- simp only [keccak_constants, BitVec.toNat_add]
 
   lemma normalize_unpacked_UInt64 :normalize_unpacked (UInt64_to_unpacked_Nat x) 64 = UInt64_to_unpacked_Nat x := by
-    simp [UInt64_to_unpacked_Nat.eq_def, list_ops]
-    rewrite [normalize_unpacked_toNat, ←BitVec.toNat_eq, BitVec.and_assoc]
-    rewrite [List.foldr_filter]
+    unfold UInt64_to_unpacked_Nat
+    rewrite [normalize_unpacked_toNat, ←BitVec.toNat_eq]
+    simp [list_ops, keccak_constants, mask_bitvec.eq_def]
+    bv_decide
+
+  lemma normalize_unpacked_add_eq_xor (x y: Nat):
+    normalize_unpacked (normalize_unpacked x 64 + normalize_unpacked y 64) 64 = normalize_unpacked (x ^^^ y) 64
+  := by
     simp only [
-      if_true_mask_else_self,
+      normalize_unpacked_to_bitvec,
+      BitVec.toNat_and,
+      BitVec.toNat_ofNat,
+      ←Nat.and_pow_two_sub_one_eq_mod,
+      mask_and_2_pow_192_sub_one,
+      mask_and_2_pow_192_sub_one',
+      Nat.and_assoc,
       keccak_constants,
       Nat.reduceMul,
       BitVec.setWidth_eq,
       BitVec.and_allOnes
     ]
-    rewrite [list_foldr_or_and]; swap; decide
-    rewrite [List.foldr]; symm; rewrite [List.foldr]; symm
-    rewrite [bitvec_and_or_distrib_right]
-    rewrite [bitvec_if_and]
-    simp only [mask_bitvec.eq_def]
-    congr 1
-    repeat (
-      rewrite [List.foldr]; symm; rewrite [List.foldr]; symm
-      rewrite [BitVec.and_assoc, BitVec.and_self]
-      rewrite [bitvec_and_or_distrib_right, bitvec_if_and]
-      congr 1
-    )
-
-  -- lemma add_eq_xor (x y: Nat):
-  --   normalize_unpacked (normalize_unpacked x + normalize_unpacked y) = normalize_unpacked (x ^^^ y)
-  -- := by
-  --   simp only [
-  --     normalize_unpacked_to_bitvec,
-  --     BitVec.toNat_and,
-  --     BitVec.toNat_ofNat,
-  --     ←Nat.and_pow_two_sub_one_eq_mod,
-  --     mask_and_2_pow_192_sub_one,
-  --     mask_and_2_pow_192_sub_one',
-  --     Nat.and_assoc
-  --   ]
-  --   rewrite [Nat.and_xor_distrib_right]
-  --   have := normalize_unpacked_to_bitvec
-  --   unfold normalize_unpacked at this
-  --   rewrite [this, this, this]
-  --   rewrite [mask_bitvec_ofNat]
-  --   generalize BitVec.ofNat 192 x = bv_x
-  --   generalize BitVec.ofNat 192 y = bv_y
-  --   rewrite [
-  --     ←BitVec.toNat_xor,
-  --     ←BitVec.toNat_eq,
-  --     ←BitVec.toNat_add_of_lt,
-  --     BitVec.ofNat_toNat, BitVec.setWidth_eq
-  --   ]
-  --   . unfold mask_bitvec
-  --     bv_decide
-  --   . rewrite [BitVec.toNat_and, BitVec.toNat_and, mask_bitvec_toNat]
-  --     have h_x := Nat.and_le_right (m := mask) (n := bv_x.toNat)
-  --     have h_y := Nat.and_le_right (m := mask) (n := bv_y.toNat)
-  --     unfold mask at h_x h_y ⊢
-  --     simp
-  --     omega
+    rewrite [Nat.and_xor_distrib_right]
+    have (x) := normalize_unpacked_to_bitvec x 64
+    unfold normalize_unpacked at this
+    simp only [
+      keccak_constants,
+      Nat.reducePow,
+      Nat.reduceSub,
+      mask,
+      Nat.and_assoc,
+      Nat.reduceAnd
+    ] at this
+    rewrite [←mask.eq_def] at this
+    rewrite [this, this, this]
+    rewrite [mask_bitvec_ofNat]
+    generalize BitVec.ofNat 192 x = bv_x
+    generalize BitVec.ofNat 192 y = bv_y
+    rewrite [
+      ←BitVec.toNat_xor,
+      ←BitVec.toNat_eq,
+      ←BitVec.toNat_add_of_lt,
+      BitVec.ofNat_toNat, BitVec.setWidth_eq
+    ]
+    . unfold mask_bitvec
+      bv_decide
+    . rewrite [BitVec.toNat_and, BitVec.toNat_and, mask_bitvec_toNat]
+      have h_x := Nat.and_le_right (m := mask) (n := bv_x.toNat)
+      have h_y := Nat.and_le_right (m := mask) (n := bv_y.toNat)
+      unfold mask at h_x h_y ⊢
+      simp [mask_bitvec, Nat.and_assoc]
+      omega
 
 end Keccak.Soundness.Normalize

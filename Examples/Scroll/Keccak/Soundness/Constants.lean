@@ -16,154 +16,129 @@ namespace Keccak.Soundness
     simp [round_cst, fixed_of_meets_constraints h, ValidCircuit.get_fixed, fixed_func, LeanCrypto.HashFunctions.RoundConstants, keccak_constants]
     match h: row/12 with
       | 0 =>
-        rewrite [fixed_func_col_7, if_pos (by omega), fixed_func_col_7_0_to_119, if_pos (by omega)]
-        simp
+        rewrite [fixed_func_col_7, if_pos (by omega), fixed_func_col_7_0_to_119, if_pos (by omega), ZMod.val_zero]
         decide
       | 1 =>
         rewrite [fixed_func_col_7, if_pos (by omega), fixed_func_col_7_0_to_119, if_neg (by omega), if_pos (by omega), ZMod.val_one_eq_one_mod, Nat.mod_eq_of_lt (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]
         decide
       | 2 =>
         rewrite [fixed_func_col_7, if_pos (by omega), fixed_func_col_7_0_to_119, if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 3 =>
         rewrite [fixed_func_col_7, if_pos (by omega), fixed_func_col_7_0_to_119, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 4 =>
         rewrite [fixed_func_col_7, if_pos (by omega), fixed_func_col_7_0_to_119, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 5 =>
         rewrite [fixed_func_col_7, if_pos (by omega), fixed_func_col_7_0_to_119, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 6 =>
         rewrite [fixed_func_col_7, if_pos (by omega), fixed_func_col_7_0_to_119, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 7 =>
         rewrite [fixed_func_col_7, if_pos (by omega), fixed_func_col_7_0_to_119, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 8 =>
         rewrite [fixed_func_col_7, if_pos (by omega), fixed_func_col_7_0_to_119, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 9 =>
         rewrite [fixed_func_col_7, if_pos (by omega), fixed_func_col_7_0_to_119, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 10 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_pos (by omega), fixed_func_col_7_120_to_239, if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 11 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_pos (by omega), fixed_func_col_7_120_to_239, if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 12 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_pos (by omega), fixed_func_col_7_120_to_239, if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 13 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_pos (by omega), fixed_func_col_7_120_to_239, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 14 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_pos (by omega), fixed_func_col_7_120_to_239, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 15 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_pos (by omega), fixed_func_col_7_120_to_239, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 16 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_pos (by omega), fixed_func_col_7_120_to_239, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 17 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_pos (by omega), fixed_func_col_7_120_to_239, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 18 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_pos (by omega), fixed_func_col_7_120_to_239, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 19 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_pos (by omega), fixed_func_col_7_120_to_239, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 20 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 21 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 22 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 23 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 24 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]; norm_num
-        convert ZMod.val_natCast _
-        rewrite [Nat.mod_eq_of_lt (lt_of_le_of_lt (by trivial) h_p)]
-        decide
+        norm_num; rewrite [zmod_val_ofNat_of_lt]
+        . decide
+        . exact lt_of_le_of_lt (by trivial) h_p
       | 25 =>
         rewrite [fixed_func_col_7, if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
-        simp [UInt64_to_unpacked_Nat, list_ops]
+        norm_num
         decide
       | x+26 => exfalso; omega
 

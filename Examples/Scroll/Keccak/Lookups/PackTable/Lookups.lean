@@ -10,6 +10,25 @@ namespace Keccak.Lookups.PackTable
     else
       (pack P (into_bits [0]), (0: ZMod P))
 
+  lemma apply_transform_table
+    (h: ∃ lookup_row, Lookups.PackTable.transform_table P lookup_row = (x, y))
+    (h_P: P ≥ 256)
+  :
+    x = pack P (into_bits [y.val])
+  := by
+    obtain ⟨lookup_row, h_lookup_row⟩ := h
+    unfold transform_table at h_lookup_row
+    by_cases h: lookup_row < 256
+    . simp [h] at h_lookup_row
+      rewrite [←h_lookup_row.2]
+      simp
+      rewrite [Nat.mod_eq_of_lt (by omega)]
+      rw [h_lookup_row.1]
+    . simp [h] at h_lookup_row
+      rewrite [←h_lookup_row.2]
+      simp
+      rw [h_lookup_row.1]
+
   lemma apply_transform_table_range [NeZero P]
     (h: ∃ lookup_row, Lookups.PackTable.transform_table P lookup_row = (x, y))
   :

@@ -1,4 +1,13 @@
+import Examples.Scroll.Keccak.Soundness.Sequencing.Absorb
+import Examples.Scroll.Keccak.Soundness.Sequencing.AbsorbSqueeze
 import Examples.Scroll.Keccak.Soundness.Sequencing.Chi
+import Examples.Scroll.Keccak.Soundness.Sequencing.Iota
+import Examples.Scroll.Keccak.Soundness.Sequencing.IotaEquiv
+import Examples.Scroll.Keccak.Soundness.Sequencing.KeccakF
 import Examples.Scroll.Keccak.Soundness.Sequencing.Pi
 import Examples.Scroll.Keccak.Soundness.Sequencing.Rho
+import Examples.Scroll.Keccak.Soundness.Sequencing.RhoEquiv
+import Examples.Scroll.Keccak.Soundness.Sequencing.Squeeze
 import Examples.Scroll.Keccak.Soundness.Sequencing.Theta
+import Examples.Scroll.Keccak.Soundness.Sequencing.ThetaEquiv
+import Examples.Scroll.Keccak.Soundness.Sequencing.Util

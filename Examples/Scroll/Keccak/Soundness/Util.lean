@@ -9,27 +9,36 @@ import Examples.Scroll.Keccak.Spec.FinVals
 
 namespace Keccak.Soundness
 
+  -- def UInt64_to_unpacked_Nat (input: UInt64) :=
+  --   List.range 64
+  --   |>.map (λ x => (
+  --     UInt64.ofNat 1 <<< UInt64.ofNat x,
+  --     BitVec.ofNat 192 1 |>.shiftLeft (x*3))
+  --   )
+  --   |>.filter (λ ⟨x, _⟩ => x &&& input ≠ UInt64.ofNat 0)
+  --   |>.foldr (λ ⟨_, val⟩ acc => val ||| acc) (BitVec.ofNat 192 0)
+  --   |>.toNat
+
   def UInt64_to_unpacked_Nat (input: UInt64) :=
     List.range 64
-    |>.map (λ x => (
-      UInt64.ofNat 1 <<< UInt64.ofNat x,
-      BitVec.ofNat 192 1 |>.shiftLeft (x*3))
-    )
-    |>.filter (λ ⟨x, _⟩ => x &&& input ≠ UInt64.ofNat 0)
-    |>.foldr (λ ⟨_, val⟩ acc => val ||| acc) (BitVec.ofNat 192 0)
-    |>.toNat
-
-  def UInt64_to_unpacked_Nat' (input: UInt64) :=
-    List.range 64
-    |>.map (λ i => (BitVec.setWidth 192 (input.toBitVec &&& (1#64<<<i))) <<< (i*3))
+    |>.map (λ i => (BitVec.setWidth 192 (input.toBitVec &&& (1#64<<<i))) <<< (i*2))
     |>.foldr (λ x acc => x ||| acc) 0#192
     |>.toNat
 
-  lemma UInt64_to_unpacked_Nat_xor:
-    UInt64_to_unpacked_Nat' (a ^^^ b) =
-    (UInt64_to_unpacked_Nat' a) ^^^ (UInt64_to_unpacked_Nat' b)
+  lemma UInt64_to_unpacked_Nat_and :
+    UInt64_to_unpacked_Nat (a &&& b) =
+    (UInt64_to_unpacked_Nat a) &&& (UInt64_to_unpacked_Nat b)
   := by
-    unfold UInt64_to_unpacked_Nat'
+    unfold UInt64_to_unpacked_Nat
+    rewrite [←BitVec.toNat_and, ←BitVec.toNat_eq]
+    simp [list_ops]
+    bv_decide
+
+  lemma UInt64_to_unpacked_Nat_xor:
+    UInt64_to_unpacked_Nat (a ^^^ b) =
+    (UInt64_to_unpacked_Nat a) ^^^ (UInt64_to_unpacked_Nat b)
+  := by
+    unfold UInt64_to_unpacked_Nat
     rewrite [←BitVec.toNat_xor, ←BitVec.toNat_eq]
     simp [list_ops]
     bv_decide
@@ -51,6 +60,15 @@ namespace Keccak.Soundness
       by_cases cond
       . simp_all
       . simp_all
+
+  lemma bitvec_rotate_zero (n: BitVec k):
+    n.rotateLeft 0 = n
+  := by
+    simp [
+      BitVec.rotateLeft_def,
+      BitVec.ushiftRight_eq_zero
+    ]
+
 
   lemma bitvec_if_and {cond} {n} {a b c: BitVec n} : ((if cond = true then a else b) &&& c) = (if cond = true then a &&& c else b &&& c) := by
       by_cases cond <;> simp_all
