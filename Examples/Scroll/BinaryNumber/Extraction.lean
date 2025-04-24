@@ -1,8 +1,9 @@
-
 import Mathlib.Data.Nat.Prime.Defs
 import Mathlib.Data.Nat.Prime.Basic
 import Mathlib.Data.ZMod.Defs
 import Mathlib.Data.ZMod.Basic
+
+set_option linter.unusedVariables false
 
 namespace BinaryNumber
 
@@ -63,14 +64,13 @@ def is_shuffle (c: ValidCircuit P P_Prime) (shuffle: ℕ → ℕ): Prop :=
 def sufficient_rows (c: ValidCircuit P P_Prime) : Prop :=
   c.n ≥ 8 --cs.minimum_rows
 --End preamble
-def assertions (c: ValidCircuit P P_Prime): Prop :=
-  true
 
 -- Entered region: witness
 -- Exited region: witness
 
 
-def all_copy_constraints (_c: ValidCircuit P P_Prime): Prop := true
+def all_copy_constraints (c: ValidCircuit P P_Prime): Prop :=
+  true
 def selector_func (c: ValidCircuit P P_Prime) : ℕ → ℕ → ZMod P :=
   λ col row => match col with
     | _ => 0
@@ -79,23 +79,27 @@ def fixed_func (c: ValidCircuit P P_Prime) : ℕ → ℕ → ZMod P :=
     | _ => c.1.FixedUnassigned col row
 def advice_phase (c: ValidCircuit P P_Prime) : ℕ → ℕ :=
   λ col => match col with
-  | 0 => 0
-  | 1 => 0
   | _ => 0
-def gate_0_0_ (c: ValidCircuit P P_Prime) (row: ℕ) : Prop :=
-  ((c.get_fixed 0 row) * (c.get_advice 0 row)) * (((1)) + (-(c.get_advice 0 row))) = 0
-def gate_1_0_ (c: ValidCircuit P P_Prime) (row: ℕ) : Prop :=
-  ((c.get_fixed 0 row) * (c.get_advice 1 row)) * (((1)) + (-(c.get_advice 1 row))) = 0
-def gate_2_0_ (c: ValidCircuit P P_Prime) (row: ℕ) : Prop :=
-  (c.get_fixed 0 row) * (((c.get_advice 1 row) + (((c.get_advice 0 row) + (((0)) * ((2)))) * ((2)))) + (-(c.get_fixed 1 row))) = 0
-def gate_3_0_ (c: ValidCircuit P P_Prime) (row: ℕ) : Prop :=
-  (c.get_fixed 0 row) * ((((1)) * (c.get_advice 0 row)) * (c.get_advice 1 row)) = 0
-def all_gates (c: ValidCircuit P P_Prime): Prop := ∀ row: ℕ,
-    gate_0_0_ c row ∧
-  gate_1_0_ c row ∧
-  gate_2_0_ c row ∧
-  gate_3_0_ c row
-def all_lookups (c: ValidCircuit P P_Prime): Prop := true
+  -- Advice column annotations:
+  -- None
+  -- Instance column annotations:
+  -- None
+def gate_0 (c: ValidCircuit P P_Prime) : Prop :=
+  -- Gate number 1 name: "bit column is 0 or 1" part 1/1 
+  ∀ row: ℕ, ((c.get_fixed 0 row) * (c.get_advice 0 row)) * (((1)) + (-(c.get_advice 0 row))) = 0
+def gate_1 (c: ValidCircuit P P_Prime) : Prop :=
+  -- Gate number 2 name: "bit column is 0 or 1" part 1/1 
+  ∀ row: ℕ, ((c.get_fixed 0 row) * (c.get_advice 1 row)) * (((1)) + (-(c.get_advice 1 row))) = 0
+def gate_2 (c: ValidCircuit P P_Prime) : Prop :=
+  -- Gate number 3 name: "binary number value" part 1/1 
+  ∀ row: ℕ, (c.get_fixed 0 row) * (((c.get_advice 1 row) + (((c.get_advice 0 row) + (((0)) * ((2)))) * ((2)))) + (-(c.get_fixed 1 row))) = 0
+def gate_3 (c: ValidCircuit P P_Prime) : Prop :=
+  -- Gate number 4 name: "binary number value in range" part 1/1 
+  ∀ row: ℕ, (c.get_fixed 0 row) * ((((1)) * (c.get_advice 0 row)) * (c.get_advice 1 row)) = 0
+def all_gates (c: ValidCircuit P P_Prime): Prop :=
+  gate_0 c ∧ gate_1 c ∧ gate_2 c ∧ gate_3 c
+def all_lookups (c: ValidCircuit P P_Prime): Prop :=
+  true
 def all_shuffles (c: ValidCircuit P P_Prime) : Prop := true
 def meets_constraints (c: ValidCircuit P P_Prime): Prop :=
   sufficient_rows c ∧
@@ -103,7 +107,7 @@ def meets_constraints (c: ValidCircuit P P_Prime): Prop :=
   c.1.Selector = selector_func c ∧
   c.1.Fixed = fixed_func c ∧
   c.1.AdvicePhase = advice_phase c ∧
-  assertions c  ∧
+  c.usable_rows ≥ 0 ∧
   all_gates c ∧
   all_copy_constraints c ∧
   all_lookups c ∧

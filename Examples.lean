@@ -1,7 +1,6 @@
 -- This module serves as the root of the `Examples` library.
 -- Import modules here that should be built as part of the library.
-import «Examples».Basic
-import «Examples».Scroll.Keccak.All
+import «Examples».All
 
 import Mathlib.Data.Nat.Prime.Basic
 import Mathlib.Data.ZMod.Defs

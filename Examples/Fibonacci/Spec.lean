@@ -1,4 +1,4 @@
-import Examples.Fib1
+import Examples.Fibonacci.Extraction
 import Mathlib.Data.ZMod.Basic
 import Mathlib.Data.Nat.Fib.Basic
 
@@ -17,7 +17,7 @@ lemma sum_row_of_meets_constraints (c: ValidCircuit P P_Prime): meets_constraint
   intro ⟨_, _, h_selector, _, _, _, h_gate, _, _, _, _⟩
   intro h_row
   unfold sum_row
-  unfold all_gates gate_0_0_ at h_gate
+  unfold all_gates gate_0 at h_gate
   unfold selector_func at h_selector
   have h_gate_row := h_gate row
   unfold ValidCircuit.get_selector at h_gate_row
@@ -37,7 +37,7 @@ theorem spec_of_meets_contraints (c: ValidCircuit P P_Prime): meets_constraints 
     intro row
     exact sum_row_of_meets_constraints c h_constraints
   revert h_constraints
-  unfold meets_constraints all_copy_constraints copy_0_to_9 copy_10_to_16 copy_0 copy_1 copy_2 copy_3 copy_4 copy_5 copy_6 copy_7 copy_8 copy_9 copy_10 copy_11 copy_12 copy_13 copy_14 copy_15 copy_16
+  unfold meets_constraints all_copy_constraints copy_0_to_9 copy_0 copy_1 copy_2 copy_3 copy_4 copy_5 copy_6 copy_7 copy_8 copy_9 copy_10 copy_11 copy_12 copy_13 copy_14 copy_15 copy_16
   intro ⟨
     _, _, _, _, _, _, _,
     ⟨

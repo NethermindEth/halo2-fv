@@ -3,7 +3,9 @@ import Mathlib.Data.Nat.Prime.Basic
 import Mathlib.Data.ZMod.Defs
 import Mathlib.Data.ZMod.Basic
 
-namespace Fibonacci.Ex2
+set_option linter.unusedVariables false
+
+namespace BatchedIsZero
 
 def S_T_from_P (S T P : ℕ) : Prop :=
   (2^S * T = P - 1) ∧
@@ -30,7 +32,7 @@ def Circuit.isValid (c: Circuit P P_Prime) : Prop :=
   S_T_from_P c.S c.T P ∧
   multiplicative_generator P c.mult_gen ∧ (
   ∀ advice1 advice2: ℕ → ℕ → ZMod P, ∀ phase: ℕ,
-    (∀ row col, (col < 1 ∧ c.AdvicePhase col ≤ phase) → advice1 col row = advice2 col row) →
+    (∀ row col, (col < 6 ∧ c.AdvicePhase col ≤ phase) → advice1 col row = advice2 col row) →
     (∀ i, c.Challenges advice1 i phase = c.Challenges advice2 i phase)
   )
 abbrev ValidCircuit (P: ℕ) (P_Prime: Nat.Prime P) : Type := {c: Circuit P P_Prime // c.isValid}
@@ -62,44 +64,16 @@ def is_shuffle (c: ValidCircuit P P_Prime) (shuffle: ℕ → ℕ): Prop :=
 def sufficient_rows (c: ValidCircuit P P_Prime) : Prop :=
   c.n ≥ 8 --cs.minimum_rows
 --End preamble
-def assertions (c: ValidCircuit P P_Prime): Prop :=
-  true
 
--- Entered region: entire fibonacci table
-  ∧ 0 < c.usable_rows -- Selector 0 enabled
-  ∧ 1 < c.usable_rows -- Selector 0 enabled
-  ∧ 0 < c.usable_rows -- Instance 0 query
-  ∧ 0 < c.usable_rows -- Advice 0 assignment
-  ∧ 0 < c.usable_rows ∧ 0 < c.usable_rows -- Copy 0 to 0 assignment
-  ∧ 1 < c.usable_rows -- Instance 0 query
-  ∧ 1 < c.usable_rows -- Advice 0 assignment
-  ∧ 1 < c.usable_rows ∧ 1 < c.usable_rows -- Copy 0 to 0 assignment
-  ∧ 2 < c.usable_rows -- Selector 0 enabled
-  ∧ 2 < c.usable_rows -- Advice 0 assignment
-  ∧ 3 < c.usable_rows -- Selector 0 enabled
-  ∧ 3 < c.usable_rows -- Advice 0 assignment
-  ∧ 4 < c.usable_rows -- Selector 0 enabled
-  ∧ 4 < c.usable_rows -- Advice 0 assignment
-  ∧ 5 < c.usable_rows -- Selector 0 enabled
-  ∧ 5 < c.usable_rows -- Advice 0 assignment
-  ∧ 6 < c.usable_rows -- Selector 0 enabled
-  ∧ 6 < c.usable_rows -- Advice 0 assignment
-  ∧ 7 < c.usable_rows -- Selector 0 enabled
-  ∧ 7 < c.usable_rows -- Advice 0 assignment
-  ∧ 8 < c.usable_rows -- Advice 0 assignment
-  ∧ 9 < c.usable_rows -- Advice 0 assignment
--- Exited region: entire fibonacci table
-  ∧ 9 < c.usable_rows ∧ 2 < c.usable_rows -- Copy 0 to 0 assignment
+-- Entered region: witness
+-- Exited region: witness
 
 
-def copy_0 (c: ValidCircuit P P_Prime): Prop := c.get_advice 0 0 = c.get_instance 0 0
-def copy_1 (c: ValidCircuit P P_Prime): Prop := c.get_advice 0 1 = c.get_instance 0 1
-def copy_2 (c: ValidCircuit P P_Prime): Prop := c.get_advice 0 9 = c.get_instance 0 2
 def all_copy_constraints (c: ValidCircuit P P_Prime): Prop :=
-  copy_0 c ∧ copy_1 c ∧ copy_2 c
+  true
 def selector_func_col_0 (c: ValidCircuit P P_Prime) : ℕ → ZMod P :=
   λ row =>
-  if row < 8 then 1
+  if row < 1 then 1
   else 0
 def selector_func (c: ValidCircuit P P_Prime) : ℕ → ℕ → ZMod P :=
   λ col row => match col with
@@ -110,13 +84,44 @@ def fixed_func (c: ValidCircuit P P_Prime) : ℕ → ℕ → ZMod P :=
     | _ => c.1.FixedUnassigned col row
 def advice_phase (c: ValidCircuit P P_Prime) : ℕ → ℕ :=
   λ col => match col with
-  | 0 => 0
   | _ => 0
-def gate_0_0_ (c: ValidCircuit P P_Prime) (row: ℕ) : Prop := 
-  (c.get_selector 0 row) * (((c.get_advice 0 row) + (c.get_advice 0 ((row + 1) % c.n))) + (-(c.get_advice 0 ((row + 2) % c.n)))) = 0
-def all_gates (c: ValidCircuit P P_Prime): Prop := ∀ row: ℕ,
-    gate_0_0_ c row
-def all_lookups (c: ValidCircuit P P_Prime): Prop := true
+  -- Advice column annotations:
+-- Advice Column 0
+  -- 0: value
+-- Advice Column 1
+  -- 0: value
+-- Advice Column 2
+  -- 0: value
+-- Advice Column 3
+  -- 0: expect_is_zero
+-- Advice Column 4
+  -- 0: is_zero
+-- Advice Column 5
+  -- 0: nonempty_witness
+  -- Instance column annotations:
+  -- None
+def gate_0 (c: ValidCircuit P P_Prime) : Prop :=
+  -- Gate number 1 name: "is_zero is bool" part 1/1 
+  ∀ row: ℕ, ((c.get_selector 0 row) * (c.get_advice 4 row)) * ((c.get_advice 4 row) + (-((1)))) = 0
+def gate_1 (c: ValidCircuit P P_Prime) : Prop :=
+  -- Gate number 2 name: "is_zero is 0 if there is any non-zero value" part 1/3 
+  ∀ row: ℕ, ((c.get_selector 0 row) * (c.get_advice 4 row)) * (c.get_advice 0 row) = 0
+def gate_2 (c: ValidCircuit P P_Prime) : Prop :=
+  -- Gate number 2 name: "is_zero is 0 if there is any non-zero value" part 2/3 
+  ∀ row: ℕ, ((c.get_selector 0 row) * (c.get_advice 4 row)) * (c.get_advice 1 row) = 0
+def gate_3 (c: ValidCircuit P P_Prime) : Prop :=
+  -- Gate number 2 name: "is_zero is 0 if there is any non-zero value" part 3/3 
+  ∀ row: ℕ, ((c.get_selector 0 row) * (c.get_advice 4 row)) * (c.get_advice 2 row) = 0
+def gate_4 (c: ValidCircuit P P_Prime) : Prop :=
+  -- Gate number 3 name: "is_zero is 1 if values are all zero" part 1/1 
+  ∀ row: ℕ, (c.get_selector 0 row) * ((((((1)) + (-(c.get_advice 4 row))) * (((1)) + (-((c.get_advice 0 row) * (c.get_advice 5 row))))) * (((1)) + (-((c.get_advice 1 row) * (c.get_advice 5 row))))) * (((1)) + (-((c.get_advice 2 row) * (c.get_advice 5 row))))) = 0
+def gate_5 (c: ValidCircuit P P_Prime) : Prop :=
+  -- Gate number 4 name: "check is_zero" part 1/1 
+  ∀ row: ℕ, (c.get_selector 0 row) * ((c.get_advice 4 row) + (-(c.get_advice 3 row))) = 0
+def all_gates (c: ValidCircuit P P_Prime): Prop :=
+  gate_0 c ∧ gate_1 c ∧ gate_2 c ∧ gate_3 c ∧ gate_4 c ∧ gate_5 c
+def all_lookups (c: ValidCircuit P P_Prime): Prop :=
+  true
 def all_shuffles (c: ValidCircuit P P_Prime) : Prop := true
 def meets_constraints (c: ValidCircuit P P_Prime): Prop :=
   sufficient_rows c ∧
@@ -124,10 +129,10 @@ def meets_constraints (c: ValidCircuit P P_Prime): Prop :=
   c.1.Selector = selector_func c ∧
   c.1.Fixed = fixed_func c ∧
   c.1.AdvicePhase = advice_phase c ∧
-  assertions c  ∧
+  c.usable_rows ≥ 1 ∧
   all_gates c ∧
   all_copy_constraints c ∧
   all_lookups c ∧
   all_shuffles c ∧
   ∀ col row: ℕ, (row < c.n ∧ row ≥ c.usable_rows) → c.1.Instance col row = c.1.InstanceUnassigned col row
-end Fibonacci.Ex2
+end BatchedIsZero
