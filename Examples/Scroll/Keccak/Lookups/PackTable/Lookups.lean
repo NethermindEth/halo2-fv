@@ -29,7 +29,7 @@ namespace Keccak.Lookups.PackTable
       simp
       rw [h_lookup_row.1]
 
-  lemma apply_transform_table_range [NeZero P]
+  lemma apply_transform_table_input_range [NeZero P]
     (h: ∃ lookup_row, Lookups.PackTable.transform_table P lookup_row = (x, y))
   :
     x.val ≤ 0b001001001001001001001001
@@ -73,6 +73,24 @@ namespace Keccak.Lookups.PackTable
       rewrite [←h_lookup_row]
       simp
 
+  lemma apply_transform_table_output_range
+    (x y: ZMod P)
+    (h: ∃ lookup_row, Lookups.PackTable.transform_table P lookup_row = (x, y))
+    (h_P: P ≥ 256)
+  :
+    y.val < 256
+  := by
+    unfold Lookups.PackTable.transform_table at h
+    obtain ⟨row, h_row⟩ := h
+    split_ifs at h_row
+    . simp at h_row
+      rewrite [←h_row.2]
+      simp
+      rewrite [Nat.mod_eq_of_lt (by omega)]
+      assumption
+    . simp at h_row
+      rewrite [←h_row.2]
+      simp
 
   lemma lookup_pack_table (col1 col2: ℕ)
     (c: ValidCircuit P P_Prime) (hlookup: ∀ row < c.usable_rows,

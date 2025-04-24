@@ -42,14 +42,14 @@ namespace Keccak.Soundness
         have h_cell_8:= h_normalize 8 (cell_manager c (a_slice i j + 1) 67) 8 (cell_manager c (a_slice i j + 1) 79)
         clear h_normalize
         simp_all
-        apply Lookups.PackTable.apply_transform_table_range at h_cell_1
-        apply Lookups.PackTable.apply_transform_table_range at h_cell_2
-        apply Lookups.PackTable.apply_transform_table_range at h_cell_3
-        apply Lookups.PackTable.apply_transform_table_range at h_cell_4
-        apply Lookups.PackTable.apply_transform_table_range at h_cell_5
-        apply Lookups.PackTable.apply_transform_table_range at h_cell_6
-        apply Lookups.PackTable.apply_transform_table_range at h_cell_7
-        apply Lookups.PackTable.apply_transform_table_range at h_cell_8
+        apply Lookups.PackTable.apply_transform_table_input_range at h_cell_1
+        apply Lookups.PackTable.apply_transform_table_input_range at h_cell_2
+        apply Lookups.PackTable.apply_transform_table_input_range at h_cell_3
+        apply Lookups.PackTable.apply_transform_table_input_range at h_cell_4
+        apply Lookups.PackTable.apply_transform_table_input_range at h_cell_5
+        apply Lookups.PackTable.apply_transform_table_input_range at h_cell_6
+        apply Lookups.PackTable.apply_transform_table_input_range at h_cell_7
+        apply Lookups.PackTable.apply_transform_table_input_range at h_cell_8
         rewrite [←h_absorb_data]
         simp [
           Decode.expr.eq_def,

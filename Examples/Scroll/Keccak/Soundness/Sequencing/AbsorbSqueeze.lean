@@ -1,1283 +1,775 @@
-import Examples.Scroll.Keccak.Soundness.Sequencing.Absorb
-import Examples.Scroll.Keccak.Soundness.Sequencing.Squeeze
+import Examples.Scroll.Keccak.Soundness.Sequencing.Padding
+import Examples.Scroll.Keccak.Soundness.Sequencing.StateArray
 
 namespace Keccak.Soundness
+  -- def state_bytes (c: ValidCircuit P P_Prime): ByteArray := sorry
 
-  def state_x_y (c: ValidCircuit P P_Prime) (i j: ℕ) : UInt64 :=
-    if (i,j) ∈ (absorb_positions.map λ (i, j) => (i.val, j.val))
-    then UInt64.ofBitVec (
-      BitVec.ofNat 8 (cell_manager c (a_slice i j + 1) 79).val ++
-      BitVec.ofNat 8 (cell_manager c (a_slice i j + 1) 78).val ++
-      BitVec.ofNat 8 (cell_manager c (a_slice i j + 1) 77).val ++
-      BitVec.ofNat 8 (cell_manager c (a_slice i j + 1) 76).val ++
-      BitVec.ofNat 8 (cell_manager c (a_slice i j + 1) 75).val ++
-      BitVec.ofNat 8 (cell_manager c (a_slice i j + 1) 74).val ++
-      BitVec.ofNat 8 (cell_manager c (a_slice i j + 1) 73).val ++
-      BitVec.ofNat 8 (cell_manager c (a_slice i j + 1) 72).val
-    )
-    else 0
+  lemma array_range_8: Array.range 8 = #[0,1,2,3,4,5,6,7] := rfl
 
-  def state_array (c: ValidCircuit P P_Prime): Array UInt64 :=
-    Array.range 25
-      |>.map λ n => state_x_y c (n/5) (n%5)
-
-  lemma output_spec_of_padding {c: ValidCircuit P P_Prime} (h_meets_constraints: meets_constraints c) (h_P: P ≥ 2^200) (h_y: y < 4) (h_is_paddings: is_paddings c 17 (-1) = 1):
-    (LeanCrypto.HashFunctions.keccakF (state_array c))[y * 5]? =
-    .some (UInt64.ofBitVec
-    (BitVec.ofNat 8 (cell_manager c (24 - y) 1687).val ++ BitVec.ofNat 8 (cell_manager c (24 - y) 1686).val ++
-                BitVec.ofNat 8 (cell_manager c (24 - y) 1685).val ++
-              BitVec.ofNat 8 (cell_manager c (24 - y) 1684).val ++
-            BitVec.ofNat 8 (cell_manager c (24 - y) 1683).val ++
-          BitVec.ofNat 8 (cell_manager c (24 - y) 1682).val ++
-        BitVec.ofNat 8 (cell_manager c (24 - y) 1681).val ++
-      BitVec.ofNat 8 (cell_manager c (24 - y) 1680).val))
-  := by
-    have h_P': P > Normalize.mask := by unfold Normalize.mask; omega
-    have h_s_0_0 := initial_s_absorb_position h_meets_constraints h_P' (show (0,0) ∈ absorb_positions by decide)
-    have h_s_1_0 := initial_s_absorb_position h_meets_constraints h_P' (show (1,0) ∈ absorb_positions by decide)
-    have h_s_2_0 := initial_s_absorb_position h_meets_constraints h_P' (show (2,0) ∈ absorb_positions by decide)
-    have h_s_3_0 := initial_s_absorb_position h_meets_constraints h_P' (show (3,0) ∈ absorb_positions by decide)
-    have h_s_4_0 := initial_s_absorb_position h_meets_constraints h_P' (show (4,0) ∈ absorb_positions by decide)
-    have h_s_0_1 := initial_s_absorb_position h_meets_constraints h_P' (show (0,1) ∈ absorb_positions by decide)
-    have h_s_1_1 := initial_s_absorb_position h_meets_constraints h_P' (show (1,1) ∈ absorb_positions by decide)
-    have h_s_2_1 := initial_s_absorb_position h_meets_constraints h_P' (show (2,1) ∈ absorb_positions by decide)
-    have h_s_3_1 := initial_s_absorb_position h_meets_constraints h_P' (show (3,1) ∈ absorb_positions by decide)
-    have h_s_4_1 := initial_s_absorb_position h_meets_constraints h_P' (show (4,1) ∈ absorb_positions by decide)
-    have h_s_0_2 := initial_s_absorb_position h_meets_constraints h_P' (show (0,2) ∈ absorb_positions by decide)
-    have h_s_1_2 := initial_s_absorb_position h_meets_constraints h_P' (show (1,2) ∈ absorb_positions by decide)
-    have h_s_2_2 := initial_s_absorb_position h_meets_constraints h_P' (show (2,2) ∈ absorb_positions by decide)
-    have h_s_3_2 := initial_s_absorb_position h_meets_constraints h_P' (show (3,2) ∈ absorb_positions by decide)
-    have h_s_4_2 := initial_s_absorb_position h_meets_constraints h_P' (show (4,2) ∈ absorb_positions by decide)
-    have h_s_0_3 := initial_s_absorb_position h_meets_constraints h_P' (show (0,3) ∈ absorb_positions by decide)
-    have h_s_1_3 := initial_s_absorb_position h_meets_constraints h_P' (show (1,3) ∈ absorb_positions by decide)
-    have h_s_2_3 := initial_s_non_absorb_position h_meets_constraints (show (2,3) ∉ absorb_positions by decide)
-    have h_s_3_3 := initial_s_non_absorb_position h_meets_constraints (show (3,3) ∉ absorb_positions by decide)
-    have h_s_4_3 := initial_s_non_absorb_position h_meets_constraints (show (4,3) ∉ absorb_positions by decide)
-    have h_s_0_4 := initial_s_non_absorb_position h_meets_constraints (show (0,4) ∉ absorb_positions by decide)
-    have h_s_1_4 := initial_s_non_absorb_position h_meets_constraints (show (1,4) ∉ absorb_positions by decide)
-    have h_s_2_4 := initial_s_non_absorb_position h_meets_constraints (show (2,4) ∉ absorb_positions by decide)
-    have h_s_3_4 := initial_s_non_absorb_position h_meets_constraints (show (3,4) ∉ absorb_positions by decide)
-    have h_s_4_4 := initial_s_non_absorb_position h_meets_constraints (show (4,4) ∉ absorb_positions by decide)
-    have := squeeze_bytes_equiv (h_meets_constraints := h_meets_constraints) (state := state_array c)
-      (h_y := h_y) (h_P := h_P)
-      (h_s_0_0 := h_s_0_0) (h_s_0_1 := h_s_0_1) (h_s_0_2 := h_s_0_2) (h_s_0_3 := h_s_0_3) (h_s_0_4 := h_s_0_4)
-      (h_s_1_0 := h_s_1_0) (h_s_1_1 := h_s_1_1) (h_s_1_2 := h_s_1_2) (h_s_1_3 := h_s_1_3) (h_s_1_4 := h_s_1_4)
-      (h_s_2_0 := h_s_2_0) (h_s_2_1 := h_s_2_1) (h_s_2_2 := h_s_2_2) (h_s_2_3 := h_s_2_3) (h_s_2_4 := h_s_2_4)
-      (h_s_3_0 := h_s_3_0) (h_s_3_1 := h_s_3_1) (h_s_3_2 := h_s_3_2) (h_s_3_3 := h_s_3_3) (h_s_3_4 := h_s_3_4)
-      (h_s_4_0 := h_s_4_0) (h_s_4_1 := h_s_4_1) (h_s_4_2 := h_s_4_2) (h_s_4_3 := h_s_4_3) (h_s_4_4 := h_s_4_4)
-      (h_is_paddings := h_is_paddings) (h_state := by {
-        simp [state_array.eq_def, array_range_25, state_x_y, fin_vals, absorb_positions]
-      })
-    symm at this
-    apply Option.map_eq_some'.mp at this
-    obtain ⟨val, ⟨h_some, h_val⟩⟩ := this
-    rewrite [h_some, ←h_val]
-    simp
-
-  lemma padded_data_size (h_data: data.size < 136):
-    (LeanCrypto.HashFunctions.multiratePadding 136 1 data).size = 136
+  lemma absorb_bytes_eval (state_bytes: ByteArray)
+    (h_state_bytes: state_bytes = ⟨#[
+      a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,
+      a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,
+      a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,
+      a30,a31,a32,a33,a34,a35,a36,a37,a38,a39,
+      a40,a41,a42,a43,a44,a45,a46,a47,a48,a49,
+      a50,a51,a52,a53,a54,a55,a56,a57,a58,a59,
+      a60,a61,a62,a63,a64,a65,a66,a67,a68,a69,
+      a70,a71,a72,a73,a74,a75,a76,a77,a78,a79,
+      a80,a81,a82,a83,a84,a85,a86,a87,a88,a89,
+      a90,a91,a92,a93,a94,a95,a96,a97,a98,a99,
+      a100,a101,a102,a103,a104,a105,a106,a107,a108,a109,
+      a110,a111,a112,a113,a114,a115,a116,a117,a118,a119,
+      a120,a121,a122,a123,a124,a125,a126,a127,a128,a129,
+      a130,a131,a132,a133,a134,a135,
+    ]⟩)
+  :
+    LeanCrypto.HashFunctions.Absorb.absorb 1088 (by trivial) (state_bytes) =
+    LeanCrypto.HashFunctions.keccakF
+    #[a0.toUInt64 <<< 0 ^^^ a1.toUInt64 <<< 8 ^^^ a2.toUInt64 <<< 16 ^^^ a3.toUInt64 <<< 24 ^^^ a4.toUInt64 <<< 32 ^^^
+            a5.toUInt64 <<< 40 ^^^
+          a6.toUInt64 <<< 48 ^^^
+        a7.toUInt64 <<< 56,
+      a40.toUInt64 <<< 0 ^^^ a41.toUInt64 <<< 8 ^^^ a42.toUInt64 <<< 16 ^^^ a43.toUInt64 <<< 24 ^^^
+              a44.toUInt64 <<< 32 ^^^
+            a45.toUInt64 <<< 40 ^^^
+          a46.toUInt64 <<< 48 ^^^
+        a47.toUInt64 <<< 56,
+      a80.toUInt64 <<< 0 ^^^ a81.toUInt64 <<< 8 ^^^ a82.toUInt64 <<< 16 ^^^ a83.toUInt64 <<< 24 ^^^
+              a84.toUInt64 <<< 32 ^^^
+            a85.toUInt64 <<< 40 ^^^
+          a86.toUInt64 <<< 48 ^^^
+        a87.toUInt64 <<< 56,
+      a120.toUInt64 <<< 0 ^^^ a121.toUInt64 <<< 8 ^^^ a122.toUInt64 <<< 16 ^^^ a123.toUInt64 <<< 24 ^^^
+              a124.toUInt64 <<< 32 ^^^
+            a125.toUInt64 <<< 40 ^^^
+          a126.toUInt64 <<< 48 ^^^
+        a127.toUInt64 <<< 56,
+      0,
+      a8.toUInt64 <<< 0 ^^^ a9.toUInt64 <<< 8 ^^^ a10.toUInt64 <<< 16 ^^^ a11.toUInt64 <<< 24 ^^^
+              a12.toUInt64 <<< 32 ^^^
+            a13.toUInt64 <<< 40 ^^^
+          a14.toUInt64 <<< 48 ^^^
+        a15.toUInt64 <<< 56,
+      a48.toUInt64 <<< 0 ^^^ a49.toUInt64 <<< 8 ^^^ a50.toUInt64 <<< 16 ^^^ a51.toUInt64 <<< 24 ^^^
+              a52.toUInt64 <<< 32 ^^^
+            a53.toUInt64 <<< 40 ^^^
+          a54.toUInt64 <<< 48 ^^^
+        a55.toUInt64 <<< 56,
+      a88.toUInt64 <<< 0 ^^^ a89.toUInt64 <<< 8 ^^^ a90.toUInt64 <<< 16 ^^^ a91.toUInt64 <<< 24 ^^^
+              a92.toUInt64 <<< 32 ^^^
+            a93.toUInt64 <<< 40 ^^^
+          a94.toUInt64 <<< 48 ^^^
+        a95.toUInt64 <<< 56,
+      a128.toUInt64 <<< 0 ^^^ a129.toUInt64 <<< 8 ^^^ a130.toUInt64 <<< 16 ^^^ a131.toUInt64 <<< 24 ^^^
+              a132.toUInt64 <<< 32 ^^^
+            a133.toUInt64 <<< 40 ^^^
+          a134.toUInt64 <<< 48 ^^^
+        a135.toUInt64 <<< 56,
+      0,
+      a16.toUInt64 <<< 0 ^^^ a17.toUInt64 <<< 8 ^^^ a18.toUInt64 <<< 16 ^^^ a19.toUInt64 <<< 24 ^^^
+              a20.toUInt64 <<< 32 ^^^
+            a21.toUInt64 <<< 40 ^^^
+          a22.toUInt64 <<< 48 ^^^
+        a23.toUInt64 <<< 56,
+      a56.toUInt64 <<< 0 ^^^ a57.toUInt64 <<< 8 ^^^ a58.toUInt64 <<< 16 ^^^ a59.toUInt64 <<< 24 ^^^
+              a60.toUInt64 <<< 32 ^^^
+            a61.toUInt64 <<< 40 ^^^
+          a62.toUInt64 <<< 48 ^^^
+        a63.toUInt64 <<< 56,
+      a96.toUInt64 <<< 0 ^^^ a97.toUInt64 <<< 8 ^^^ a98.toUInt64 <<< 16 ^^^ a99.toUInt64 <<< 24 ^^^
+              a100.toUInt64 <<< 32 ^^^
+            a101.toUInt64 <<< 40 ^^^
+          a102.toUInt64 <<< 48 ^^^
+        a103.toUInt64 <<< 56,
+      0, 0,
+      a24.toUInt64 <<< 0 ^^^ a25.toUInt64 <<< 8 ^^^ a26.toUInt64 <<< 16 ^^^ a27.toUInt64 <<< 24 ^^^
+              a28.toUInt64 <<< 32 ^^^
+            a29.toUInt64 <<< 40 ^^^
+          a30.toUInt64 <<< 48 ^^^
+        a31.toUInt64 <<< 56,
+      a64.toUInt64 <<< 0 ^^^ a65.toUInt64 <<< 8 ^^^ a66.toUInt64 <<< 16 ^^^ a67.toUInt64 <<< 24 ^^^
+              a68.toUInt64 <<< 32 ^^^
+            a69.toUInt64 <<< 40 ^^^
+          a70.toUInt64 <<< 48 ^^^
+        a71.toUInt64 <<< 56,
+      a104.toUInt64 <<< 0 ^^^ a105.toUInt64 <<< 8 ^^^ a106.toUInt64 <<< 16 ^^^ a107.toUInt64 <<< 24 ^^^
+              a108.toUInt64 <<< 32 ^^^
+            a109.toUInt64 <<< 40 ^^^
+          a110.toUInt64 <<< 48 ^^^
+        a111.toUInt64 <<< 56,
+      0, 0,
+      a32.toUInt64 <<< 0 ^^^ a33.toUInt64 <<< 8 ^^^ a34.toUInt64 <<< 16 ^^^ a35.toUInt64 <<< 24 ^^^
+              a36.toUInt64 <<< 32 ^^^
+            a37.toUInt64 <<< 40 ^^^
+          a38.toUInt64 <<< 48 ^^^
+        a39.toUInt64 <<< 56,
+      a72.toUInt64 <<< 0 ^^^ a73.toUInt64 <<< 8 ^^^ a74.toUInt64 <<< 16 ^^^ a75.toUInt64 <<< 24 ^^^
+              a76.toUInt64 <<< 32 ^^^
+            a77.toUInt64 <<< 40 ^^^
+          a78.toUInt64 <<< 48 ^^^
+        a79.toUInt64 <<< 56,
+      a112.toUInt64 <<< 0 ^^^ a113.toUInt64 <<< 8 ^^^ a114.toUInt64 <<< 16 ^^^ a115.toUInt64 <<< 24 ^^^
+              a116.toUInt64 <<< 32 ^^^
+            a117.toUInt64 <<< 40 ^^^
+          a118.toUInt64 <<< 48 ^^^
+        a119.toUInt64 <<< 56,
+      0, 0]
   := by
     simp [
-      LeanCrypto.HashFunctions.multiratePadding,
-      LeanCrypto.HashFunctions.multiratePadding.totalLength,
-      LeanCrypto.HashFunctions.multiratePadding.padlen,
-      LeanCrypto.HashFunctions.multiratePadding.msglen,
-      Nat.mod_eq_of_lt h_data,
-      Nat.sub_add_cancel (Nat.le_of_lt h_data)
+      h_state_bytes,
+      LeanCrypto.HashFunctions.Absorb.absorb
     ]
-    apply Array.size_map
-
-  lemma byte_array_append (a b: ByteArray): a ++ b = a.append b := by rfl
-
-  lemma byte_array_empty_append : ByteArray.empty.append arr = arr := by
-    unfold ByteArray.append ByteArray.copySlice
-    simp [ByteArray.empty, ByteArray.mkEmpty]
-    congr
-    apply Array.extract_eq_self_iff.mpr
-    simp [ByteArray.size]
-
-  -- lemma byteArrayOfSHA3SR_of_byteArray {bytes: ByteArray} (h: bytes.size = 136):
-  --   LeanCrypto.HashFunctions.byteArrayOfSHA3SR (LeanCrypto.HashFunctions.SHA3SRofByteArray bytes) =
-  --   sorry
-  -- := by
-  --   simp [
-  --     h,
-  --     LeanCrypto.HashFunctions.byteArrayOfSHA3SR,
-  --     LeanCrypto.HashFunctions.SHA3SRofByteArray
-  --   ]
-  --   rewrite [h]
-  --   have := byte_array_empty_append (arr := bytes)
-  --   simp [ByteArray.empty, ByteArray.mkEmpty] at this
-  --   rewrite [byte_array_append, byte_array_append, this, h]
-  --   simp
-  --   rewrite [this]
-  --   simp [ByteArray.foldl, ByteArray.foldlM, h]
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-  --   unfold ByteArray.foldlM.loop; simp
-
-  def padded_data_sha3r (padded_data: ByteArray) (h: padded_data.size = 136) :=#[
-      padded_data[0].toUInt64 <<< 56 +
-      padded_data[1].toUInt64 <<< 48 +
-      padded_data[2].toUInt64 <<< 40 +
-      padded_data[3].toUInt64 <<< 32 +
-      padded_data[4].toUInt64 <<< 24 +
-      padded_data[5].toUInt64 <<< 16 +
-      padded_data[6].toUInt64 <<< 8 +
-      padded_data[7].toUInt64,
-      padded_data[8].toUInt64 <<< 56 +
-      padded_data[9].toUInt64 <<< 48 +
-      padded_data[10].toUInt64 <<< 40 +
-      padded_data[11].toUInt64 <<< 32 +
-      padded_data[12].toUInt64 <<< 24 +
-      padded_data[13].toUInt64 <<< 16 +
-      padded_data[14].toUInt64 <<< 8 +
-      padded_data[15].toUInt64,
-      padded_data[16].toUInt64 <<< 56 +
-      padded_data[17].toUInt64 <<< 48 +
-      padded_data[18].toUInt64 <<< 40 +
-      padded_data[19].toUInt64 <<< 32 +
-      padded_data[20].toUInt64 <<< 24 +
-      padded_data[21].toUInt64 <<< 16 +
-      padded_data[22].toUInt64 <<< 8 +
-      padded_data[23].toUInt64,
-      padded_data[24].toUInt64 <<< 56 +
-      padded_data[25].toUInt64 <<< 48 +
-      padded_data[26].toUInt64 <<< 40 +
-      padded_data[27].toUInt64 <<< 32 +
-      padded_data[28].toUInt64 <<< 24 +
-      padded_data[29].toUInt64 <<< 16 +
-      padded_data[30].toUInt64 <<< 8 +
-      padded_data[31].toUInt64,
-      padded_data[32].toUInt64 <<< 56 +
-      padded_data[33].toUInt64 <<< 48 +
-      padded_data[34].toUInt64 <<< 40 +
-      padded_data[35].toUInt64 <<< 32 +
-      padded_data[36].toUInt64 <<< 24 +
-      padded_data[37].toUInt64 <<< 16 +
-      padded_data[38].toUInt64 <<< 8 +
-      padded_data[39].toUInt64,
-      padded_data[40].toUInt64 <<< 56 +
-      padded_data[41].toUInt64 <<< 48 +
-      padded_data[42].toUInt64 <<< 40 +
-      padded_data[43].toUInt64 <<< 32 +
-      padded_data[44].toUInt64 <<< 24 +
-      padded_data[45].toUInt64 <<< 16 +
-      padded_data[46].toUInt64 <<< 8 +
-      padded_data[47].toUInt64,
-      padded_data[48].toUInt64 <<< 56 +
-      padded_data[49].toUInt64 <<< 48 +
-      padded_data[50].toUInt64 <<< 40 +
-      padded_data[51].toUInt64 <<< 32 +
-      padded_data[52].toUInt64 <<< 24 +
-      padded_data[53].toUInt64 <<< 16 +
-      padded_data[54].toUInt64 <<< 8 +
-      padded_data[55].toUInt64,
-      padded_data[56].toUInt64 <<< 56 +
-      padded_data[57].toUInt64 <<< 48 +
-      padded_data[58].toUInt64 <<< 40 +
-      padded_data[59].toUInt64 <<< 32 +
-      padded_data[60].toUInt64 <<< 24 +
-      padded_data[61].toUInt64 <<< 16 +
-      padded_data[62].toUInt64 <<< 8 +
-      padded_data[63].toUInt64,
-      padded_data[64].toUInt64 <<< 56 +
-      padded_data[65].toUInt64 <<< 48 +
-      padded_data[66].toUInt64 <<< 40 +
-      padded_data[67].toUInt64 <<< 32 +
-      padded_data[68].toUInt64 <<< 24 +
-      padded_data[69].toUInt64 <<< 16 +
-      padded_data[70].toUInt64 <<< 8 +
-      padded_data[71].toUInt64,
-      padded_data[72].toUInt64 <<< 56 +
-      padded_data[73].toUInt64 <<< 48 +
-      padded_data[74].toUInt64 <<< 40 +
-      padded_data[75].toUInt64 <<< 32 +
-      padded_data[76].toUInt64 <<< 24 +
-      padded_data[77].toUInt64 <<< 16 +
-      padded_data[78].toUInt64 <<< 8 +
-      padded_data[79].toUInt64,
-      padded_data[80].toUInt64 <<< 56 +
-      padded_data[81].toUInt64 <<< 48 +
-      padded_data[82].toUInt64 <<< 40 +
-      padded_data[83].toUInt64 <<< 32 +
-      padded_data[84].toUInt64 <<< 24 +
-      padded_data[85].toUInt64 <<< 16 +
-      padded_data[86].toUInt64 <<< 8 +
-      padded_data[87].toUInt64,
-      padded_data[88].toUInt64 <<< 56 +
-      padded_data[89].toUInt64 <<< 48 +
-      padded_data[90].toUInt64 <<< 40 +
-      padded_data[91].toUInt64 <<< 32 +
-      padded_data[92].toUInt64 <<< 24 +
-      padded_data[93].toUInt64 <<< 16 +
-      padded_data[94].toUInt64 <<< 8 +
-      padded_data[95].toUInt64,
-      padded_data[96].toUInt64 <<< 56 +
-      padded_data[97].toUInt64 <<< 48 +
-      padded_data[98].toUInt64 <<< 40 +
-      padded_data[99].toUInt64 <<< 32 +
-      padded_data[100].toUInt64 <<< 24 +
-      padded_data[101].toUInt64 <<< 16 +
-      padded_data[102].toUInt64 <<< 8 +
-      padded_data[103].toUInt64,
-      padded_data[104].toUInt64 <<< 56 +
-      padded_data[105].toUInt64 <<< 48 +
-      padded_data[106].toUInt64 <<< 40 +
-      padded_data[107].toUInt64 <<< 32 +
-      padded_data[108].toUInt64 <<< 24 +
-      padded_data[109].toUInt64 <<< 16 +
-      padded_data[110].toUInt64 <<< 8 +
-      padded_data[111].toUInt64,
-      padded_data[112].toUInt64 <<< 56 +
-      padded_data[113].toUInt64 <<< 48 +
-      padded_data[114].toUInt64 <<< 40 +
-      padded_data[115].toUInt64 <<< 32 +
-      padded_data[116].toUInt64 <<< 24 +
-      padded_data[117].toUInt64 <<< 16 +
-      padded_data[118].toUInt64 <<< 8 +
-      padded_data[119].toUInt64,
-      padded_data[120].toUInt64 <<< 56 +
-      padded_data[121].toUInt64 <<< 48 +
-      padded_data[122].toUInt64 <<< 40 +
-      padded_data[123].toUInt64 <<< 32 +
-      padded_data[124].toUInt64 <<< 24 +
-      padded_data[125].toUInt64 <<< 16 +
-      padded_data[126].toUInt64 <<< 8 +
-      padded_data[127].toUInt64,
-      padded_data[128].toUInt64 <<< 56 +
-      padded_data[129].toUInt64 <<< 48 +
-      padded_data[130].toUInt64 <<< 40 +
-      padded_data[131].toUInt64 <<< 32 +
-      padded_data[132].toUInt64 <<< 24 +
-      padded_data[133].toUInt64 <<< 16 +
-      padded_data[134].toUInt64 <<< 8 +
-      padded_data[135].toUInt64
+    simp [
+      LeanCrypto.HashFunctions.Absorb.toBlocks,
+      LeanCrypto.HashFunctions.Absorb.unfoldr,
+      LeanCrypto.HashFunctions.Absorb.toBlocks.toLane,
+      ByteArray.isEmpty,
+      ByteArray.size,
+      Array.splitAt,
+      LeanCrypto.HashFunctions.Absorb.toBlocks.createWord64,
+      LeanCrypto.HashFunctions.Absorb.ifoldl,
+      array_range_8, uint64_zero_xor
     ]
-
-  set_option maxHeartbeats 400000
-  lemma sha3sr_of_bytearray (padded_data: ByteArray) (h: padded_data.size = 136):
-    LeanCrypto.HashFunctions.SHA3SRofByteArray padded_data =
-    padded_data_sha3r padded_data h
-  := by
-    simp [LeanCrypto.HashFunctions.SHA3SRofByteArray, h, byte_array_append]
-    have := byte_array_empty_append (arr := padded_data)
-    simp [ByteArray.empty, ByteArray.mkEmpty] at this
-    rewrite [this]
-    simp [h]
-    rewrite [show padded_data.size % 8 = 0 by simp [h]]
+    unfold LeanCrypto.HashFunctions.Absorb.absorbBlock
     simp
-    rewrite [this]
-    unfold ByteArray.foldl
-    unfold ByteArray.foldlM; simp [h]
-    unfold ByteArray.foldlM.loop; simp
-    have h_byte_one (byte: UInt8):
-      (0: UInt64) + (72057594037927936: UInt64) * byte.toUInt64 = byte.toUInt64 <<< 56
-    := by
-      apply UInt64.eq_of_toBitVec_eq
-      simp; bv_decide
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    have h_byte_two (byte: UInt8):
-      (281474976710656: UInt64) * byte.toUInt64 = byte.toUInt64 <<< 48
-    := by
-      apply UInt64.eq_of_toBitVec_eq
-      simp; bv_decide
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    have h_byte_three (byte: UInt8):
-      (1099511627776: UInt64) * byte.toUInt64 = byte.toUInt64 <<< 40
-    := by
-      apply UInt64.eq_of_toBitVec_eq
-      simp; bv_decide
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    have h_byte_four (byte: UInt8):
-      (4294967296: UInt64) * byte.toUInt64 = byte.toUInt64 <<< 32
-    := by
-      apply UInt64.eq_of_toBitVec_eq
-      simp; bv_decide
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    have h_byte_five (byte: UInt8):
-      (16777216: UInt64) * byte.toUInt64 = byte.toUInt64 <<< 24
-    := by
-      apply UInt64.eq_of_toBitVec_eq
-      simp; bv_decide
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    have h_byte_six (byte: UInt8):
-      (65536: UInt64) * byte.toUInt64 = byte.toUInt64 <<< 16
-    := by
-      apply UInt64.eq_of_toBitVec_eq
-      simp; bv_decide
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    have h_byte_seven (byte: UInt8):
-      (256: UInt64) * byte.toUInt64 = byte.toUInt64 <<< 8
-    := by
-      apply UInt64.eq_of_toBitVec_eq
-      simp; bv_decide
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    have h_byte_eight (byte: UInt8): (1: UInt64) * byte.toUInt64 = byte.toUInt64 := by
-      apply UInt64.eq_of_toBitVec_eq
-      simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_one]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_two]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_three]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_four]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_five]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_six]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_seven]
-    unfold ByteArray.foldlM.loop; simp
-    rewrite [h_byte_eight]
-    unfold ByteArray.foldlM.loop; simp [Id.run]
-    unfold padded_data_sha3r
-    rfl
+    unfold LeanCrypto.HashFunctions.Absorb.absorbBlock.state'
+    simp [uint64_zero_xor]
+    unfold LeanCrypto.HashFunctions.Absorb.absorbBlock
+    simp
 
-
-  set_option maxHeartbeats 800000
-  example :
-    LeanCrypto.HashFunctions.byteArrayOfSHA3SR (padded_data_sha3r padded_data h) =
-    padded_data
+  lemma absorb_bytes_with_conversion_eval (state_bytes: ByteArray)
+    (h_state_bytes: state_bytes = ⟨#[
+      a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,
+      a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,
+      a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,
+      a30,a31,a32,a33,a34,a35,a36,a37,a38,a39,
+      a40,a41,a42,a43,a44,a45,a46,a47,a48,a49,
+      a50,a51,a52,a53,a54,a55,a56,a57,a58,a59,
+      a60,a61,a62,a63,a64,a65,a66,a67,a68,a69,
+      a70,a71,a72,a73,a74,a75,a76,a77,a78,a79,
+      a80,a81,a82,a83,a84,a85,a86,a87,a88,a89,
+      a90,a91,a92,a93,a94,a95,a96,a97,a98,a99,
+      a100,a101,a102,a103,a104,a105,a106,a107,a108,a109,
+      a110,a111,a112,a113,a114,a115,a116,a117,a118,a119,
+      a120,a121,a122,a123,a124,a125,a126,a127,a128,a129,
+      a130,a131,a132,a133,a134,a135,
+    ]⟩)
+  :
+    LeanCrypto.HashFunctions.Absorb.absorb
+      1088
+      (by trivial)
+      (LeanCrypto.HashFunctions.byteArrayOfSHA3SR
+        (LeanCrypto.HashFunctions.SHA3SRofByteArray state_bytes)
+      ) =
+    LeanCrypto.HashFunctions.keccakF #[a0.toUInt64 <<< 0 ^^^ a1.toUInt64 <<< 8 ^^^ a2.toUInt64 <<< 16 ^^^ a3.toUInt64 <<< 24 ^^^ a4.toUInt64 <<< 32 ^^^
+            a5.toUInt64 <<< 40 ^^^
+          a6.toUInt64 <<< 48 ^^^
+        a7.toUInt64 <<< 56,
+      a40.toUInt64 <<< 0 ^^^ a41.toUInt64 <<< 8 ^^^ a42.toUInt64 <<< 16 ^^^ a43.toUInt64 <<< 24 ^^^
+              a44.toUInt64 <<< 32 ^^^
+            a45.toUInt64 <<< 40 ^^^
+          a46.toUInt64 <<< 48 ^^^
+        a47.toUInt64 <<< 56,
+      a80.toUInt64 <<< 0 ^^^ a81.toUInt64 <<< 8 ^^^ a82.toUInt64 <<< 16 ^^^ a83.toUInt64 <<< 24 ^^^
+              a84.toUInt64 <<< 32 ^^^
+            a85.toUInt64 <<< 40 ^^^
+          a86.toUInt64 <<< 48 ^^^
+        a87.toUInt64 <<< 56,
+      a120.toUInt64 <<< 0 ^^^ a121.toUInt64 <<< 8 ^^^ a122.toUInt64 <<< 16 ^^^ a123.toUInt64 <<< 24 ^^^
+              a124.toUInt64 <<< 32 ^^^
+            a125.toUInt64 <<< 40 ^^^
+          a126.toUInt64 <<< 48 ^^^
+        a127.toUInt64 <<< 56,
+      0,
+      a8.toUInt64 <<< 0 ^^^ a9.toUInt64 <<< 8 ^^^ a10.toUInt64 <<< 16 ^^^ a11.toUInt64 <<< 24 ^^^
+              a12.toUInt64 <<< 32 ^^^
+            a13.toUInt64 <<< 40 ^^^
+          a14.toUInt64 <<< 48 ^^^
+        a15.toUInt64 <<< 56,
+      a48.toUInt64 <<< 0 ^^^ a49.toUInt64 <<< 8 ^^^ a50.toUInt64 <<< 16 ^^^ a51.toUInt64 <<< 24 ^^^
+              a52.toUInt64 <<< 32 ^^^
+            a53.toUInt64 <<< 40 ^^^
+          a54.toUInt64 <<< 48 ^^^
+        a55.toUInt64 <<< 56,
+      a88.toUInt64 <<< 0 ^^^ a89.toUInt64 <<< 8 ^^^ a90.toUInt64 <<< 16 ^^^ a91.toUInt64 <<< 24 ^^^
+              a92.toUInt64 <<< 32 ^^^
+            a93.toUInt64 <<< 40 ^^^
+          a94.toUInt64 <<< 48 ^^^
+        a95.toUInt64 <<< 56,
+      a128.toUInt64 <<< 0 ^^^ a129.toUInt64 <<< 8 ^^^ a130.toUInt64 <<< 16 ^^^ a131.toUInt64 <<< 24 ^^^
+              a132.toUInt64 <<< 32 ^^^
+            a133.toUInt64 <<< 40 ^^^
+          a134.toUInt64 <<< 48 ^^^
+        a135.toUInt64 <<< 56,
+      0,
+      a16.toUInt64 <<< 0 ^^^ a17.toUInt64 <<< 8 ^^^ a18.toUInt64 <<< 16 ^^^ a19.toUInt64 <<< 24 ^^^
+              a20.toUInt64 <<< 32 ^^^
+            a21.toUInt64 <<< 40 ^^^
+          a22.toUInt64 <<< 48 ^^^
+        a23.toUInt64 <<< 56,
+      a56.toUInt64 <<< 0 ^^^ a57.toUInt64 <<< 8 ^^^ a58.toUInt64 <<< 16 ^^^ a59.toUInt64 <<< 24 ^^^
+              a60.toUInt64 <<< 32 ^^^
+            a61.toUInt64 <<< 40 ^^^
+          a62.toUInt64 <<< 48 ^^^
+        a63.toUInt64 <<< 56,
+      a96.toUInt64 <<< 0 ^^^ a97.toUInt64 <<< 8 ^^^ a98.toUInt64 <<< 16 ^^^ a99.toUInt64 <<< 24 ^^^
+              a100.toUInt64 <<< 32 ^^^
+            a101.toUInt64 <<< 40 ^^^
+          a102.toUInt64 <<< 48 ^^^
+        a103.toUInt64 <<< 56,
+      0, 0,
+      a24.toUInt64 <<< 0 ^^^ a25.toUInt64 <<< 8 ^^^ a26.toUInt64 <<< 16 ^^^ a27.toUInt64 <<< 24 ^^^
+              a28.toUInt64 <<< 32 ^^^
+            a29.toUInt64 <<< 40 ^^^
+          a30.toUInt64 <<< 48 ^^^
+        a31.toUInt64 <<< 56,
+      a64.toUInt64 <<< 0 ^^^ a65.toUInt64 <<< 8 ^^^ a66.toUInt64 <<< 16 ^^^ a67.toUInt64 <<< 24 ^^^
+              a68.toUInt64 <<< 32 ^^^
+            a69.toUInt64 <<< 40 ^^^
+          a70.toUInt64 <<< 48 ^^^
+        a71.toUInt64 <<< 56,
+      a104.toUInt64 <<< 0 ^^^ a105.toUInt64 <<< 8 ^^^ a106.toUInt64 <<< 16 ^^^ a107.toUInt64 <<< 24 ^^^
+              a108.toUInt64 <<< 32 ^^^
+            a109.toUInt64 <<< 40 ^^^
+          a110.toUInt64 <<< 48 ^^^
+        a111.toUInt64 <<< 56,
+      0, 0,
+      a32.toUInt64 <<< 0 ^^^ a33.toUInt64 <<< 8 ^^^ a34.toUInt64 <<< 16 ^^^ a35.toUInt64 <<< 24 ^^^
+              a36.toUInt64 <<< 32 ^^^
+            a37.toUInt64 <<< 40 ^^^
+          a38.toUInt64 <<< 48 ^^^
+        a39.toUInt64 <<< 56,
+      a72.toUInt64 <<< 0 ^^^ a73.toUInt64 <<< 8 ^^^ a74.toUInt64 <<< 16 ^^^ a75.toUInt64 <<< 24 ^^^
+              a76.toUInt64 <<< 32 ^^^
+            a77.toUInt64 <<< 40 ^^^
+          a78.toUInt64 <<< 48 ^^^
+        a79.toUInt64 <<< 56,
+      a112.toUInt64 <<< 0 ^^^ a113.toUInt64 <<< 8 ^^^ a114.toUInt64 <<< 16 ^^^ a115.toUInt64 <<< 24 ^^^
+              a116.toUInt64 <<< 32 ^^^
+            a117.toUInt64 <<< 40 ^^^
+          a118.toUInt64 <<< 48 ^^^
+        a119.toUInt64 <<< 56,
+      0, 0]
   := by
-    unfold LeanCrypto.HashFunctions.byteArrayOfSHA3SR
-    have h_cell_1 (x1 x2 x3 x4 x5 x6 x7 x8: UInt8):
-      ((x1.toUInt64 <<< 56 +
-      x2.toUInt64 <<< 48 +
-      x3.toUInt64 <<< 40 +
-      x4.toUInt64 <<< 32 +
-      x5.toUInt64 <<< 24 +
-      x6.toUInt64 <<< 16 +
-      x7.toUInt64 <<< 8 +
-      x8.toUInt64) >>> 56).toUInt8 = x1
-    := by
-      apply UInt8.eq_of_toBitVec_eq
+    rewrite [sha3sr_of_bytearray _ (by simp [ByteArray.size, h_state_bytes])]
+    rewrite [padded_data_sha3r_to_byte_array]
+    rw [absorb_bytes_eval _ h_state_bytes]
+
+  lemma squeeze_eval(h_bytes: bytes = #[
+    a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,
+    a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,
+    a20,a21,a22,a23,a24
+  ]):
+    LeanCrypto.HashFunctions.squeeze' 1088 h 32 bytes =
+    ⟨#[(a0 >>> 0).toUInt8, (a0 >>> 8).toUInt8, (a0 >>> 16).toUInt8, (a0 >>> 24).toUInt8, (a0 >>> 32).toUInt8,
+        (a0 >>> 40).toUInt8, (a0 >>> 48).toUInt8, (a0 >>> 56).toUInt8, (a5 >>> 0).toUInt8, (a5 >>> 8).toUInt8,
+        (a5 >>> 16).toUInt8, (a5 >>> 24).toUInt8, (a5 >>> 32).toUInt8, (a5 >>> 40).toUInt8, (a5 >>> 48).toUInt8,
+        (a5 >>> 56).toUInt8, (a10 >>> 0).toUInt8, (a10 >>> 8).toUInt8, (a10 >>> 16).toUInt8, (a10 >>> 24).toUInt8,
+        (a10 >>> 32).toUInt8, (a10 >>> 40).toUInt8, (a10 >>> 48).toUInt8, (a10 >>> 56).toUInt8, (a15 >>> 0).toUInt8,
+        (a15 >>> 8).toUInt8, (a15 >>> 16).toUInt8, (a15 >>> 24).toUInt8, (a15 >>> 32).toUInt8, (a15 >>> 40).toUInt8,
+        (a15 >>> 48).toUInt8, (a15 >>> 56).toUInt8]⟩
+  := by
+    unfold LeanCrypto.HashFunctions.squeeze'
+    unfold LeanCrypto.HashFunctions.squeeze'.stateToBytes
+    simp [
+      h_bytes,
+      LeanCrypto.HashFunctions.squeeze'.extract,
+      ByteArray.extract',
+      ByteArray.extract,
+      ByteArray.empty, ByteArray.mkEmpty,
+      ByteArray.copySlice, Array.extract,
+      LeanCrypto.HashFunctions.squeeze'.lanesToExtract,
+      Rat.ceil
+    ]
+    have : ((64: ℚ) / (8: ℚ )) = 8 := by
+      rewrite [
+        ←Nat.cast_ofNat (n := 64),
+        ←Nat.cast_ofNat (n := 8),
+        Rat.natCast_div_eq_divInt,
+      ]
       simp
-      bv_decide
-    have h_cell_2 (x1 x2 x3 x4 x5 x6 x7 x8: UInt8):
-      ((x1.toUInt64 <<< 56 +
-      x2.toUInt64 <<< 48 +
-      x3.toUInt64 <<< 40 +
-      x4.toUInt64 <<< 32 +
-      x5.toUInt64 <<< 24 +
-      x6.toUInt64 <<< 16 +
-      x7.toUInt64 <<< 8 +
-      x8.toUInt64) >>> 48).toUInt8 = x2
-    := by
-      apply UInt8.eq_of_toBitVec_eq
+      apply (Rat.divInt_eq_iff (n₁ := 64) (d₁ := 8) (n₂ := 8) (d₂ := 1) (by trivial) (by trivial)).mpr
+      decide
+    have : ((32:ℚ) / ((64: ℚ) / (8: ℚ ))) = 4 := by
+      rewrite [this]
+      rewrite [
+        ←Nat.cast_ofNat (n := 32),
+        ←Nat.cast_ofNat (n := 8),
+        Rat.natCast_div_eq_divInt,
+      ]
       simp
+      apply (Rat.divInt_eq_iff (n₁ := 32) (d₁ := 8) (n₂ := 4) (d₂ := 1) (by trivial) (by trivial)).mpr
+      decide
+    simp [this]
+    have : @Array.extract.loop UInt8 #[] 0 0 #[] = #[] := by rfl
+    simp [this]
+    simp [
+      LeanCrypto.HashFunctions.squeeze'.extract,
+      LeanCrypto.HashFunctions.Absorb.unfoldrN,
+      LeanCrypto.HashFunctions.Absorb.unfoldrN.go,
+    ]
+    simp [
+      LeanCrypto.HashFunctions.squeeze'.toLittleEndian,
+      ByteArray.empty, ByteArray.mkEmpty, ByteArray.push,
+      show Array.extract.loop #[] 0 32 #[] = #[] by rfl
+    ]
+    simp [Array.extract.loop]
+
+  lemma keccakF_size (h_state_size: state.size = 25):
+    (LeanCrypto.HashFunctions.keccakF state).size = 25
+  := by
+    simp [
+      LeanCrypto.HashFunctions.keccakF,
+      LeanCrypto.HashFunctions.Rounds,
+      Array.foldl1,
+      LeanCrypto.HashFunctions.keccakF.f
+    ]
+    repeat (
+      apply iota_size
+      apply chi_size
+      apply pi_size
+      apply rho_size
+      apply theta_size
+    )
+    assumption
+
+  lemma state_array_eval :
+    state_array c = #[{
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 1 79).val ++ BitVec.ofNat 8 (cell_manager c 1 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 1 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 1 76).val ++
+                BitVec.ofNat 8 (cell_manager c 1 75).val ++
+              BitVec.ofNat 8 (cell_manager c 1 74).val ++
+            BitVec.ofNat 8 (cell_manager c 1 73).val ++
+          BitVec.ofNat 8 (cell_manager c 1 72).val },
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 6 79).val ++ BitVec.ofNat 8 (cell_manager c 6 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 6 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 6 76).val ++
+                BitVec.ofNat 8 (cell_manager c 6 75).val ++
+              BitVec.ofNat 8 (cell_manager c 6 74).val ++
+            BitVec.ofNat 8 (cell_manager c 6 73).val ++
+          BitVec.ofNat 8 (cell_manager c 6 72).val },
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 11 79).val ++ BitVec.ofNat 8 (cell_manager c 11 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 11 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 11 76).val ++
+                BitVec.ofNat 8 (cell_manager c 11 75).val ++
+              BitVec.ofNat 8 (cell_manager c 11 74).val ++
+            BitVec.ofNat 8 (cell_manager c 11 73).val ++
+          BitVec.ofNat 8 (cell_manager c 11 72).val },
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 16 79).val ++ BitVec.ofNat 8 (cell_manager c 16 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 16 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 16 76).val ++
+                BitVec.ofNat 8 (cell_manager c 16 75).val ++
+              BitVec.ofNat 8 (cell_manager c 16 74).val ++
+            BitVec.ofNat 8 (cell_manager c 16 73).val ++
+          BitVec.ofNat 8 (cell_manager c 16 72).val },
+    0,
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 2 79).val ++ BitVec.ofNat 8 (cell_manager c 2 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 2 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 2 76).val ++
+                BitVec.ofNat 8 (cell_manager c 2 75).val ++
+              BitVec.ofNat 8 (cell_manager c 2 74).val ++
+            BitVec.ofNat 8 (cell_manager c 2 73).val ++
+          BitVec.ofNat 8 (cell_manager c 2 72).val },
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 7 79).val ++ BitVec.ofNat 8 (cell_manager c 7 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 7 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 7 76).val ++
+                BitVec.ofNat 8 (cell_manager c 7 75).val ++
+              BitVec.ofNat 8 (cell_manager c 7 74).val ++
+            BitVec.ofNat 8 (cell_manager c 7 73).val ++
+          BitVec.ofNat 8 (cell_manager c 7 72).val },
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 12 79).val ++ BitVec.ofNat 8 (cell_manager c 12 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 12 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 12 76).val ++
+                BitVec.ofNat 8 (cell_manager c 12 75).val ++
+              BitVec.ofNat 8 (cell_manager c 12 74).val ++
+            BitVec.ofNat 8 (cell_manager c 12 73).val ++
+          BitVec.ofNat 8 (cell_manager c 12 72).val },
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 17 79).val ++ BitVec.ofNat 8 (cell_manager c 17 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 17 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 17 76).val ++
+                BitVec.ofNat 8 (cell_manager c 17 75).val ++
+              BitVec.ofNat 8 (cell_manager c 17 74).val ++
+            BitVec.ofNat 8 (cell_manager c 17 73).val ++
+          BitVec.ofNat 8 (cell_manager c 17 72).val },
+    0,
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 3 79).val ++ BitVec.ofNat 8 (cell_manager c 3 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 3 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 3 76).val ++
+                BitVec.ofNat 8 (cell_manager c 3 75).val ++
+              BitVec.ofNat 8 (cell_manager c 3 74).val ++
+            BitVec.ofNat 8 (cell_manager c 3 73).val ++
+          BitVec.ofNat 8 (cell_manager c 3 72).val },
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 8 79).val ++ BitVec.ofNat 8 (cell_manager c 8 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 8 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 8 76).val ++
+                BitVec.ofNat 8 (cell_manager c 8 75).val ++
+              BitVec.ofNat 8 (cell_manager c 8 74).val ++
+            BitVec.ofNat 8 (cell_manager c 8 73).val ++
+          BitVec.ofNat 8 (cell_manager c 8 72).val },
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 13 79).val ++ BitVec.ofNat 8 (cell_manager c 13 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 13 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 13 76).val ++
+                BitVec.ofNat 8 (cell_manager c 13 75).val ++
+              BitVec.ofNat 8 (cell_manager c 13 74).val ++
+            BitVec.ofNat 8 (cell_manager c 13 73).val ++
+          BitVec.ofNat 8 (cell_manager c 13 72).val },
+    0, 0,
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 4 79).val ++ BitVec.ofNat 8 (cell_manager c 4 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 4 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 4 76).val ++
+                BitVec.ofNat 8 (cell_manager c 4 75).val ++
+              BitVec.ofNat 8 (cell_manager c 4 74).val ++
+            BitVec.ofNat 8 (cell_manager c 4 73).val ++
+          BitVec.ofNat 8 (cell_manager c 4 72).val },
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 9 79).val ++ BitVec.ofNat 8 (cell_manager c 9 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 9 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 9 76).val ++
+                BitVec.ofNat 8 (cell_manager c 9 75).val ++
+              BitVec.ofNat 8 (cell_manager c 9 74).val ++
+            BitVec.ofNat 8 (cell_manager c 9 73).val ++
+          BitVec.ofNat 8 (cell_manager c 9 72).val },
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 14 79).val ++ BitVec.ofNat 8 (cell_manager c 14 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 14 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 14 76).val ++
+                BitVec.ofNat 8 (cell_manager c 14 75).val ++
+              BitVec.ofNat 8 (cell_manager c 14 74).val ++
+            BitVec.ofNat 8 (cell_manager c 14 73).val ++
+          BitVec.ofNat 8 (cell_manager c 14 72).val },
+    0, 0,
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 5 79).val ++ BitVec.ofNat 8 (cell_manager c 5 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 5 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 5 76).val ++
+                BitVec.ofNat 8 (cell_manager c 5 75).val ++
+              BitVec.ofNat 8 (cell_manager c 5 74).val ++
+            BitVec.ofNat 8 (cell_manager c 5 73).val ++
+          BitVec.ofNat 8 (cell_manager c 5 72).val },
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 10 79).val ++ BitVec.ofNat 8 (cell_manager c 10 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 10 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 10 76).val ++
+                BitVec.ofNat 8 (cell_manager c 10 75).val ++
+              BitVec.ofNat 8 (cell_manager c 10 74).val ++
+            BitVec.ofNat 8 (cell_manager c 10 73).val ++
+          BitVec.ofNat 8 (cell_manager c 10 72).val },
+    {
+      toBitVec :=
+        BitVec.ofNat 8 (cell_manager c 15 79).val ++ BitVec.ofNat 8 (cell_manager c 15 78).val ++
+                    BitVec.ofNat 8 (cell_manager c 15 77).val ++
+                  BitVec.ofNat 8 (cell_manager c 15 76).val ++
+                BitVec.ofNat 8 (cell_manager c 15 75).val ++
+              BitVec.ofNat 8 (cell_manager c 15 74).val ++
+            BitVec.ofNat 8 (cell_manager c 15 73).val ++
+          BitVec.ofNat 8 (cell_manager c 15 72).val },
+    0, 0]
+  := by
+    unfold state_array
+    simp [array_range_25, state_x_y, absorb_positions, fin_vals, a_slice]
+
+  def input_bytearray (c: ValidCircuit P P_Prime): ByteArray :=
+    ⟨
+      ((input_bytes_sublist c 136).map (λ x => UInt8.ofBitVec (BitVec.ofNat 8 x.val))).toArray
+    ⟩
+
+  lemma hash_bytes_eval: hash_bytes c 25 = [cell_manager c 24 1680, cell_manager c 24 1681, cell_manager c 24 1682, cell_manager c 24 1683, cell_manager c 24 1684,
+    cell_manager c 24 1685, cell_manager c 24 1686, cell_manager c 24 1687, cell_manager c 23 1680,
+    cell_manager c 23 1681, cell_manager c 23 1682, cell_manager c 23 1683, cell_manager c 23 1684,
+    cell_manager c 23 1685, cell_manager c 23 1686, cell_manager c 23 1687, cell_manager c 22 1680,
+    cell_manager c 22 1681, cell_manager c 22 1682, cell_manager c 22 1683, cell_manager c 22 1684,
+    cell_manager c 22 1685, cell_manager c 22 1686, cell_manager c 22 1687, cell_manager c 21 1680,
+    cell_manager c 21 1681, cell_manager c 21 1682, cell_manager c 21 1683, cell_manager c 21 1684,
+    cell_manager c 21 1685, cell_manager c 21 1686, cell_manager c 21 1687] := by
+    unfold hash_bytes squeeze_bytes
+    simp [squeeze_from, Transform.split_expr, Split.expr_res, word_parts_known]
+
+  def output_bytearray (c: ValidCircuit P P_Prime): ByteArray :=
+    ⟨
+      ((hash_bytes c 25).map (λ x => UInt8.ofBitVec (BitVec.ofNat 8 x.val))).toArray
+    ⟩
+
+  lemma hash_bytes_length: (hash_bytes c 25).length = 32 := by
+    simp [hash_bytes, squeeze_bytes, Transform.split_expr, Split.expr_res, word_parts_known]
+
+  lemma hash_bytes_value_range
+    {c: ValidCircuit P P_Prime} (h_meets_constraints: meets_constraints c)
+    (h_idx: idx < 32) (h_P: P ≥ 256):
+    (hash_bytes c 25)[idx].val < 256
+  := by
+    unfold hash_bytes
+    simp
+    have h_squeeze_bytes := Proofs.squeeze_bytes_of_meets_constraints h_meets_constraints
+    simp [
+      squeeze_bytes.eq_def, keccak_constants, Transform.split_expr, packed_parts.eq_def,
+      Split.expr.eq_def, Split.constraint.eq_def, Split.expr_res.eq_def, word_parts_known,
+      squeeze_from, squeeze_from_parts
+    ] at h_squeeze_bytes
+    simp [
+      squeeze_bytes.eq_def, keccak_constants, Transform.split_expr, Split.expr_res.eq_def, word_parts_known
+    ]
+    by_cases idx = 0
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 24 (by trivial) (by trivial)).2.1 h_P; simp_all
+    by_cases idx = 1
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 24 (by trivial) (by trivial)).2.2.1 h_P; simp_all
+    by_cases idx = 2
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 24 (by trivial) (by trivial)).2.2.2.1 h_P; simp_all
+    by_cases idx = 3
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 24 (by trivial) (by trivial)).2.2.2.2.1 h_P; simp_all
+    by_cases idx = 4
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 24 (by trivial) (by trivial)).2.2.2.2.2.1 h_P; simp_all
+    by_cases idx = 5
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 24 (by trivial) (by trivial)).2.2.2.2.2.2.1 h_P; simp_all
+    by_cases idx = 6
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 24 (by trivial) (by trivial)).2.2.2.2.2.2.2.1 h_P; simp_all
+    by_cases idx = 7
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 24 (by trivial) (by trivial)).2.2.2.2.2.2.2.2 h_P; simp_all
+    by_cases idx = 8
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 23 (by trivial) (by trivial)).2.1 h_P; simp_all
+    by_cases idx = 9
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 23 (by trivial) (by trivial)).2.2.1 h_P; simp_all
+    by_cases idx = 10
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 23 (by trivial) (by trivial)).2.2.2.1 h_P; simp_all
+    by_cases idx = 11
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 23 (by trivial) (by trivial)).2.2.2.2.1 h_P; simp_all
+    by_cases idx = 12
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 23 (by trivial) (by trivial)).2.2.2.2.2.1 h_P; simp_all
+    by_cases idx = 13
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 23 (by trivial) (by trivial)).2.2.2.2.2.2.1 h_P; simp_all
+    by_cases idx = 14
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 23 (by trivial) (by trivial)).2.2.2.2.2.2.2.1 h_P; simp_all
+    by_cases idx = 15
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 23 (by trivial) (by trivial)).2.2.2.2.2.2.2.2 h_P; simp_all
+    by_cases idx = 16
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 22 (by trivial) (by trivial)).2.1 h_P; simp_all
+    by_cases idx = 17
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 22 (by trivial) (by trivial)).2.2.1 h_P; simp_all
+    by_cases idx = 18
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 22 (by trivial) (by trivial)).2.2.2.1 h_P; simp_all
+    by_cases idx = 19
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 22 (by trivial) (by trivial)).2.2.2.2.1 h_P; simp_all
+    by_cases idx = 20
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 22 (by trivial) (by trivial)).2.2.2.2.2.1 h_P; simp_all
+    by_cases idx = 21
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 22 (by trivial) (by trivial)).2.2.2.2.2.2.1 h_P; simp_all
+    by_cases idx = 22
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 22 (by trivial) (by trivial)).2.2.2.2.2.2.2.1 h_P; simp_all
+    by_cases idx = 23
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 22 (by trivial) (by trivial)).2.2.2.2.2.2.2.2 h_P; simp_all
+    by_cases idx = 24
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 21 (by trivial) (by trivial)).2.1 h_P; simp_all
+    by_cases idx = 25
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 21 (by trivial) (by trivial)).2.2.1 h_P; simp_all
+    by_cases idx = 26
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 21 (by trivial) (by trivial)).2.2.2.1 h_P; simp_all
+    by_cases idx = 27
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 21 (by trivial) (by trivial)).2.2.2.2.1 h_P; simp_all
+    by_cases idx = 28
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 21 (by trivial) (by trivial)).2.2.2.2.2.1 h_P; simp_all
+    by_cases idx = 29
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 21 (by trivial) (by trivial)).2.2.2.2.2.2.1 h_P; simp_all
+    by_cases idx = 30
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 21 (by trivial) (by trivial)).2.2.2.2.2.2.2.1 h_P; simp_all
+    by_cases idx = 31
+    . convert Lookups.PackTable.apply_transform_table_output_range _ _ (h_squeeze_bytes 21 (by trivial) (by trivial)).2.2.2.2.2.2.2.2 h_P; simp_all
+    omega
+
+  lemma squeeze_absorb_eval {c: ValidCircuit P P_Prime}
+    (h_meets_constraints: meets_constraints c) (h_P: P ≥ 2^200)
+    (h_is_paddings: is_paddings c 17 (-1) = 1):
+    LeanCrypto.HashFunctions.squeeze' 1088 h 32 (
+      LeanCrypto.HashFunctions.Absorb.absorb
+        1088
+        (by trivial)
+        (LeanCrypto.HashFunctions.byteArrayOfSHA3SR
+          (LeanCrypto.HashFunctions.SHA3SRofByteArray (input_bytearray c))
+        )
+    ) = output_bytearray c
+  := by
+    unfold input_bytearray
+    rewrite [input_bytes_sublist_eq_calc]
+    unfold input_bytes_sublist_calc
+    simp only [List.take_succ_cons, List.take_nil, List.map_cons, List.map_nil]
+    rewrite [absorb_bytes_with_conversion_eval _ (by trivial)]
+    . generalize h_post_state :LeanCrypto.HashFunctions.keccakF _ = post_state
+      have : post_state.size = 25 := by simp [←h_post_state, keccakF_size]
+      have := array_ext_25 this
+      rewrite [squeeze_eval this]
+      have h_state: post_state = LeanCrypto.HashFunctions.keccakF (state_array c) := by
+        rewrite [←h_post_state]
+        clear h_post_state
+        rewrite [state_array_eval]
+        simp [input_bytes, keccak_constants, -UInt8.ofBitVec_ofNat, Transform.split_expr, Split.expr_res]
+        have (x: ZMod P) :
+          ({ toBitVec := BitVec.ofNat 8 x.val }: UInt8).toUInt64 =
+          UInt64.ofBitVec (BitVec.setWidth 64 (BitVec.ofNat 8 x.val))
+        := by
+          rw [UInt64.ofBitVec_uInt8ToBitVec]
+        simp only [this]
+        have (bv: BitVec 64) (n: ℕ):
+          (UInt64.ofBitVec bv) <<< UInt64.ofNat n = UInt64.ofBitVec (bv <<< (n % 64))
+        := by
+          apply UInt64.eq_of_toBitVec_eq
+          simp
+        have (bv) := this bv 0
+        simp at this
+        simp [this]
+        clear this
+        have (bv) := this bv 8
+        simp at this
+        simp [this]
+        clear this
+        have (bv) := this bv 16
+        simp at this
+        simp [this]
+        clear this
+        have (bv) := this bv 24
+        simp at this
+        simp [this]
+        clear this
+        have (bv) := this bv 32
+        simp at this
+        simp [this]
+        clear this
+        have (bv) := this bv 40
+        simp at this
+        simp [this]
+        clear this
+        have (bv) := this bv 48
+        simp at this
+        simp [this]
+        clear this
+        have (bv) := this bv 56
+        simp at this
+        simp [this]
+        clear this
+        have (bv1 bv2: BitVec 64) :
+          UInt64.ofBitVec bv1 ^^^ UInt64.ofBitVec bv2 = UInt64.ofBitVec (bv1 ^^^ bv2)
+        := by
+          apply UInt64.eq_of_toBitVec_eq
+          simp
+        simp only [this]
+        have (x0 x1 x2 x3 x4 x5 x6 x7: ZMod P):
+          BitVec.setWidth 64 (BitVec.ofNat 8 x0.val) ^^^
+                        BitVec.setWidth 64 (BitVec.ofNat 8 x1.val) <<< 8 ^^^
+                      BitVec.setWidth 64 (BitVec.ofNat 8 x2.val) <<< 16 ^^^
+                    BitVec.setWidth 64 (BitVec.ofNat 8 x3.val) <<< 24 ^^^
+                  BitVec.setWidth 64 (BitVec.ofNat 8 x4.val) <<< 32 ^^^
+                BitVec.setWidth 64 (BitVec.ofNat 8 x5.val) <<< 40 ^^^
+              BitVec.setWidth 64 (BitVec.ofNat 8 x6.val) <<< 48 ^^^
+            BitVec.setWidth 64 (BitVec.ofNat 8 x7.val) <<< 56 =
+          BitVec.ofNat 8 x7.val ++ BitVec.ofNat 8 x6.val ++
+                      BitVec.ofNat 8 x5.val ++
+                    BitVec.ofNat 8 x4.val ++
+                  BitVec.ofNat 8 x3.val ++
+                BitVec.ofNat 8 x2.val ++
+              BitVec.ofNat 8 x1.val ++
+            BitVec.ofNat 8 x0.val
+        := by
+          bv_decide
+        simp [this]
+      simp [h_state]
+      clear h_post_state this
+      simp [←UInt8.ofBitVec_uInt64ToBitVec]
+      have h_output := output_spec_of_padding h_meets_constraints (y := 0) h_P (by trivial) h_is_paddings
+      simp [fin_vals, Array.getElem?_eq_some_iff] at h_output
+      obtain ⟨_, h_output⟩ := h_output
+      rewrite [h_output]
+      have h_output := output_spec_of_padding h_meets_constraints (y := 1) h_P (by trivial) h_is_paddings
+      simp [fin_vals, Array.getElem?_eq_some_iff] at h_output
+      obtain ⟨_, h_output⟩ := h_output
+      rewrite [h_output]
+      have h_output := output_spec_of_padding h_meets_constraints (y := 2) h_P (by trivial) h_is_paddings
+      simp [fin_vals, Array.getElem?_eq_some_iff] at h_output
+      obtain ⟨_, h_output⟩ := h_output
+      rewrite [h_output]
+      have h_output := output_spec_of_padding h_meets_constraints (y := 3) h_P (by trivial) h_is_paddings
+      simp [fin_vals, Array.getElem?_eq_some_iff] at h_output
+      obtain ⟨_, h_output⟩ := h_output
+      rewrite [h_output]
+      unfold output_bytearray
+      rewrite [hash_bytes_eval]
+      simp [-UInt8.ofBitVec_ofNat]
       bv_decide
-    have h_cell_3 (x1 x2 x3 x4 x5 x6 x7 x8: UInt8):
-      ((x1.toUInt64 <<< 56 +
-      x2.toUInt64 <<< 48 +
-      x3.toUInt64 <<< 40 +
-      x4.toUInt64 <<< 32 +
-      x5.toUInt64 <<< 24 +
-      x6.toUInt64 <<< 16 +
-      x7.toUInt64 <<< 8 +
-      x8.toUInt64) >>> 40).toUInt8 = x3
-    := by
-      apply UInt8.eq_of_toBitVec_eq
-      simp
-      bv_decide
-    have h_cell_4 (x1 x2 x3 x4 x5 x6 x7 x8: UInt8):
-      ((x1.toUInt64 <<< 56 +
-      x2.toUInt64 <<< 48 +
-      x3.toUInt64 <<< 40 +
-      x4.toUInt64 <<< 32 +
-      x5.toUInt64 <<< 24 +
-      x6.toUInt64 <<< 16 +
-      x7.toUInt64 <<< 8 +
-      x8.toUInt64) >>> 32).toUInt8 = x4
-    := by
-      apply UInt8.eq_of_toBitVec_eq
-      simp
-      bv_decide
-    have h_cell_5 (x1 x2 x3 x4 x5 x6 x7 x8: UInt8):
-      ((x1.toUInt64 <<< 56 +
-      x2.toUInt64 <<< 48 +
-      x3.toUInt64 <<< 40 +
-      x4.toUInt64 <<< 32 +
-      x5.toUInt64 <<< 24 +
-      x6.toUInt64 <<< 16 +
-      x7.toUInt64 <<< 8 +
-      x8.toUInt64) >>> 24).toUInt8 = x5
-    := by
-      apply UInt8.eq_of_toBitVec_eq
-      simp
-      bv_decide
-    have h_cell_6 (x1 x2 x3 x4 x5 x6 x7 x8: UInt8):
-      ((x1.toUInt64 <<< 56 +
-      x2.toUInt64 <<< 48 +
-      x3.toUInt64 <<< 40 +
-      x4.toUInt64 <<< 32 +
-      x5.toUInt64 <<< 24 +
-      x6.toUInt64 <<< 16 +
-      x7.toUInt64 <<< 8 +
-      x8.toUInt64) >>> 16).toUInt8 = x6
-    := by
-      apply UInt8.eq_of_toBitVec_eq
-      simp
-      bv_decide
-    have h_cell_7 (x1 x2 x3 x4 x5 x6 x7 x8: UInt8):
-      ((x1.toUInt64 <<< 56 +
-      x2.toUInt64 <<< 48 +
-      x3.toUInt64 <<< 40 +
-      x4.toUInt64 <<< 32 +
-      x5.toUInt64 <<< 24 +
-      x6.toUInt64 <<< 16 +
-      x7.toUInt64 <<< 8 +
-      x8.toUInt64) >>> 8).toUInt8 = x7
-    := by
-      apply UInt8.eq_of_toBitVec_eq
-      simp
-      bv_decide
-    have h_cell_8 (x1 x2 x3 x4 x5 x6 x7 x8: UInt8):
-      ((x1.toUInt64 <<< 56 +
-      x2.toUInt64 <<< 48 +
-      x3.toUInt64 <<< 40 +
-      x4.toUInt64 <<< 32 +
-      x5.toUInt64 <<< 24 +
-      x6.toUInt64 <<< 16 +
-      x7.toUInt64 <<< 8 +
-      x8.toUInt64) >>> 0).toUInt8 = x8
-    := by
-      apply UInt8.eq_of_toBitVec_eq
-      simp
-      bv_decide
-    unfold padded_data_sha3r
-    simp [←Array.foldl_toList, *, ByteArray.push.eq_def, Array.push, ByteArray.empty, ByteArray.mkEmpty]
-    congr
-    apply List.ext_get
-    . simp [ByteArray.size] at h
-      simp [h]
-    . intro n h_n1 h_n2
-      simp at h_n1
-      simp [List.get_eq_getElem, List.get_eq_getElem]
-      have : padded_data.1[n] = padded_data[n] := rfl
-      simp [this]
-      by_cases h_n : n ≥ 136; exfalso; omega
-      by_cases h_n : n = 0; subst h_n; rfl
-      by_cases h_n : n = 1; subst h_n; rfl
-      by_cases h_n : n = 2; subst h_n; rfl
-      by_cases h_n : n = 3; subst h_n; rfl
-      by_cases h_n : n = 4; subst h_n; rfl
-      by_cases h_n : n = 5; subst h_n; rfl
-      by_cases h_n : n = 6; subst h_n; rfl
-      by_cases h_n : n = 7; subst h_n; rfl
-      by_cases h_n : n = 8; subst h_n; rfl
-      by_cases h_n : n = 9; subst h_n; rfl
-      by_cases h_n : n = 10; subst h_n; rfl
-      by_cases h_n : n = 11; subst h_n; rfl
-      by_cases h_n : n = 12; subst h_n; rfl
-      by_cases h_n : n = 13; subst h_n; rfl
-      by_cases h_n : n = 14; subst h_n; rfl
-      by_cases h_n : n = 15; subst h_n; rfl
-      by_cases h_n : n = 16; subst h_n; rfl
-      by_cases h_n : n = 17; subst h_n; rfl
-      by_cases h_n : n = 18; subst h_n; rfl
-      by_cases h_n : n = 19; subst h_n; rfl
-      by_cases h_n : n = 20; subst h_n; rfl
-      by_cases h_n : n = 21; subst h_n; rfl
-      by_cases h_n : n = 22; subst h_n; rfl
-      by_cases h_n : n = 23; subst h_n; rfl
-      by_cases h_n : n = 24; subst h_n; rfl
-      by_cases h_n : n = 25; subst h_n; rfl
-      by_cases h_n : n = 26; subst h_n; rfl
-      by_cases h_n : n = 27; subst h_n; rfl
-      by_cases h_n : n = 28; subst h_n; rfl
-      by_cases h_n : n = 29; subst h_n; rfl
-      by_cases h_n : n = 30; subst h_n; rfl
-      by_cases h_n : n = 31; subst h_n; rfl
-      by_cases h_n : n = 32; subst h_n; rfl
-      by_cases h_n : n = 33; subst h_n; rfl
-      by_cases h_n : n = 34; subst h_n; rfl
-      by_cases h_n : n = 35; subst h_n; rfl
-      by_cases h_n : n = 36; subst h_n; rfl
-      by_cases h_n : n = 37; subst h_n; rfl
-      by_cases h_n : n = 38; subst h_n; rfl
-      by_cases h_n : n = 39; subst h_n; rfl
-      by_cases h_n : n = 40; subst h_n; rfl
-      by_cases h_n : n = 41; subst h_n; rfl
-      by_cases h_n : n = 42; subst h_n; rfl
-      by_cases h_n : n = 43; subst h_n; rfl
-      by_cases h_n : n = 44; subst h_n; rfl
-      by_cases h_n : n = 45; subst h_n; rfl
-      by_cases h_n : n = 46; subst h_n; rfl
-      by_cases h_n : n = 47; subst h_n; rfl
-      by_cases h_n : n = 48; subst h_n; rfl
-      by_cases h_n : n = 49; subst h_n; rfl
-      by_cases h_n : n = 50; subst h_n; rfl
-      by_cases h_n : n = 51; subst h_n; rfl
-      by_cases h_n : n = 52; subst h_n; rfl
-      by_cases h_n : n = 53; subst h_n; rfl
-      by_cases h_n : n = 54; subst h_n; rfl
-      by_cases h_n : n = 55; subst h_n; rfl
-      by_cases h_n : n = 56; subst h_n; rfl
-      by_cases h_n : n = 57; subst h_n; rfl
-      by_cases h_n : n = 58; subst h_n; rfl
-      by_cases h_n : n = 59; subst h_n; rfl
-      by_cases h_n : n = 60; subst h_n; rfl
-      by_cases h_n : n = 61; subst h_n; rfl
-      by_cases h_n : n = 62; subst h_n; rfl
-      by_cases h_n : n = 63; subst h_n; rfl
-      by_cases h_n : n = 64; subst h_n; rfl
-      by_cases h_n : n = 65; subst h_n; rfl
-      by_cases h_n : n = 66; subst h_n; rfl
-      by_cases h_n : n = 67; subst h_n; rfl
-      by_cases h_n : n = 68; subst h_n; rfl
-      by_cases h_n : n = 69; subst h_n; rfl
-      by_cases h_n : n = 70; subst h_n; rfl
-      by_cases h_n : n = 71; subst h_n; rfl
-      by_cases h_n : n = 72; subst h_n; rfl
-      by_cases h_n : n = 73; subst h_n; rfl
-      by_cases h_n : n = 74; subst h_n; rfl
-      by_cases h_n : n = 75; subst h_n; rfl
-      by_cases h_n : n = 76; subst h_n; rfl
-      by_cases h_n : n = 77; subst h_n; rfl
-      by_cases h_n : n = 78; subst h_n; rfl
-      by_cases h_n : n = 79; subst h_n; rfl
-      by_cases h_n : n = 80; subst h_n; rfl
-      by_cases h_n : n = 81; subst h_n; rfl
-      by_cases h_n : n = 82; subst h_n; rfl
-      by_cases h_n : n = 83; subst h_n; rfl
-      by_cases h_n : n = 84; subst h_n; rfl
-      by_cases h_n : n = 85; subst h_n; rfl
-      by_cases h_n : n = 86; subst h_n; rfl
-      by_cases h_n : n = 87; subst h_n; rfl
-      by_cases h_n : n = 88; subst h_n; rfl
-      by_cases h_n : n = 89; subst h_n; rfl
-      by_cases h_n : n = 90; subst h_n; rfl
-      by_cases h_n : n = 91; subst h_n; rfl
-      by_cases h_n : n = 92; subst h_n; rfl
-      by_cases h_n : n = 93; subst h_n; rfl
-      by_cases h_n : n = 94; subst h_n; rfl
-      by_cases h_n : n = 95; subst h_n; rfl
-      by_cases h_n : n = 96; subst h_n; rfl
-      by_cases h_n : n = 97; subst h_n; rfl
-      by_cases h_n : n = 98; subst h_n; rfl
-      by_cases h_n : n = 99; subst h_n; rfl
-      by_cases h_n : n = 100; subst h_n; rfl
-      by_cases h_n : n = 101; subst h_n; rfl
-      by_cases h_n : n = 102; subst h_n; rfl
-      by_cases h_n : n = 103; subst h_n; rfl
-      by_cases h_n : n = 104; subst h_n; rfl
-      by_cases h_n : n = 105; subst h_n; rfl
-      by_cases h_n : n = 106; subst h_n; rfl
-      by_cases h_n : n = 107; subst h_n; rfl
-      by_cases h_n : n = 108; subst h_n; rfl
-      by_cases h_n : n = 109; subst h_n; rfl
-      by_cases h_n : n = 110; subst h_n; rfl
-      by_cases h_n : n = 111; subst h_n; rfl
-      by_cases h_n : n = 112; subst h_n; rfl
-      by_cases h_n : n = 113; subst h_n; rfl
-      by_cases h_n : n = 114; subst h_n; rfl
-      by_cases h_n : n = 115; subst h_n; rfl
-      by_cases h_n : n = 116; subst h_n; rfl
-      by_cases h_n : n = 117; subst h_n; rfl
-      by_cases h_n : n = 118; subst h_n; rfl
-      by_cases h_n : n = 119; subst h_n; rfl
-      by_cases h_n : n = 120; subst h_n; rfl
-      by_cases h_n : n = 121; subst h_n; rfl
-      by_cases h_n : n = 122; subst h_n; rfl
-      by_cases h_n : n = 123; subst h_n; rfl
-      by_cases h_n : n = 124; subst h_n; rfl
-      by_cases h_n : n = 125; subst h_n; rfl
-      by_cases h_n : n = 126; subst h_n; rfl
-      by_cases h_n : n = 127; subst h_n; rfl
-      by_cases h_n : n = 128; subst h_n; rfl
-      by_cases h_n : n = 129; subst h_n; rfl
-      by_cases h_n : n = 130; subst h_n; rfl
-      by_cases h_n : n = 131; subst h_n; rfl
-      by_cases h_n : n = 132; subst h_n; rfl
-      by_cases h_n : n = 133; subst h_n; rfl
-      by_cases h_n : n = 134; subst h_n; rfl
-      by_cases h_n : n = 135; subst h_n; rfl
-      exfalso; omega
+    . trivial
 
 
 
 
 
-  -- example (h_data: data.size < 136):
-  --   LeanCrypto.HashFunctions.keccak256 data = sorry
+
+
+    --   LeanCrypto.HashFunctions.Absorb.toBlocks.toLane,
+    --   LeanCrypto.HashFunctions.Absorb.unfoldr,
+    --   LeanCrypto.HashFunctions.Absorb.ifoldl,
+    --   LeanCrypto.HashFunctions.Absorb.toBlocks.createWord64
+    -- ]
+    -- unfold LeanCrypto.HashFunctions.Absorb.absorb
+    -- unfold LeanCrypto.HashFunctions.Absorb.toBlocks
+    -- unfold LeanCrypto.HashFunctions.Absorb.toBlocks.toLane
+    -- simp
+    -- unfold LeanCrypto.HashFunctions.Absorb.ifoldl
+    -- unfold LeanCrypto.HashFunctions.Absorb.toBlocks.createWord64
+
+  -- #eval LeanCrypto.HashFunctions.Absorb.absorb 1088 ⟨#[
+  --   0,1,2,3,4,5,6,7,8,9,
+  --   0,1,2,3,4,5,6,7,8,9,
+  --   0,1,2,3,4,5,6,7,8,9,
+  --   0,1,2,3,4,5,6,7,8,9,
+  --   0,1,2,3,4,5,6,7,8,9,
+  --   0,1,2,3,4,5,6,7,8,9,
+  --   0,1,2,3,4,5,6,7,8,9,
+  --   0,1,2,3,4,5,6,7,8,9,
+  --   0,1,2,3,4,5,6,7,8,9,
+  --   0,1,2,3,4,5,6,7,8,9,
+  --   0,1,2,3,4,5,6,7,8,9,
+  --   0,1,2,3,4,5,6,7,8,9,
+  --   0,1,2,3,4,5,6,7,8,9,
+  --   0,1,2,3,4,5
+  -- ]⟩
+
+  -- lemma absorb_spec {c: ValidCircuit P P_Prime} (h_meets_constraints: meets_constraints c) (h_P: P ≥ 2^200) (h_y: y < 4) (h_is_paddings: is_paddings c 17 (-1) = 1):
+  --   (LeanCrypto.HashFunctions.Absorb.absorb 1088 (state_bytes c)) =
+  --   (LeanCrypto.HashFunctions.keccakF (state_array c))
   -- := by
-  --   simp [
-  --     LeanCrypto.HashFunctions.keccak256,
-  --     LeanCrypto.HashFunctions.hashFunction,
-  --     LeanCrypto.HashFunctions.paddingKeccak,
-  --     LeanCrypto.HashFunctions.hashFunction.outputBytes
-  --   ]
-  --   set padded_data := LeanCrypto.HashFunctions.multiratePadding 136 1 data
-  --   have h_padded_data_size: padded_data.size = 136 := padded_data_size h_data
-  --   simp [ByteArray.size] at h_padded_data_size
-  --   simp [LeanCrypto.HashFunctions.SHA3SRofByteArray]
-  --   simp [ByteArray.size, h_padded_data_size]
-  --   rewrite [h_padded_data_size]
-  --   have (arr: ByteArray) : ByteArray.empty.append arr = arr := by
-  --     unfold ByteArray.append ByteArray.copySlice
-  --     simp [ByteArray.empty, ByteArray.mkEmpty]
-  --     congr
-  --     apply Array.extract_eq_self_iff.mpr
-  --     simp [ByteArray.size]
-  --   simp [ByteArray.empty, ByteArray.mkEmpty] at this
-  --   simp [byte_array_append]
-  --   rewrite [this, h_padded_data_size]
-  --   unfold ByteArray.foldl ByteArray.foldlM
-  --   simp [ByteArray.size, h_padded_data_size]
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp
-  --   unfold ByteArray.foldlM.loop
-  --   simp [Id.run]
-  --   simp [LeanCrypto.HashFunctions.byteArrayOfSHA3SR]
-  --   sorry
-
+  --   unfold LeanCrypto.HashFunctions.Absorb.absorb
+  --   have (rate) (state) (input) :
+  --     LeanCrypto.HashFunctions.Absorb.absorbBlock rate state input =
+  --     if input.size == 0 then state
+  --     else LeanCrypto.HashFunctions.Absorb.absorbBlock rate (LeanCrypto.HashFunctions.keccakF (Array.mapIdx (λ z el ↦ if z / 5 + 5 * (z % 5) < rate / 64
+  --                                                 then el ^^^ (input[z / 5 + 5 * (z % 5)]!)
+  --                                                 else el) state)) (input.drop (rate / 64))
+  --   := by
+  --     rewrite [LeanCrypto.HashFunctions.Absorb.absorbBlock]
+  --   rewrite [LeanCrypto.HashFunctions.Absorb.absorbBlock.eq_def]
+  --   done
 end Keccak.Soundness
