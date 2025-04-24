@@ -139,9 +139,6 @@ namespace Keccak
         (uniform_lookup = true → get_num_rows_per_round ∣ transform_offset) ∧
         (∀ cell ∈ input.zip res, ∃ lookup_row, transform_table lookup_row = (cell.1.2, cell.2.2))
       )
-
-    def split_expr_old (c: ValidCircuit P P_Prime) (cell_offset round rot target_part_size: ℕ) (transform_offset: ℕ): List (ℕ × ZMod P) :=
-      Split.expr_res c (cell_offset + transform_offset) round rot target_part_size
   end Transform
 
   namespace ComposeRlc
