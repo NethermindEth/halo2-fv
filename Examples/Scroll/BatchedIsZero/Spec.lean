@@ -79,7 +79,7 @@ theorem spec_of_meets_constraints (c: ValidCircuit P P_Prime): meets_constraints
         simp [h1, h_4_zero]
   | inr h =>
     left
-    aesop
+    aesop (config := {warnOnNonterminal := false})
     simp only [add_neg_eq_zero] at h_1
     simp [h_1]
 

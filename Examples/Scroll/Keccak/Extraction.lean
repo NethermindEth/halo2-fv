@@ -17,7 +17,7 @@ def S_T_from_P (S T P : ℕ) : Prop :=
   (∀ s' t': ℕ, 2^s' * t' = P - 1 → s' ≤ S)
 def multiplicative_generator (P: ℕ) (mult_gen: ZMod P) : Prop :=
   mult_gen ^ P = 1
-structure Circuit (P: ℕ) (P_Prime: Nat.Prime P) :=
+structure Circuit (P: ℕ) (P_Prime: Nat.Prime P) where
   Advice: ℕ → ℕ → ZMod P
   AdviceUnassigned: ℕ → ℕ → ZMod P
   AdvicePhase: ℕ → ℕ
