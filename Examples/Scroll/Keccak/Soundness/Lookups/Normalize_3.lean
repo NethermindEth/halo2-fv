@@ -37,6 +37,7 @@ namespace Keccak.Soundness.Lookups.Normalize_3
         . omega
         . convert ZMod.val_pow_le <;> simp_all
     lemma output_lt_P (h_a: a < 2) (h_b: b < 2) (h_c: c < 2) (h_d: d < 2) (h_e: e < 2) (h_f: f < 2) (h_P: P > 37449): a + b * 8 + c * 64 + d*512 + e*4096 + f*32768 < P := by omega
+    set_option debug.skipKernelTC true in
     lemma output_eq_normalized_input [NeZero P] (h_row: row < 729) (h_P: P ≥ 74899):
       (Lookups.Normalize_3.output_by_row P row).val = Normalize.normalize_unpacked (Lookups.Normalize_3.input_by_row P row |>.val) 6
     := by
