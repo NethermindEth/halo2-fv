@@ -95,7 +95,7 @@ namespace Keccak.Soundness.Lookups
         chi_base_lookup_bitvec h_bv_d' h_bv_d
       ] <;> simp <;> omega
 
-    set_option maxHeartbeats 400000
+    set_option maxHeartbeats 500000
     lemma output_eq_transformed_input {x0 x1 x2: ZMod P}
       (h_x0: x0 = Normalize.normalize_unpacked x0.val 4)
       (h_x1: x1 = Normalize.normalize_unpacked x1.val 4)
