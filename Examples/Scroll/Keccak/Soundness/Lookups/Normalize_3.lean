@@ -37,12 +37,37 @@ namespace Keccak.Soundness.Lookups.Normalize_3
         . omega
         . convert ZMod.val_pow_le <;> simp_all
     lemma output_lt_P (h_a: a < 2) (h_b: b < 2) (h_c: c < 2) (h_d: d < 2) (h_e: e < 2) (h_f: f < 2) (h_P: P > 37449): a + b * 8 + c * 64 + d*512 + e*4096 + f*32768 < P := by omega
-    set_option debug.skipKernelTC true in
     lemma output_eq_normalized_input [NeZero P] (h_row: row < 729) (h_P: P ≥ 74899):
       (Lookups.Normalize_3.output_by_row P row).val = Normalize.normalize_unpacked (Lookups.Normalize_3.input_by_row P row |>.val) 6
     := by
-      unfold Lookups.Normalize_3.input_by_row Lookups.Normalize_3.output_by_row Lookups.Normalize_3.input Lookups.Normalize_3.output
-      simp [keccak_constants, ZMod.val_add, ZMod.val_mul]
+      have e₁ : (8 : ZMod P).val = 8 := ZMod.val_natCast_of_lt (by linarith)
+      have e₂ : (64 : ZMod P).val = 64 := ZMod.val_natCast_of_lt (by linarith)
+      have e₃ : (512 : ZMod P).val = 512 := ZMod.val_natCast_of_lt (by linarith)
+      have e₄ : (4096 : ZMod P).val = 4096 := ZMod.val_natCast_of_lt (by linarith)
+      have e₅ : (32768 : ZMod P).val = 32768 := ZMod.val_natCast_of_lt (by linarith)
+      have : (Lookups.Normalize_3.output_by_row P row).val = 
+             (row / 243 % 2 + row / 81 % 3 % 2 * (8 : ZMod P).val +
+              row / 27 % 3 % 2 * (64 : ZMod P).val + row / 9 % 3 % 2 * (512 : ZMod P).val +
+              row / 3 % 3 % 2 * (4096 : ZMod P).val + row % 3 % 2 * (32768 : ZMod P).val) % P := by
+        unfold Lookups.Normalize_3.output_by_row Lookups.Normalize_3.output
+        repeat rw [List.foldl_cons]; dsimp
+        simp [keccak_constants]
+        norm_cast
+        rw [ZMod.val_natCast] 
+        rw [e₁, e₂, e₃, e₄, e₅]
+      rw [this]
+      have : Normalize.normalize_unpacked (Lookups.Normalize_3.input_by_row P row).val 6 =
+             Normalize.normalize_unpacked
+               ((row / 243 + row / 81 % 3 * (8 : ZMod P).val +
+                 row / 27 % 3 * (64 : ZMod P).val + row / 9 % 3 * (512 : ZMod P).val +
+                 row / 3 % 3 * (4096 : ZMod P).val + row % 3 * (32768 : ZMod P).val) % P) 6 := by
+        unfold Lookups.Normalize_3.input_by_row Lookups.Normalize_3.input
+        repeat rw [List.foldl_cons]; dsimp
+        simp [keccak_constants]
+        norm_cast
+        rw [ZMod.val_natCast]
+        rw [e₁, e₂, e₃, e₄, e₅]
+      rw [this]
       simp [
         OfNat.ofNat,
         Nat.mod_eq_of_lt (a := 8) (b := P) (by omega),
